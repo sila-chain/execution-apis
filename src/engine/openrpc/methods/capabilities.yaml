@@ -2,7 +2,7 @@
   summary: Exchanges list of supported Engine API methods
   externalDocs:
     description: Method specification
-    url: https://github.com/ethereum/execution-apis/blob/main/src/engine/common.md#engine_exchangecapabilities
+    url: https://github.com/sila-chain/execution-apis/blob/main/src/engine/common.md#engine_exchangecapabilities
   params:
     - name: Consensus client methods
       required: true

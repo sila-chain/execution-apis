@@ -4,15 +4,15 @@
 
 [View the spec][playground]
 
-The Ethereum JSON-RPC is a standard collection of methods that all execution
+The Sila JSON-RPC is a standard collection of methods that all execution
 clients implement. It is the canonical interface between users and the network.
 This interface allows downstream tooling and infrastructure to treat different
-Ethereum clients as modules that can be swapped at will.
+Sila clients as modules that can be swapped at will.
 
 ### Contributing
 
 Please see
-[CONTRIBUTING.md](https://github.com/ethereum/execution-apis/blob/main/CONTRIBUTING.md)
+[CONTRIBUTING.md](https://github.com/sila-chain/execution-apis/blob/main/CONTRIBUTING.md)
 for a concise workflow overview, and the [contributors guide][contributors-guide]
 for the full process of standardizing new API methods and making changes to
 existing ones. Information on test generation can be found in
@@ -107,7 +107,7 @@ the [`hive`][hive] simulator [`rpc-compat`][rpc-compat]. During Docker build,
 rpc-compat clones this repository and copies the `tests/` directory into the
 simulator container. By default it fetches `main`; the `branch` build arg can
 target a specific ref. Results are published at
-[hive.ethpandaops.io][hivetests] under the `rpc-compat` tag. Versioned releases
+[hive.silpandaops.io][hivetests] under the `rpc-compat` tag. Versioned releases
 are planned so hive can target specific execution-apis versions. See the
 [tests documentation][test-gen] for more details.
 
@@ -115,8 +115,8 @@ are planned so hive can target specific execution-apis versions. See the
 
 [View the spec][graphql-schema]
 
-[EIP-1767][eip-1767] proposed a GraphQL schema for interacting with Ethereum
-clients. Since then Besu and Geth have implemented the interface. This repo
+[SIP-1767][sip-1767] proposed a GraphQL schema for interacting with Sila
+clients. Since then Besu and Sila have implemented the interface. This repo
 contains a live specification to integrate changes to the protocol as well as
 other improvements into the GraphQL schema.
 
@@ -185,15 +185,15 @@ Examples of changes by version type:
 
 This repository is licensed under [CC0][license].
 
-[playground]: https://ethereum.github.io/execution-apis
+[playground]: https://sila.github.io/execution-apis
 [openrpc]: https://open-rpc.org
-[graphql-schema]: http://graphql-schema.ethdevops.io/?url=https://raw.githubusercontent.com/ethereum/execution-apis/main/graphql.json
-[eip-1767]: https://eips.ethereum.org/EIPS/eip-1767
-[contributors-guide]: https://github.com/ethereum/execution-apis/blob/main/docs-api/docs/contributors-guide.md
+[graphql-schema]: http://graphql-schema.sildevops.io/?url=https://raw.githubusercontent.com/sila/execution-apis/main/graphql.json
+[sip-1767]: https://sips.sila.org/SIPS/sip-1767
+[contributors-guide]: https://github.com/sila-chain/execution-apis/blob/main/docs-api/docs/contributors-guide.md
 [json-schema]: https://json-schema.org
-[hive]: https://github.com/ethereum/hive
-[rpc-compat]: https://github.com/ethereum/hive/tree/master/simulators/ethereum/rpc-compat
-[hivetests]: https://hive.ethpandaops.io
+[hive]: https://github.com/sila/hive
+[rpc-compat]: https://github.com/sila/hive/tree/master/simulators/sila/rpc-compat
+[hivetests]: https://hive.silpandaops.io
 [semver]: https://semver.org/
-[test-gen]: https://github.com/ethereum/execution-apis/blob/main/docs-api/docs/tests.md
-[license]: https://github.com/ethereum/execution-apis/blob/main/LICENSE
+[test-gen]: https://github.com/sila-chain/execution-apis/blob/main/docs-api/docs/tests.md
+[license]: https://github.com/sila-chain/execution-apis/blob/main/LICENSE

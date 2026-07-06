@@ -1,15 +1,15 @@
-.PHONY: build geth clean test lint fill
+.PHONY: build sila clean test lint fill
 
 build:
 	go build -o rpctestgen ./cmd/rpctestgen
 	go build -o speccheck ./cmd/speccheck
 	go build -o specgen ./cmd/specgen
 
-geth:
-	go build -o geth github.com/ethereum/go-ethereum/cmd/geth
+sila:
+	go build -o sila github.com/sila-chain/go-sila/cmd/sila
 
 clean:
-	rm -f ./geth ./speccheck ./rpctestgen ./specgen
+	rm -f ./sila ./speccheck ./rpctestgen ./specgen
 	rm -fr ../tests
 
 test:
@@ -20,5 +20,5 @@ lint:
 	go vet ./...
 	staticcheck ./...
 
-fill: build geth
-	./rpctestgen --bin ./geth -chain ./chain --out ../tests
+fill: build sila
+	./rpctestgen --bin ./sila -chain ./chain --out ../tests

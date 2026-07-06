@@ -1,10 +1,10 @@
-"""EIP-2718"""
+"""SIP-2718"""
 type AccessTuple {
   address: Address!
   storageKeys: [Bytes32!]!
 }
 
-"""Account is an Ethereum account at a particular block."""
+"""Account is an Sila account at a particular block."""
 type Account {
   """Address is the address owning the account."""
   address: Address!
@@ -33,7 +33,7 @@ type Account {
 }
 
 """
-Address is a 20 byte Ethereum address, represented as 0x-prefixed hexadecimal.
+Address is a 20 byte Sila address, represented as 0x-prefixed hexadecimal.
 """
 scalar Address
 
@@ -44,7 +44,7 @@ Strings may be either decimal or 0x-prefixed hexadecimal. Output values are all
 """
 scalar BigInt
 
-"""Block is an Ethereum block."""
+"""Block is an Sila block."""
 type Block {
   """
   Number is the number of this block, starting at 0 for the genesis block.
@@ -164,7 +164,7 @@ type Block {
   """Logs returns a filtered set of logs from this block."""
   logs(filter: BlockFilterCriteria!): [Log!]!
 
-  """Account fetches an Ethereum account at the current block's state."""
+  """Account fetches an Sila account at the current block's state."""
   account(address: Address!): Account!
 
   """Call executes a local call operation at the current block's state."""
@@ -321,7 +321,7 @@ input FilterCriteria {
   topics: [[Bytes32!]!]
 }
 
-"""Log is an Ethereum event log."""
+"""Log is an Sila event log."""
 type Log {
   """Index is the index of this log in the block."""
   index: Long!
@@ -362,7 +362,7 @@ type Pending {
   """Transactions is a list of transactions in the current pending state."""
   transactions: [Transaction!]
 
-  """Account fetches an Ethereum account for the pending state."""
+  """Account fetches an Sila account for the pending state."""
   account(address: Address!): Account!
 
   """Call executes a local call operation for the pending state."""
@@ -377,7 +377,7 @@ type Pending {
 
 type Query {
   """
-  Block fetches an Ethereum block by number or by hash. If neither is
+  Block fetches an Sila block by number or by hash. If neither is
   supplied, the most recent known block is returned.
   """
   block(number: Long, hash: Bytes32): Block
@@ -432,7 +432,7 @@ type SyncState {
   highestBlock: Long!
 }
 
-"""Transaction is an Ethereum transaction."""
+"""Transaction is an Sila transaction."""
 type Transaction {
   """Hash is the hash of this transaction."""
   hash: Bytes32!
@@ -519,10 +519,10 @@ type Transaction {
 
   """
   EffectiveGasPrice is actual value per gas deducted from the sender's
-  account. Before EIP-1559, this is equal to the transaction's gas price.
-  After EIP-1559, it is baseFeePerGas + min(maxFeePerGas - baseFeePerGas,
-  maxPriorityFeePerGas). Legacy transactions and EIP-2930 transactions are
-  coerced into the EIP-1559 format by setting both maxFeePerGas and
+  account. Before SIP-1559, this is equal to the transaction's gas price.
+  After SIP-1559, it is baseFeePerGas + min(maxFeePerGas - baseFeePerGas,
+  maxPriorityFeePerGas). Legacy transactions and SIP-2930 transactions are
+  coerced into the SIP-1559 format by setting both maxFeePerGas and
   maxPriorityFeePerGas as the transaction's gas price.
   """
   effectiveGasPrice: BigInt
@@ -559,12 +559,12 @@ type Transaction {
   """
   Raw is the canonical encoding of the transaction.
   For legacy transactions, it returns the RLP encoding.
-  For EIP-2718 typed transactions, it returns the type and payload.
+  For SIP-2718 typed transactions, it returns the type and payload.
   """
   raw: Bytes!
 
   """
-  RawReceipt is the canonical encoding of the receipt. For post EIP-2718 typed transactions
+  RawReceipt is the canonical encoding of the receipt. For post SIP-2718 typed transactions
   this is equivalent to TxType || ReceiptEncoding.
   """
   rawReceipt: Bytes!
@@ -575,7 +575,7 @@ type Transaction {
   blobVersionedHashes: [Bytes32!]
 }
 
-"""EIP-4895"""
+"""SIP-4895"""
 type Withdrawal {
   """
   Index is a monotonically increasing identifier issued by consensus layer.

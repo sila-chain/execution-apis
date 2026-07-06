@@ -17,8 +17,8 @@ const (
 )
 
 type Args struct {
-	ClientType  string `arg:"--client" help:"client type" default:"geth"`
-	ClientBin   string `arg:"--bin" help:"path to client binary" default:"geth"`
+	ClientType  string `arg:"--client" help:"client type" default:"sila"`
+	ClientBin   string `arg:"--bin" help:"path to client binary" default:"sila"`
 	OutDir      string `arg:"--out" help:"directory where test fixtures will be written" default:"tests"`
 	ChainDir    string `arg:"--chain" help:"path to directory with chain.rlp and genesis.json"`
 	Verbose     bool   `arg:"-v,--verbose" help:"verbosity level of rpctestgen"`

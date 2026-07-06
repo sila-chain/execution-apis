@@ -339,7 +339,7 @@ ExecutionPayloadBodyV2:
         $ref: '#/components/schemas/WithdrawalV1'
     blockAccessList:
       title: Block access list
-      description: RLP-encoded block access list as defined in EIP-7928, or null if unavailable
+      description: RLP-encoded block access list as defined in SIP-7928, or null if unavailable
       oneOf:
         - $ref: '#/components/schemas/bytes'
         - type: 'null'

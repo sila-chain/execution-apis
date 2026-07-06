@@ -1,8 +1,8 @@
 {
 	"openrpc": "1.4.1",
 	"info": {
-		"title": "Ethereum JSON-RPC Specification",
-		"description": "A specification of the standard interface for Ethereum clients.",
+		"title": "Sila JSON-RPC Specification",
+		"description": "A specification of the standard interface for Sila clients.",
 		"license": {
 			"name": "CC0-1.0",
 			"url": "https://creativecommons.org/publicdomain/zero/1.0/legalcode"

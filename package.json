@@ -1,7 +1,7 @@
 {
-  "name": "execution-apis",
+  "name": "sila-execution-apis",
   "version": "0.0.0",
-  "description": "Collection of JSON-RPC APIs provided by Ethereum 1.0 clients",
+  "description": "Collection of JSON-RPC APIs provided by Sila 1.0 clients",
   "main": "index.js",
   "scripts": {
     "build": "make build",
@@ -26,14 +26,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ethereum/execution-apis.git"
+    "url": "git+https://github.com/sila-chain/execution-apis.git"
   },
-  "author": "Ethereum",
+  "author": "Sila",
   "license": "CC0-1.0",
   "bugs": {
-    "url": "https://github.com/ethereum/execution-apis/issues"
+    "url": "https://github.com/sila-chain/execution-apis/issues"
   },
-  "homepage": "https://github.com/ethereum/execution-apis#readme",
+  "homepage": "https://github.com/sila-chain/execution-apis#readme",
   "dependencies": {
     "@docusaurus/core": "3.9.2",
     "@docusaurus/plugin-client-redirects": "3.9.2",

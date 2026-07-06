@@ -55,7 +55,7 @@ This structure has the syntax of [`ExecutionPayloadV2`](./shanghai.md#executionp
 - `extraData`: `DATA`, 0 to 32 Bytes
 - `baseFeePerGas`: `QUANTITY`, 256 Bits
 - `blockHash`: `DATA`, 32 Bytes
-- `transactions`: `Array of DATA` - Array of transaction objects, each object is a byte list (`DATA`) representing `TransactionType || TransactionPayload` or `LegacyTransaction` as defined in [EIP-2718](https://eips.ethereum.org/EIPS/eip-2718)
+- `transactions`: `Array of DATA` - Array of transaction objects, each object is a byte list (`DATA`) representing `TransactionType || TransactionPayload` or `LegacyTransaction` as defined in [SIP-2718](https://sips.sila.org/SIPS/sip-2718)
 - `withdrawals`: `Array of WithdrawalV1` - Array of withdrawals, each object is an `OBJECT` containing the fields of a `WithdrawalV1` structure.
 - `blobGasUsed`: `QUANTITY`, 64 Bits
 - `excessBlobGas`: `QUANTITY`, 64 Bits
@@ -64,9 +64,9 @@ This structure has the syntax of [`ExecutionPayloadV2`](./shanghai.md#executionp
 
 The fields are encoded as follows:
 
-- `commitments`: `Array of DATA` - Array of `KZGCommitment` as defined in [EIP-4844](https://eips.ethereum.org/EIPS/eip-4844), 48 bytes each (`DATA`).
-- `proofs`: `Array of DATA` - Array of `KZGProof` as defined in [EIP-4844](https://eips.ethereum.org/EIPS/eip-4844), 48 bytes each (`DATA`).
-- `blobs`: `Array of DATA` - Array of blobs, each blob is `FIELD_ELEMENTS_PER_BLOB * BYTES_PER_FIELD_ELEMENT = 4096 * 32 = 131072` bytes (`DATA`) representing a SSZ-encoded `Blob` as defined in [EIP-4844](https://eips.ethereum.org/EIPS/eip-4844)
+- `commitments`: `Array of DATA` - Array of `KZGCommitment` as defined in [SIP-4844](https://sips.sila.org/SIPS/sip-4844), 48 bytes each (`DATA`).
+- `proofs`: `Array of DATA` - Array of `KZGProof` as defined in [SIP-4844](https://sips.sila.org/SIPS/sip-4844), 48 bytes each (`DATA`).
+- `blobs`: `Array of DATA` - Array of blobs, each blob is `FIELD_ELEMENTS_PER_BLOB * BYTES_PER_FIELD_ELEMENT = 4096 * 32 = 131072` bytes (`DATA`) representing a SSZ-encoded `Blob` as defined in [SIP-4844](https://sips.sila.org/SIPS/sip-4844)
 
 All of the above three arrays **MUST** be of same length.
 
@@ -74,8 +74,8 @@ All of the above three arrays **MUST** be of same length.
 
 The fields are encoded as follows:
 
-- `blob`: `DATA` - `FIELD_ELEMENTS_PER_BLOB * BYTES_PER_FIELD_ELEMENT = 4096 * 32 = 131072` bytes (`DATA`) representing a SSZ-encoded `Blob` as defined in [EIP-4844](https://eips.ethereum.org/EIPS/eip-4844).
-- `proof`: `DATA` - `KZGProof` as defined in [EIP-4844](https://eips.ethereum.org/EIPS/eip-4844), 48 bytes (`DATA`).
+- `blob`: `DATA` - `FIELD_ELEMENTS_PER_BLOB * BYTES_PER_FIELD_ELEMENT = 4096 * 32 = 131072` bytes (`DATA`) representing a SSZ-encoded `Blob` as defined in [SIP-4844](https://sips.sila.org/SIPS/sip-4844).
+- `proof`: `DATA` - `KZGProof` as defined in [SIP-4844](https://sips.sila.org/SIPS/sip-4844), 48 bytes (`DATA`).
 
 ### PayloadAttributesV3
 
@@ -112,7 +112,7 @@ This method follows the same specification as [`engine_newPayloadV2`](./shanghai
 2. Client software **MUST** return `-38005: Unsupported fork` error if the `timestamp` of the payload does not fall within the time frame of the Cancun fork.
 
 3. Given the expected array of blob versioned hashes client software **MUST** run its validation by taking the following steps:
-    1. Obtain the actual array by concatenating blob versioned hashes lists (`tx.blob_versioned_hashes`) of each [blob transaction](https://eips.ethereum.org/EIPS/eip-4844#new-transaction-type) included in the payload, respecting the order of inclusion. If the payload has no blob transactions the expected array **MUST** be `[]`.
+    1. Obtain the actual array by concatenating blob versioned hashes lists (`tx.blob_versioned_hashes`) of each [blob transaction](https://sips.sila.org/SIPS/sip-4844#new-transaction-type) included in the payload, respecting the order of inclusion. If the payload has no blob transactions the expected array **MUST** be `[]`.
     2. Return `{status: INVALID, latestValidHash: null, validationError: errorMessage | null}` if the expected and the actual arrays don't match.
 
     This validation **MUST** be instantly run in all cases even during active sync process.
@@ -173,7 +173,7 @@ Refer to the specification for [`engine_getPayloadV2`](./shanghai.md#engine_getp
 2. The call **MUST** return `blobsBundle` with empty `blobs`, `commitments` and `proofs` if the payload doesn't contain any blob transactions.
 
 3. The call **MUST** return `commitments` matching the versioned hashes of the transactions list of the execution payload, in the same order,
-   i.e. `assert verify_kzg_commitments_against_transactions(payload.transactions, blobsBundle.commitments)` (see EIP-4844 consensus-specs).
+   i.e. `assert verify_kzg_commitments_against_transactions(payload.transactions, blobsBundle.commitments)` (see SIP-4844 consensus-specs).
 
 4. The call **MUST** return `blobs` and `proofs` that match the `commitments` list, i.e. `assert len(blobsBundle.commitments) == len(blobsBundle.blobs) == len(blobsBundle.proofs)` and `assert verify_blob_kzg_proof_batch(blobsBundle.blobs, blobsBundle.commitments, blobsBundle.proofs)`.
 

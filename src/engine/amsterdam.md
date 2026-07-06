@@ -66,20 +66,20 @@ This structure has the syntax of [`ExecutionPayloadV3`](./cancun.md#executionpay
 - `extraData`: `DATA`, 0 to 32 Bytes
 - `baseFeePerGas`: `QUANTITY`, 256 Bits
 - `blockHash`: `DATA`, 32 Bytes
-- `transactions`: `Array of DATA` - Array of transaction objects, each object is a byte list (`DATA`) representing `TransactionType || TransactionPayload` or `LegacyTransaction` as defined in [EIP-2718](https://eips.ethereum.org/EIPS/eip-2718)
+- `transactions`: `Array of DATA` - Array of transaction objects, each object is a byte list (`DATA`) representing `TransactionType || TransactionPayload` or `LegacyTransaction` as defined in [SIP-2718](https://sips.sila.org/SIPS/sip-2718)
 - `withdrawals`: `Array of WithdrawalV1` - Array of withdrawals, each object is an `OBJECT` containing the fields of a `WithdrawalV1` structure.
 - `blobGasUsed`: `QUANTITY`, 64 Bits
 - `excessBlobGas`: `QUANTITY`, 64 Bits
-- `blockAccessList`: `DATA` - RLP-encoded block access list as defined in [EIP-7928](https://eips.ethereum.org/EIPS/eip-7928)
+- `blockAccessList`: `DATA` - RLP-encoded block access list as defined in [SIP-7928](https://sips.sila.org/SIPS/sip-7928)
 - `slotNumber`: `QUANTITY`, 64 Bits
 
 ### ExecutionPayloadBodyV2
 
 This structure has the syntax of [`ExecutionPayloadBodyV1`](./shanghai.md#executionpayloadbodyv1) and appends the new field: `blockAccessList`.
 
-- `transactions`: `Array of DATA` - Array of transaction objects, each object is a byte list (`DATA`) representing `TransactionType || TransactionPayload` or `LegacyTransaction` as defined in [EIP-2718](https://eips.ethereum.org/EIPS/eip-2718)
+- `transactions`: `Array of DATA` - Array of transaction objects, each object is a byte list (`DATA`) representing `TransactionType || TransactionPayload` or `LegacyTransaction` as defined in [SIP-2718](https://sips.sila.org/SIPS/sip-2718)
 - `withdrawals`: `Array of WithdrawalV1` - Array of withdrawals, each object is an `OBJECT` containing the fields of a `WithdrawalV1` structure. Value is `null` for blocks produced before Shanghai.
-- `blockAccessList`: `DATA|null` - RLP-encoded block access list as defined in [EIP-7928](https://eips.ethereum.org/EIPS/eip-7928). Value is `null` for blocks produced before Amsterdam or if the data has been pruned.
+- `blockAccessList`: `DATA|null` - RLP-encoded block access list as defined in [SIP-7928](https://sips.sila.org/SIPS/sip-7928). Value is `null` for blocks produced before Amsterdam or if the data has been pruned.
 
 ### PayloadAttributesV4
 
@@ -96,7 +96,7 @@ This structure has the syntax of [`PayloadAttributesV3`](./cancun.md#payloadattr
 ### BlobCellsAndProofsV1
 
 - `blob_cells`: `Array of DATA|null` - a sequence of byte arrays (`DATA`) representing the partial matrix of the requested blobs, with `null` entries for missing cells.
-- `proofs`: `Array of DATA|null` - Array of `KZGProof` as defined in [EIP-4844](https://eips.ethereum.org/EIPS/eip-4844), 48 bytes each (`DATA`). Entries corresponding to `null` cells **MUST** also be `null`.
+- `proofs`: `Array of DATA|null` - Array of `KZGProof` as defined in [SIP-4844](https://sips.sila.org/SIPS/sip-4844), 48 bytes each (`DATA`). Entries corresponding to `null` cells **MUST** also be `null`.
 
 ## Methods
 

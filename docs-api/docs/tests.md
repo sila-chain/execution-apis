@@ -5,7 +5,7 @@ clients. The tests in this repository are loaded into the [`hive`][hive] test
 simulator [`rpc-compat`][rpc-compat] and validated against every major client.
 
 The test suite is run daily and results are always available at
-[hive.ethpandaops.io][hivetests] under the tag `rpc-compat`.
+[hive.silpandaops.io][hivetests] under the tag `rpc-compat`.
 
 To learn more about the `rpc-compat` simulator, please see its
 [documentation][rpc-compat].
@@ -16,17 +16,17 @@ The rpc-compat simulator clones execution-apis during its Docker build and copie
 the `tests/` directory into the simulator container. By default it fetches the
 `main` branch; the `branch` build arg can target a specific ref (e.g., a
 version tag once versioned releases are available). Test results are published
-at [hive.ethpandaops.io][hivetests] under the `rpc-compat` tag.
+at [hive.silpandaops.io][hivetests] under the `rpc-compat` tag.
 
 ## Format
 
 Tests are written to describe the round-trip of a single request-response
 cycle. A test starts with `>>` followed by a space, denoting the request portion.
 It is delimited by `\n` and then `<<` followed by a space denotes the response.
-All together, it looks something like this:
+All tosilaer, it looks something like this:
 
 ```javascript
->> {"jsonrpc":"2.0","id":1,"method":"eth_blockNumber"}
+>> {"jsonrpc":"2.0","id":1,"method":"sil_blockNumber"}
 << {"jsonrpc":"2.0","id":1,"result":"0x3"}
 ```
 
@@ -50,7 +50,7 @@ usage and CI requirements.
 Inside the `tests` directory are three chain-related files that test authors
 must be aware of.
 
-`genesis.json` - a standard genesis config file in the go-ethereum format.
+`genesis.json` - a standard genesis config file in the go-sila format.
 `chain.rlp`    - a newline-delimited list of blocks making up the test chain.
 `bad.rlp`      - a newline-delimited list of blocks that are sealed and
                  conduct an invalid transition.
@@ -76,8 +76,8 @@ A good final verification of tests is to run them in the hive simulator
 [`rpc-compat`][rpc-compat]. More information on how to run custom tests in the
 simulator can be found in the simulator documentation.
 
-[hive]: https://github.com/ethereum/hive
-[hivetests]: https://hive.ethpandaops.io
-[rpc-compat]: https://github.com/ethereum/hive/tree/master/simulators/ethereum/rpc-compat
-[rpctestgen]: https://github.com/ethereum/execution-apis/tree/main/tools
-[tools-readme]: https://github.com/ethereum/execution-apis/blob/main/tools/README.md
+[hive]: https://github.com/sila/hive
+[hivetests]: https://hive.silpandaops.io
+[rpc-compat]: https://github.com/sila/hive/tree/master/simulators/sila/rpc-compat
+[rpctestgen]: https://github.com/sila-chain/execution-apis/tree/main/tools
+[tools-readme]: https://github.com/sila-chain/execution-apis/blob/main/tools/README.md

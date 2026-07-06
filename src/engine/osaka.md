@@ -36,9 +36,9 @@ This specification is based on and extends [Engine API - Prague](./prague.md) sp
 
 The fields are encoded as follows:
 
-- `commitments`: `Array of DATA` - Array of `KZGCommitment` as defined in [EIP-4844](https://eips.ethereum.org/EIPS/eip-4844), 48 bytes each (`DATA`).
-- `proofs`: `Array of DATA` - Array of `KZGProof` (48 bytes each, type defined in [EIP-4844](https://eips.ethereum.org/EIPS/eip-4844), semantics defined in [EIP-7594](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-7594.md)).
-- `blobs`: `Array of DATA` - Array of blobs, each blob is `FIELD_ELEMENTS_PER_BLOB * BYTES_PER_FIELD_ELEMENT = 4096 * 32 = 131072` bytes (`DATA`) representing a SSZ-encoded `Blob` as defined in [EIP-4844](https://eips.ethereum.org/EIPS/eip-4844)
+- `commitments`: `Array of DATA` - Array of `KZGCommitment` as defined in [SIP-4844](https://sips.sila.org/SIPS/sip-4844), 48 bytes each (`DATA`).
+- `proofs`: `Array of DATA` - Array of `KZGProof` (48 bytes each, type defined in [SIP-4844](https://sips.sila.org/SIPS/sip-4844), semantics defined in [SIP-7594](https://github.com/sila/SIPs/blob/master/SIPS/sip-7594.md)).
+- `blobs`: `Array of DATA` - Array of blobs, each blob is `FIELD_ELEMENTS_PER_BLOB * BYTES_PER_FIELD_ELEMENT = 4096 * 32 = 131072` bytes (`DATA`) representing a SSZ-encoded `Blob` as defined in [SIP-4844](https://sips.sila.org/SIPS/sip-4844)
 
 `blobs` and `commitments` arrays **MUST** be of same length and `proofs` **MUST** contain exactly `CELLS_PER_EXT_BLOB` * `len(blobs)` cell proofs.
 
@@ -46,8 +46,8 @@ The fields are encoded as follows:
 
 The fields are encoded as follows:
 
-- `blob`: `DATA` - `FIELD_ELEMENTS_PER_BLOB * BYTES_PER_FIELD_ELEMENT = 4096 * 32 = 131072` bytes (`DATA`) representing a SSZ-encoded `Blob` as defined in [EIP-4844](https://eips.ethereum.org/EIPS/eip-4844).
-- `proofs`: `Array of DATA` - Array of `KZGProof` as defined in [EIP-4844](https://eips.ethereum.org/EIPS/eip-4844), 48 bytes each (`DATA`).
+- `blob`: `DATA` - `FIELD_ELEMENTS_PER_BLOB * BYTES_PER_FIELD_ELEMENT = 4096 * 32 = 131072` bytes (`DATA`) representing a SSZ-encoded `Blob` as defined in [SIP-4844](https://sips.sila.org/SIPS/sip-4844).
+- `proofs`: `Array of DATA` - Array of `KZGProof` as defined in [SIP-4844](https://sips.sila.org/SIPS/sip-4844), 48 bytes each (`DATA`).
 
 `proofs` **MUST** contain exactly `CELLS_PER_EXT_BLOB` cell proofs.
 
@@ -85,10 +85,10 @@ This method follows the same specification as [`engine_getPayloadV4`](./prague.m
 3. The call **MUST** return `blobs` and `proofs` that match the `commitments` list, i.e. 
    1. `assert len(blobsBundle.commitments) == len(blobsBundle.blobs)` and
    2. `assert len(blobsBundle.proofs) == len(blobsBundle.blobs) * CELLS_PER_EXT_BLOB` and
-   3. `assert verify_cell_kzg_proof_batch(commitments, cell_indices, cells, blobsBundle.proofs)` (see [EIP-7594 consensus-specs](https://github.com/ethereum/consensus-specs/blob/master/specs/fulu/polynomial-commitments-sampling.md#verify_cell_kzg_proof_batch))
+   3. `assert verify_cell_kzg_proof_batch(commitments, cell_indices, cells, blobsBundle.proofs)` (see [SIP-7594 consensus-specs](https://github.com/sila/consensus-specs/blob/master/specs/sila_fulu/polynomial-commitments-sampling.md#verify_cell_kzg_proof_batch))
       1. `commitments` should list each commitment `CELLS_PER_EXT_BLOB` times, repeating it for every cell. In python, `[blobsBundle.commitments[i] for i in range(len(blobsBundle.blobs)) for _ in range(CELLS_PER_EXT_BLOB)]`
       2. `cell_indices` should be `[0, ..., CELLS_PER_EXT_BLOB, 0, ..., CELLS_PER_EXT_BLOB, ...]`. In python, `list(range(CELLS_PER_EXT_BLOB)) * len(blobsBundle.blobs)`
-      3. `cells` is the list of cells for an extended blob. In python, `[cell for blob in blobsBundle.blobs for cell in compute_cells(blob)]` (see [compute_cells](https://github.com/ethereum/consensus-specs/blob/master/specs/fulu/polynomial-commitments-sampling.md#compute_cells) in consensus-specs)
+      3. `cells` is the list of cells for an extended blob. In python, `[cell for blob in blobsBundle.blobs for cell in compute_cells(blob)]` (see [compute_cells](https://github.com/sila/consensus-specs/blob/master/specs/sila_fulu/polynomial-commitments-sampling.md#compute_cells) in consensus-specs)
       4. All of the inputs to `verify_cell_kzg_proof_batch` have the same length, `CELLS_PER_EXT_BLOB * len(blobsBundle.blobs)`
 
 ### engine_getBlobsV2

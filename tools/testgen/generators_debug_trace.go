@@ -8,9 +8,9 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/core/types"
-	gethrpc "github.com/ethereum/go-ethereum/rpc"
+	"github.com/sila-chain/go-sila/common/hexutil"
+	"github.com/sila-chain/go-sila/core/types"
+	silarpc "github.com/sila-chain/go-sila/rpc"
 )
 
 // bytes32Pattern matches a 0x-prefixed, 32-byte (64 lowercase hex character) value.
@@ -47,7 +47,7 @@ func asNonNegativeInteger(v interface{}) (float64, bool) {
 }
 
 // validateStructLog validates a single StructLog entry against the opcode tracer spec.
-// All violations are collected and returned together.
+// All violations are collected and returned tosilaer.
 //
 // Key rules enforced:
 //   - pc, gas, gasCost, depth, op are required
@@ -184,7 +184,7 @@ func validateStructLog(i int, log map[string]interface{}) error {
 
 // validateOpcodeTransactionTrace validates a decoded debug_traceTransaction response
 // for compliance with the execution-apis opcode tracer specification.
-// All violations across all structLogs are collected and returned together.
+// All violations across all structLogs are collected and returned tosilaer.
 //
 // Key rules enforced:
 //   - gas, failed, returnValue, structLogs are required
@@ -590,7 +590,7 @@ var DebugTraceBlockByNumber = MethodTests{
 				if err == nil {
 					return fmt.Errorf("expected invalid-argument error for non-hex block number, got success")
 				}
-				if rpcErr, ok := err.(gethrpc.Error); ok && rpcErr.ErrorCode() != -32602 {
+				if rpcErr, ok := err.(silarpc.Error); ok && rpcErr.ErrorCode() != -32602 {
 					return fmt.Errorf("expected JSON-RPC invalid params (-32602), got code %d: %v", rpcErr.ErrorCode(), err)
 				}
 				return nil

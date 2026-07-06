@@ -19,7 +19,7 @@ SyncingStatus:
       type: boolean
 ConfigurationResponse:
   title: Configuration response
-  description: Response object for eth_config method containing current, next, and last fork configurations
+  description: Response object for sil_config method containing current, next, and last fork configurations
   type: object
   additionalProperties: false
   properties:
@@ -62,7 +62,7 @@ ConfigObject:
       $ref: '#/components/schemas/uint'
     forkId:
       title: Fork ID
-      description: The FORK_HASH value as specified in EIP-6122 of the specific fork
+      description: The FORK_HASH value as specified in SIP-6122 of the specific fork
       $ref: '#/components/schemas/bytes4'
     precompiles:
       title: Precompiles

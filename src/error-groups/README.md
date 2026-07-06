@@ -7,20 +7,20 @@ A standard for JSON-RPC error codes & ship a shared catalog of JSON-RPC error co
 Client implementations and EVM-compatible chains currently reuse codes or return generic error messages, making cross-client debugging brittle.
 
 ## Current implementation
-This repository uses method-level `error-groups` references (for example in `src/eth/submit.yaml`) that point to reusable group definitions under `#/components/error-groups/*`.
+This repository uses method-level `error-groups` references (for example in `src/sil/submit.yaml`) that point to reusable group definitions under `#/components/error-groups/*`.
 
 During spec generation, `tools/specgen` resolves those references into each method's final `errors` array.
 
 ## Layout
 - `src/error-groups/*.yaml` – reusable error-group definitions.
-- `src/eth/*.yaml`, `src/debug/*.yaml`, `src/engine/openrpc/methods/*.yaml` – methods that can reference groups via `error-groups`.
+- `src/sil/*.yaml`, `src/debug/*.yaml`, `src/engine/openrpc/methods/*.yaml` – methods that can reference groups via `error-groups`.
 - `tools/specgen` – builds `refs-openrpc.json` and `openrpc.json` and resolves `error-groups` references.
 - `Makefile` – passes `-error-groups 'src/error-groups'` to `tools/specgen`.
 
 ## Implemented methods
 Currently, only below methods import all the error groups via `$ref` and may include inline method-specific codes while still inheriting the standard set.
-- `eth_sendTransaction` in `src/eth/submit.yaml`
-- `eth_sendRawTransaction` in `src/eth/submit.yaml`
+- `sil_sendTransaction` in `src/sil/submit.yaml`
+- `sil_sendRawTransaction` in `src/sil/submit.yaml`
 ## Reserved ranges at a glance
 | Extension group | Reserved range | Source |
 | --- | --- | --- |

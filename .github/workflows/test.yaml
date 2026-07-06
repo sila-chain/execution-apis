@@ -30,13 +30,13 @@ jobs:
         run: make fill
 
       - name: Fail if any files are untracked or have changes
-        # geth outputs non-deterministic responses for two tests-
+        # sila outputs non-deterministic responses for two tests-
         # specifically storageKeys arrays in the responses.
         # Filter them from the diff check until fixed.
         run: |
           STATUS=$(git status --porcelain . \
-            ':!tests/eth_createAccessList/create-al-contract.io' \
-            ':!tests/eth_createAccessList/create-al-contract-eip1559.io')
+            ':!tests/sil_createAccessList/create-al-contract.io' \
+            ':!tests/sil_createAccessList/create-al-contract-sip1559.io')
           if [ -n "$STATUS" ]; then
             echo "Unexpected changes after test filling:"
             echo "$STATUS"

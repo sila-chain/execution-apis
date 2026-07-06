@@ -14,7 +14,7 @@ For the contribution workflow and how these tools fit in, see
 | ---------- | ---------------------------------------------------- |
 | specgen    | Compiles YAML spec files into `openrpc.json`         |
 | speccheck  | Validates test fixtures in `tests/` against the spec |
-| rpctestgen | Generates `.io` fixtures by running tests vs geth    |
+| rpctestgen | Generates `.io` fixtures by running tests vs sila    |
 
 ## Passing CI
 
@@ -26,7 +26,7 @@ The CI pipeline runs the following. To pass locally before opening a PR:
 4. **Lint tools** — `make lint` (from `tools/`)
 
 If any of these fail, CI will fail. For new methods that require upstream
-go-ethereum changes, rpctestgen may not pass until go-ethereum implements
+go-sila changes, rpctestgen may not pass until go-sila implements
 them; see [CONTRIBUTING.md](../CONTRIBUTING.md) for CI exception policy.
 
 ### Build
@@ -67,20 +67,20 @@ Options: `--spec` (default: `openrpc.json`), `--tests` (default: `tests`),
 
 ### rpctestgen (fill)
 
-Generates test fixtures by executing tests against a geth client. Uses
-go-ethereum libraries; requires geth to be built. The `make fill` target builds
-geth and rpctestgen, then runs the generator.
+Generates test fixtures by executing tests against a sila client. Uses
+go-sila libraries; requires sila to be built. The `make fill` target builds
+sila and rpctestgen, then runs the generator.
 
 From the repo root or `tools/`:
 
 ```console
 $ make fill
 ...
-generating tests/eth_blockNumber/simple-test.io  done.
+generating tests/sil_blockNumber/simple-test.io  done.
 ```
 
 Output is written to `tests/`. CI checks that no files change after `make fill`
-(except known non-deterministic tests). For new methods not yet in go-ethereum,
+(except known non-deterministic tests). For new methods not yet in go-sila,
 this step may fail; maintainers may merge with CI exceptions.
 
 Options: `--bin` (client binary), `--chain` (chain dir), `--out` (output dir),
@@ -123,7 +123,7 @@ GasErrors:
 Methods reference groups via `error-groups`:
 
 ```yaml
-- name: eth_sendTransaction
+- name: sil_sendTransaction
   error-groups:
     - $ref: '#/components/error-groups/GasErrors'
     - $ref: '#/components/error-groups/ExecutionErrors'
@@ -137,7 +137,7 @@ Validates test fixtures against the spec. See [speccheck](#speccheck) above.
 
 ## rpctestgen (details)
 
-Test fixture generator. Runs test definitions against a client (default: geth)
+Test fixture generator. Runs test definitions against a client (default: sila)
 and records the request-response exchange. See [rpctestgen (fill)](#rpctestgen-fill)
 above.
 
@@ -147,7 +147,7 @@ Fixtures use a simple line-delimited format. `>>` denotes a request;
 `<<` denotes the response.
 
 ```javascript
->> {"jsonrpc":"2.0","id":1,"method":"eth_blockNumber"}
+>> {"jsonrpc":"2.0","id":1,"method":"sil_blockNumber"}
 << {"jsonrpc":"2.0","id":1,"result":"0x3"}
 ```
 

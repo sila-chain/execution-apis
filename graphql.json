@@ -11,7 +11,7 @@
       {
         "kind": "OBJECT",
         "name": "AccessTuple",
-        "description": "EIP-2718",
+        "description": "SIP-2718",
         "fields": [
           {
             "name": "address",
@@ -62,7 +62,7 @@
       {
         "kind": "OBJECT",
         "name": "Account",
-        "description": "Account is an Ethereum account at a particular block.",
+        "description": "Account is an Sila account at a particular block.",
         "fields": [
           {
             "name": "address",
@@ -168,7 +168,7 @@
       {
         "kind": "SCALAR",
         "name": "Address",
-        "description": "Address is a 20 byte Ethereum address, represented as 0x-prefixed hexadecimal.",
+        "description": "Address is a 20 byte Sila address, represented as 0x-prefixed hexadecimal.",
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -188,7 +188,7 @@
       {
         "kind": "OBJECT",
         "name": "Block",
-        "description": "Block is an Ethereum block.",
+        "description": "Block is an Sila block.",
         "fields": [
           {
             "name": "number",
@@ -632,7 +632,7 @@
           },
           {
             "name": "account",
-            "description": "Account fetches an Ethereum account at the current block's state.",
+            "description": "Account fetches an Sila account at the current block's state.",
             "args": [
               {
                 "name": "address",
@@ -1156,7 +1156,7 @@
       {
         "kind": "OBJECT",
         "name": "Log",
-        "description": "Log is an Ethereum event log.",
+        "description": "Log is an Sila event log.",
         "fields": [
           {
             "name": "index",
@@ -1358,7 +1358,7 @@
           },
           {
             "name": "account",
-            "description": "Account fetches an Ethereum account for the pending state.",
+            "description": "Account fetches an Sila account for the pending state.",
             "args": [
               {
                 "name": "address",
@@ -1458,7 +1458,7 @@
         "fields": [
           {
             "name": "block",
-            "description": "Block fetches an Ethereum block by number or by hash. If neither is\nsupplied, the most recent known block is returned.",
+            "description": "Block fetches an Sila block by number or by hash. If neither is\nsupplied, the most recent known block is returned.",
             "args": [
               {
                 "name": "number",
@@ -1754,7 +1754,7 @@
       {
         "kind": "OBJECT",
         "name": "Transaction",
-        "description": "Transaction is an Ethereum transaction.",
+        "description": "Transaction is an Sila transaction.",
         "fields": [
           {
             "name": "hash",
@@ -2012,7 +2012,7 @@
           },
           {
             "name": "effectiveGasPrice",
-            "description": "EffectiveGasPrice is actual value per gas deducted from the sender's\naccount. Before EIP-1559, this is equal to the transaction's gas price.\nAfter EIP-1559, it is baseFeePerGas + min(maxFeePerGas - baseFeePerGas,\nmaxPriorityFeePerGas). Legacy transactions and EIP-2930 transactions are\ncoerced into the EIP-1559 format by setting both maxFeePerGas and\nmaxPriorityFeePerGas as the transaction's gas price.",
+            "description": "EffectiveGasPrice is actual value per gas deducted from the sender's\naccount. Before SIP-1559, this is equal to the transaction's gas price.\nAfter SIP-1559, it is baseFeePerGas + min(maxFeePerGas - baseFeePerGas,\nmaxPriorityFeePerGas). Legacy transactions and SIP-2930 transactions are\ncoerced into the SIP-1559 format by setting both maxFeePerGas and\nmaxPriorityFeePerGas as the transaction's gas price.",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -2183,7 +2183,7 @@
           },
           {
             "name": "raw",
-            "description": "Raw is the canonical encoding of the transaction.\nFor legacy transactions, it returns the RLP encoding.\nFor EIP-2718 typed transactions, it returns the type and payload.",
+            "description": "Raw is the canonical encoding of the transaction.\nFor legacy transactions, it returns the RLP encoding.\nFor SIP-2718 typed transactions, it returns the type and payload.",
             "args": [],
             "type": {
               "kind": "NON_NULL",
@@ -2199,7 +2199,7 @@
           },
           {
             "name": "rawReceipt",
-            "description": "RawReceipt is the canonical encoding of the receipt. For post EIP-2718 typed transactions\nthis is equivalent to TxType || ReceiptEncoding.",
+            "description": "RawReceipt is the canonical encoding of the receipt. For post SIP-2718 typed transactions\nthis is equivalent to TxType || ReceiptEncoding.",
             "args": [],
             "type": {
               "kind": "NON_NULL",
@@ -2242,7 +2242,7 @@
       {
         "kind": "OBJECT",
         "name": "Withdrawal",
-        "description": "EIP-4895",
+        "description": "SIP-4895",
         "fields": [
           {
             "name": "index",

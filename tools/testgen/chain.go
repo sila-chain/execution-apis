@@ -13,14 +13,14 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/core/state"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/params"
-	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/sila-chain/go-sila/common"
+	"github.com/sila-chain/go-sila/common/hexutil"
+	"github.com/sila-chain/go-sila/core"
+	"github.com/sila-chain/go-sila/core/state"
+	"github.com/sila-chain/go-sila/core/types"
+	"github.com/sila-chain/go-sila/crypto"
+	"github.com/sila-chain/go-sila/params"
+	"github.com/sila-chain/go-sila/rlp"
 )
 
 // Chain is a lightweight blockchain-like store, based on hivechain output files.
@@ -37,16 +37,16 @@ type Chain struct {
 // ChainTxInfo is the structure of txinfo.json from hivechain.
 type ChainTxInfo struct {
 	LegacyTransfers     []TxInfo      `json:"tx-transfer-legacy"`
-	AccessListTransfers []TxInfo      `json:"tx-transfer-eip2930"`
-	DynamicFeeTransfers []TxInfo      `json:"tx-transfer-eip1559"`
+	AccessListTransfers []TxInfo      `json:"tx-transfer-sip2930"`
+	DynamicFeeTransfers []TxInfo      `json:"tx-transfer-sip1559"`
 	LegacyEmit          []TxInfo      `json:"tx-emit-legacy"`
-	AccessListEmit      []TxInfo      `json:"tx-emit-eip2930"`
-	DynamicFeeEmit      []TxInfo      `json:"tx-emit-eip1559"`
+	AccessListEmit      []TxInfo      `json:"tx-emit-sip2930"`
+	DynamicFeeEmit      []TxInfo      `json:"tx-emit-sip1559"`
 	CallMeContract      *ContractInfo `json:"deploy-callme"`
 	CallEnvContract     *ContractInfo `json:"deploy-callenv"`
 	CallRevertContract  *ContractInfo `json:"deploy-callrevert"`
-	EIP7702             *EIP7702Info  `json:"tx-eip7702"`
-	EIP7002             *EIP7002Info  `json:"tx-request-eip7002"`
+	SIP7702             *EIP7702Info  `json:"tx-sip7702"`
+	SIP7002             *EIP7002Info  `json:"tx-request-sip7002"`
 }
 
 // TxInfo is a transaction record created by hivechain.

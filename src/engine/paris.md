@@ -40,7 +40,7 @@ Engine API structures and methods specified for Paris.
 
 ### ExecutionPayloadV1
 
-This structure maps on the [`ExecutionPayload`](https://github.com/ethereum/consensus-specs/blob/master/specs/bellatrix/beacon-chain.md#executionpayload) structure of the beacon chain spec. The fields are encoded as follows:
+This structure maps on the [`ExecutionPayload`](https://github.com/sila/consensus-specs/blob/master/specs/bellatrix/beacon-chain.md#executionpayload) structure of the beacon chain spec. The fields are encoded as follows:
 
 - `parentHash`: `DATA`, 32 Bytes
 - `feeRecipient`:  `DATA`, 20 Bytes
@@ -55,7 +55,7 @@ This structure maps on the [`ExecutionPayload`](https://github.com/ethereum/cons
 - `extraData`: `DATA`, 0 to 32 Bytes
 - `baseFeePerGas`: `QUANTITY`, 256 Bits
 - `blockHash`: `DATA`, 32 Bytes
-- `transactions`: `Array of DATA` - Array of transaction objects, each object is a byte list (`DATA`) representing `TransactionType || TransactionPayload` or `LegacyTransaction` as defined in [EIP-2718](https://eips.ethereum.org/EIPS/eip-2718)
+- `transactions`: `Array of DATA` - Array of transaction objects, each object is a byte list (`DATA`) representing `TransactionType || TransactionPayload` or `LegacyTransaction` as defined in [SIP-2718](https://sips.sila.org/SIPS/sip-2718)
 
 ### ForkchoiceStateV1
 
@@ -86,9 +86,9 @@ This structure contains the result of processing a payload. The fields are encod
 ### TransitionConfigurationV1
 
 This structure contains configurable settings of the transition process. The fields are encoded as follows:
-- `terminalTotalDifficulty`: `QUANTITY`, 256 Bits - maps on the `TERMINAL_TOTAL_DIFFICULTY` parameter of [EIP-3675](https://eips.ethereum.org/EIPS/eip-3675#client-software-configuration)
-- `terminalBlockHash`: `DATA`, 32 Bytes - maps on `TERMINAL_BLOCK_HASH` parameter of [EIP-3675](https://eips.ethereum.org/EIPS/eip-3675#client-software-configuration)
-- `terminalBlockNumber`: `QUANTITY`, 64 Bits - maps on `TERMINAL_BLOCK_NUMBER` parameter of [EIP-3675](https://eips.ethereum.org/EIPS/eip-3675#client-software-configuration)
+- `terminalTotalDifficulty`: `QUANTITY`, 256 Bits - maps on the `TERMINAL_TOTAL_DIFFICULTY` parameter of [SIP-3675](https://sips.sila.org/SIPS/sip-3675#client-software-configuration)
+- `terminalBlockHash`: `DATA`, 32 Bytes - maps on `TERMINAL_BLOCK_HASH` parameter of [SIP-3675](https://sips.sila.org/SIPS/sip-3675#client-software-configuration)
+- `terminalBlockNumber`: `QUANTITY`, 64 Bits - maps on `TERMINAL_BLOCK_NUMBER` parameter of [SIP-3675](https://sips.sila.org/SIPS/sip-3675#client-software-configuration)
 
 ## Routines
 
@@ -98,9 +98,9 @@ Payload validation process consists of validating a payload with respect to the 
 
 1. Client software **MAY** obtain a parent state by executing ancestors of a payload as a part of the validation process. In this case each ancestor **MUST** also pass payload validation process.
 
-2. Client software **MUST** validate that the most recent PoW block in the chain of a payload ancestors satisfies terminal block conditions according to [EIP-3675](https://eips.ethereum.org/EIPS/eip-3675#transition-block-validity). This check maps to the transition block validity section of the EIP. If this validation fails, the response **MUST** contain `{status: INVALID, latestValidHash: 0x0000000000000000000000000000000000000000000000000000000000000000}`. Additionally, each block in a tree of descendants of an invalid terminal block **MUST** be deemed `INVALID`.
+2. Client software **MUST** validate that the most recent PoW block in the chain of a payload ancestors satisfies terminal block conditions according to [SIP-3675](https://sips.sila.org/SIPS/sip-3675#transition-block-validity). This check maps to the transition block validity section of the SIP. If this validation fails, the response **MUST** contain `{status: INVALID, latestValidHash: 0x0000000000000000000000000000000000000000000000000000000000000000}`. Additionally, each block in a tree of descendants of an invalid terminal block **MUST** be deemed `INVALID`.
 
-3. Client software **MUST** validate a payload according to the block header and execution environment rule set with modifications to these rule sets defined in the [Block Validity](https://eips.ethereum.org/EIPS/eip-3675#block-validity) section of [EIP-3675](https://eips.ethereum.org/EIPS/eip-3675#specification):
+3. Client software **MUST** validate a payload according to the block header and execution environment rule set with modifications to these rule sets defined in the [Block Validity](https://sips.sila.org/SIPS/sip-3675#block-validity) section of [SIP-3675](https://sips.sila.org/SIPS/sip-3675#specification):
   * If validation succeeds, the response **MUST** contain `{status: VALID, latestValidHash: payload.blockHash}`
   * If validation fails, the response **MUST** contain `{status: INVALID, latestValidHash: validHash}` where `validHash` **MUST** be:
     - The block hash of the ancestor of the invalid payload satisfying the following two conditions:
@@ -136,7 +136,7 @@ The payload build process is specified as follows:
 
 3. Client software **SHOULD** start the process of updating the payload. The strategy of this process is implementation dependent. The default strategy is to keep the transaction set up-to-date with the state of local mempool.
 
-4. Client software **SHOULD** stop the updating process when either a call to `engine_getPayload` with the build process's `payloadId` is made or [`SLOT_DURATION_MS`](https://github.com/ethereum/consensus-specs/blob/master/specs/phase0/beacon-chain.md#time-parameters-1) (12s in the Mainnet configuration) have passed since the point in time identified by the `timestamp` parameter.
+4. Client software **SHOULD** stop the updating process when either a call to `engine_getPayload` with the build process's `payloadId` is made or [`SLOT_DURATION_MS`](https://github.com/sila/consensus-specs/blob/master/specs/phase0/beacon-chain.md#time-parameters-1) (12s in the SilaMainnet configuration) have passed since the point in time identified by the `timestamp` parameter.
 
 5. Client software **MUST** begin a new build process if given `PayloadAttributes` doesn't match payload attributes of an existing build process.
    Every new build process **MUST** be uniquely identified by the returned `payloadId` value.
@@ -163,7 +163,7 @@ The payload build process is specified as follows:
 
 1. Client software **MUST** validate that all `transactions` have non-zero length (at least 1 byte). Client software **MUST** run this validation in all cases even if this branch or any other branches of the block tree are in an active sync process.
 
-2. Client software **MUST** validate `blockHash` value as being equivalent to `Keccak256(RLP(ExecutionBlockHeader))`, where `ExecutionBlockHeader` is the execution layer block header (the former PoW block header structure). Fields of this object are set to the corresponding payload values and constant values according to the Block structure section of [EIP-3675](https://eips.ethereum.org/EIPS/eip-3675#block-structure), extended with the corresponding section of [EIP-4399](https://eips.ethereum.org/EIPS/eip-4399#block-structure). Client software **MUST** run this validation in all cases even if this branch or any other branches of the block tree are in an active sync process.
+2. Client software **MUST** validate `blockHash` value as being equivalent to `Keccak256(RLP(ExecutionBlockHeader))`, where `ExecutionBlockHeader` is the execution layer block header (the former PoW block header structure). Fields of this object are set to the corresponding payload values and constant values according to the Block structure section of [SIP-3675](https://sips.sila.org/SIPS/sip-3675#block-structure), extended with the corresponding section of [SIP-4399](https://sips.sila.org/SIPS/sip-4399#block-structure). Client software **MUST** run this validation in all cases even if this branch or any other branches of the block tree are in an active sync process.
 
 3. Client software **MAY** initiate a sync process if requisite data for payload validation is missing. Sync process is specified in the [Sync](#sync) section.
 
@@ -212,7 +212,7 @@ The payload build process is specified as follows:
 
 2. Client software **MAY** skip an update of the forkchoice state and **MUST NOT** begin a payload build process if there is a known `finalizedBlockHash` and `forkchoiceState.headBlockHash` references a `VALID` ancestor of the latest known finalized block, i.e. the ancestor passed [payload validation](#payload-validation) process and deemed `VALID`. In the case of such an event, client software **MUST** return `{payloadStatus: {status: VALID, latestValidHash: forkchoiceState.headBlockHash, validationError: null}, payloadId: null}`.
 
-3. If `forkchoiceState.headBlockHash` references a PoW block, client software **MUST** validate this block with respect to terminal block conditions according to [EIP-3675](https://eips.ethereum.org/EIPS/eip-3675#transition-block-validity). This check maps to the transition block validity section of the EIP. Additionally, if this validation fails, client software **MUST NOT** update the forkchoice state and **MUST NOT** begin a payload build process.
+3. If `forkchoiceState.headBlockHash` references a PoW block, client software **MUST** validate this block with respect to terminal block conditions according to [SIP-3675](https://sips.sila.org/SIPS/sip-3675#transition-block-validity). This check maps to the transition block validity section of the SIP. Additionally, if this validation fails, client software **MUST NOT** update the forkchoice state and **MUST NOT** begin a payload build process.
 
 4. Before updating the forkchoice state, client software **MUST** ensure the validity of the payload referenced by `forkchoiceState.headBlockHash`, and **MAY** validate the payload while processing the call. The validation process is specified in the [Payload validation](#payload-validation) section. If the validation process fails, client software **MUST NOT** update the forkchoice state and **MUST NOT** begin a payload build process.
 
@@ -221,7 +221,7 @@ The payload build process is specified as follows:
 6. Client software **MUST** return `-38006: Too deep reorg` error if the depth of reorg to `forkchoiceState.headBlockHash` exceeds the limitation specific to the client software.
 
 7. Client software **MUST** update its forkchoice state if payloads referenced by `forkchoiceState.headBlockHash` and `forkchoiceState.finalizedBlockHash` are `VALID`. The update is specified as follows:
-  * The values `(forkchoiceState.headBlockHash, forkchoiceState.finalizedBlockHash)` of this method call map on the `POS_FORKCHOICE_UPDATED` event of [EIP-3675](https://eips.ethereum.org/EIPS/eip-3675#block-validity) and **MUST** be processed according to the specification defined in the EIP
+  * The values `(forkchoiceState.headBlockHash, forkchoiceState.finalizedBlockHash)` of this method call map on the `POS_FORKCHOICE_UPDATED` event of [SIP-3675](https://sips.sila.org/SIPS/sip-3675#block-validity) and **MUST** be processed according to the specification defined in the SIP
   * All updates to the forkchoice state resulting from this call **MUST** be made atomically.
 
 8. Client software **MUST** process provided `payloadAttributes` after successfully applying the `forkchoiceState` and only if the payload referenced by `forkchoiceState.headBlockHash` is `VALID`. The processing flow is as follows:
@@ -282,7 +282,7 @@ The payload build process is specified as follows:
 
 #### Specification
 
-1. Execution Layer client software **MUST** respond with configurable setting values that are set according to the Client software configuration section of [EIP-3675](https://eips.ethereum.org/EIPS/eip-3675#client-software-configuration).
+1. Execution Layer client software **MUST** respond with configurable setting values that are set according to the Client software configuration section of [SIP-3675](https://sips.sila.org/SIPS/sip-3675#client-software-configuration).
 
 2. Execution Layer client software **SHOULD** surface an error to the user if local configuration settings mismatch corresponding values received in the call of this method, with exception for `terminalBlockNumber` value.
 

@@ -1,6 +1,6 @@
 Transaction7702Unsigned:
   type: object
-  title: EIP-7702 transaction
+  title: SIP-7702 transaction
   required:
     - type
     - nonce
@@ -47,7 +47,7 @@ Transaction7702Unsigned:
       $ref: '#/components/schemas/uint'
     accessList:
       title: accessList
-      description: EIP-2930 access lists
+      description: SIP-2930 access lists
       $ref: '#/components/schemas/AccessList'
     chainId:
       title: chainId
@@ -91,7 +91,7 @@ AuthorizationList:
       - s
 Transaction4844Unsigned:
   type: object
-  title: EIP-4844 transaction.
+  title: SIP-4844 transaction.
   required:
     - type
     - nonce
@@ -143,11 +143,11 @@ Transaction4844Unsigned:
       $ref: '#/components/schemas/uint'
     accessList:
       title: accessList
-      description: EIP-2930 access list
+      description: SIP-2930 access list
       $ref: '#/components/schemas/AccessList'
     blobVersionedHashes:
       title: blobVersionedHashes
-      description: List of versioned blob hashes associated with the transaction's EIP-4844 data blobs
+      description: List of versioned blob hashes associated with the transaction's SIP-4844 data blobs
       type: array
       items:
         $ref: '#/components/schemas/hash32'
@@ -176,7 +176,7 @@ AccessList:
     $ref: '#/components/schemas/AccessListEntry'
 Transaction1559Unsigned:
   type: object
-  title: EIP-1559 transaction.
+  title: SIP-1559 transaction.
   required:
     - type
     - nonce
@@ -226,7 +226,7 @@ Transaction1559Unsigned:
       $ref: '#/components/schemas/uint'
     accessList:
       title: accessList
-      description: EIP-2930 access list
+      description: SIP-2930 access list
       $ref: '#/components/schemas/AccessList'
     chainId:
       title: chainId
@@ -234,7 +234,7 @@ Transaction1559Unsigned:
       $ref: '#/components/schemas/uint'
 Transaction2930Unsigned:
   type: object
-  title: EIP-2930 transaction.
+  title: SIP-2930 transaction.
   required:
     - type
     - nonce
@@ -274,7 +274,7 @@ Transaction2930Unsigned:
       $ref: '#/components/schemas/uint'
     accessList:
       title: accessList
-      description: EIP-2930 access list
+      description: SIP-2930 access list
       $ref: '#/components/schemas/AccessList'
     chainId:
       title: chainId
@@ -334,7 +334,7 @@ Transaction7702Signed:
   type: object
   allOf:
     - $ref: '#/components/schemas/Transaction7702Unsigned'
-    - title: EIP-7702 transaction signature properties.
+    - title: SIP-7702 transaction signature properties.
       required:
         - yParity
         - r
@@ -359,7 +359,7 @@ Transaction4844Signed:
   type: object
   allOf:
     - $ref: '#/components/schemas/Transaction4844Unsigned'
-    - title: EIP-4844 transaction signature properties.
+    - title: SIP-4844 transaction signature properties.
       required:
         - yParity
         - r
@@ -384,7 +384,7 @@ Transaction1559Signed:
   type: object
   allOf:
     - $ref: '#/components/schemas/Transaction1559Unsigned'
-    - title: EIP-1559 transaction signature properties.
+    - title: SIP-1559 transaction signature properties.
       required:
         - yParity
         - r
@@ -409,7 +409,7 @@ Transaction2930Signed:
   type: object
   allOf:
     - $ref: '#/components/schemas/Transaction2930Unsigned'
-    - title: EIP-2930 transaction signature properties.
+    - title: SIP-2930 transaction signature properties.
       required:
         - yParity
         - r
@@ -536,11 +536,11 @@ GenericTransaction:
       $ref: '#/components/schemas/uint'
     accessList:
       title: accessList
-      description: EIP-2930 access list
+      description: SIP-2930 access list
       $ref: '#/components/schemas/AccessList'
     blobVersionedHashes:
       title: blobVersionedHashes
-      description: List of versioned blob hashes associated with the transaction's EIP-4844 data blobs.
+      description: List of versioned blob hashes associated with the transaction's SIP-4844 data blobs.
       type: array
       items:
         $ref: '#/components/schemas/hash32'
@@ -556,5 +556,5 @@ GenericTransaction:
       $ref: '#/components/schemas/uint'
     authorizationList:
       title: authorizationList
-      description: EIP-7702 authorization list
+      description: SIP-7702 authorization list
       $ref: '#/components/schemas/AuthorizationList'

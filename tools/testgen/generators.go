@@ -9,16 +9,16 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/ethereum/go-ethereum"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/crypto/kzg4844"
-	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/ethereum/go-ethereum/ethclient/gethclient"
-	"github.com/ethereum/go-ethereum/params"
-	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/holiman/uint256"
+	"github.com/sila-chain/go-sila"
+	"github.com/sila-chain/go-sila/common"
+	"github.com/sila-chain/go-sila/common/hexutil"
+	"github.com/sila-chain/go-sila/core/types"
+	"github.com/sila-chain/go-sila/crypto/kzg4844"
+	"github.com/sila-chain/go-sila/params"
+	"github.com/sila-chain/go-sila/rpc"
+	"github.com/sila-chain/go-sila/silclient"
+	"github.com/sila-chain/go-sila/silclient/silaclient"
 	"golang.org/x/exp/maps"
 )
 
@@ -28,16 +28,16 @@ var (
 )
 
 type T struct {
-	eth   *ethclient.Client
-	geth  *gethclient.Client
+	sil   *silclient.Client
+	sila  *silaclient.Client
 	rpc   *rpc.Client
 	chain *Chain
 }
 
 func NewT(client *rpc.Client, chain *Chain) *T {
-	eth := ethclient.NewClient(client)
-	geth := gethclient.New(client)
-	return &T{eth, geth, client, chain}
+	sil := silclient.NewClient(client)
+	sila := silaclient.New(client)
+	return &T{sil, sila, client, chain}
 }
 
 // MethodTests is a collection of tests for a certain JSON-RPC method.
@@ -61,31 +61,31 @@ type Test struct {
 
 // AllMethods is a slice of all JSON-RPC methods with tests.
 var AllMethods = []MethodTests{
-	EthBlockNumber,
-	EthGetBlockByNumber,
-	EthGetBlockByHash,
-	EthGetProof,
-	EthChainID,
-	EthGetBalance,
-	EthGetCode,
-	EthGetStorage,
-	EthGetStorageValues,
-	EthCall,
-	EthSimulateV1,
-	EthEstimateGas,
-	EthCreateAccessList,
-	EthGetBlockTransactionCountByNumber,
-	EthGetBlockTransactionCountByHash,
-	EthGetTransactionByBlockHashAndIndex,
-	EthGetTransactionByBlockNumberAndIndex,
-	EthGetTransactionCount,
-	EthGetTransactionByHash,
-	EthGetTransactionReceipt,
-	EthGetBlockReceipts,
-	EthSendRawTransaction,
-	EthSyncing,
-	EthFeeHistory,
-	EthGetLogs,
+	SilBlockNumber,
+	SilGetBlockByNumber,
+	SilGetBlockByHash,
+	SilGetProof,
+	SilChainID,
+	SilGetBalance,
+	SilGetCode,
+	SilGetStorage,
+	SilGetStorageValues,
+	SilCall,
+	SilSimulateV1,
+	SilEstimateGas,
+	SilCreateAccessList,
+	SilGetBlockTransactionCountByNumber,
+	SilGetBlockTransactionCountByHash,
+	SilGetTransactionByBlockHashAndIndex,
+	SilGetTransactionByBlockNumberAndIndex,
+	SilGetTransactionCount,
+	SilGetTransactionByHash,
+	SilGetTransactionReceipt,
+	SilGetBlockReceipts,
+	SilSendRawTransaction,
+	SilSyncing,
+	SilFeeHistory,
+	SilGetLogs,
 	DebugGetRawHeader,
 	DebugGetRawBlock,
 	DebugGetRawReceipts,
@@ -93,10 +93,10 @@ var AllMethods = []MethodTests{
 	DebugTraceTransaction,
 	DebugTraceBlockByNumber,
 	DebugTraceBlockByHash,
-	EthBaseFee,
-	EthBlobBaseFee,
-	EthConfig,
-	EthCapabilities,
+	SilBaseFee,
+	SilBlobBaseFee,
+	SilConfig,
+	SilCapabilities,
 	NetVersion,
 	TestingBuildBlockV1,
 	TxpoolStatus,
@@ -104,22 +104,22 @@ var AllMethods = []MethodTests{
 	TxpoolContentFrom,
 
 	// -- gas price tests are disabled because of non-determinism
-	// EthGasPrice,
-	// EthMaxPriorityFeePerGas,
+	// SilGasPrice,
+	// SilMaxPriorityFeePerGas,
 
 	// -- uncle APIs are not required anymore after the merge
-	// EthGetUncleByBlockNumberAndIndex,
+	// SilGetUncleByBlockNumberAndIndex,
 }
 
-// EthBlockNumber stores a list of all tests against the method.
-var EthBlockNumber = MethodTests{
-	"eth_blockNumber",
+// SilBlockNumber stores a list of all tests against the method.
+var SilBlockNumber = MethodTests{
+	"sil_blockNumber",
 	[]Test{
 		{
 			Name:  "simple-test",
 			About: "retrieves the client's current block number",
 			Run: func(ctx context.Context, t *T) error {
-				got, err := t.eth.BlockNumber(ctx)
+				got, err := t.sil.BlockNumber(ctx)
 				if err != nil {
 					return err
 				} else if want := t.chain.Head().NumberU64(); got != want {
@@ -131,15 +131,15 @@ var EthBlockNumber = MethodTests{
 	},
 }
 
-// EthChainID stores a list of all tests against the method.
-var EthChainID = MethodTests{
-	"eth_chainId",
+// SilChainID stores a list of all tests against the method.
+var SilChainID = MethodTests{
+	"sil_chainId",
 	[]Test{
 		{
 			Name:  "get-chain-id",
 			About: "retrieves the client's current chain id",
 			Run: func(ctx context.Context, t *T) error {
-				got, err := t.eth.ChainID(ctx)
+				got, err := t.sil.ChainID(ctx)
 				if err != nil {
 					return err
 				} else if want := t.chain.Config().ChainID.Uint64(); got.Uint64() != want {
@@ -151,16 +151,16 @@ var EthChainID = MethodTests{
 	},
 }
 
-// EthGetCode stores a list of all tests against the method.
-var EthGetCode = MethodTests{
-	"eth_getCode",
+// SilGetCode stores a list of all tests against the method.
+var SilGetCode = MethodTests{
+	"sil_getCode",
 	[]Test{
 		{
 			Name:  "get-code",
 			About: "requests code of an existing contract",
 			Run: func(ctx context.Context, t *T) error {
 				var got hexutil.Bytes
-				err := t.rpc.CallContext(ctx, &got, "eth_getCode", emitContract, "latest")
+				err := t.rpc.CallContext(ctx, &got, "sil_getCode", emitContract, "latest")
 				if err != nil {
 					return err
 				}
@@ -172,13 +172,13 @@ var EthGetCode = MethodTests{
 			},
 		},
 		{
-			Name: "get-code-eip7702-delegation",
-			About: `requests code of an account that has an EIP-7702 delegation. the server is expected to return
+			Name: "get-code-sip7702-delegation",
+			About: `requests code of an account that has an SIP-7702 delegation. the server is expected to return
 the delegation designator.`,
 			Run: func(ctx context.Context, t *T) error {
-				account := t.chain.txinfo.EIP7702.Account
+				account := t.chain.txinfo.SIP7702.Account
 				var got hexutil.Bytes
-				err := t.rpc.CallContext(ctx, &got, "eth_getCode", account, "latest")
+				err := t.rpc.CallContext(ctx, &got, "sil_getCode", account, "latest")
 				if err != nil {
 					return err
 				}
@@ -194,7 +194,7 @@ the delegation designator.`,
 			About: "requests code of a non-existent account",
 			Run: func(ctx context.Context, t *T) error {
 				var got hexutil.Bytes
-				err := t.rpc.CallContext(ctx, &got, "eth_getCode", nonAccount, "latest")
+				err := t.rpc.CallContext(ctx, &got, "sil_getCode", nonAccount, "latest")
 				if err != nil {
 					return err
 				}
@@ -209,7 +209,7 @@ the delegation designator.`,
 			About: "requests code of an existing contract with the block parameter omitted, which defaults to latest",
 			Run: func(ctx context.Context, t *T) error {
 				var got hexutil.Bytes
-				err := t.rpc.CallContext(ctx, &got, "eth_getCode", emitContract)
+				err := t.rpc.CallContext(ctx, &got, "sil_getCode", emitContract)
 				if err != nil {
 					return err
 				}
@@ -223,9 +223,9 @@ the delegation designator.`,
 	},
 }
 
-// EthGetStorage stores a list of all tests against the method.
-var EthGetStorage = MethodTests{
-	"eth_getStorageAt",
+// SilGetStorage stores a list of all tests against the method.
+var SilGetStorage = MethodTests{
+	"sil_getStorageAt",
 	[]Test{
 		{
 			Name:  "get-storage",
@@ -233,7 +233,7 @@ var EthGetStorage = MethodTests{
 			Run: func(ctx context.Context, t *T) error {
 				addr := emitContract
 				key := common.Hash{}
-				got, err := t.eth.StorageAt(ctx, addr, key, nil)
+				got, err := t.sil.StorageAt(ctx, addr, key, nil)
 				if err != nil {
 					return err
 				}
@@ -255,7 +255,7 @@ var EthGetStorage = MethodTests{
 			About: "gets storage of a non-existent account",
 			Run: func(ctx context.Context, t *T) error {
 				key := common.Hash{1}
-				got, err := t.eth.StorageAt(ctx, nonAccount, key, nil)
+				got, err := t.sil.StorageAt(ctx, nonAccount, key, nil)
 				if err != nil {
 					return err
 				}
@@ -270,7 +270,7 @@ var EthGetStorage = MethodTests{
 			Name:  "get-storage-invalid-key-too-large",
 			About: "requests an invalid storage key",
 			Run: func(ctx context.Context, t *T) error {
-				err := t.rpc.CallContext(ctx, nil, "eth_getStorageAt", "0xaa00000000000000000000000000000000000000", "0x00000000000000000000000000000000000000000000000000000000000000000", "latest")
+				err := t.rpc.CallContext(ctx, nil, "sil_getStorageAt", "0xaa00000000000000000000000000000000000000", "0x00000000000000000000000000000000000000000000000000000000000000000", "latest")
 				if err == nil {
 					return fmt.Errorf("expected error")
 				}
@@ -281,7 +281,7 @@ var EthGetStorage = MethodTests{
 			Name:  "get-storage-invalid-key",
 			About: "requests an invalid storage key",
 			Run: func(ctx context.Context, t *T) error {
-				err := t.rpc.CallContext(ctx, nil, "eth_getStorageAt", "0xaa00000000000000000000000000000000000000", "0xasdf", "latest")
+				err := t.rpc.CallContext(ctx, nil, "sil_getStorageAt", "0xaa00000000000000000000000000000000000000", "0xasdf", "latest")
 				if err == nil {
 					return fmt.Errorf("expected error")
 				}
@@ -295,7 +295,7 @@ var EthGetStorage = MethodTests{
 				addr := emitContract
 				key := common.Hash{}
 				var got hexutil.Bytes
-				if err := t.rpc.CallContext(ctx, &got, "eth_getStorageAt", addr, key); err != nil {
+				if err := t.rpc.CallContext(ctx, &got, "sil_getStorageAt", addr, key); err != nil {
 					return err
 				}
 				want := t.chain.Storage(addr, key)
@@ -312,9 +312,9 @@ var EthGetStorage = MethodTests{
 	},
 }
 
-// EthGetStorageValues stores a list of all tests against the method.
-var EthGetStorageValues = MethodTests{
-	"eth_getStorageValues",
+// SilGetStorageValues stores a list of all tests against the method.
+var SilGetStorageValues = MethodTests{
+	"sil_getStorageValues",
 	[]Test{
 		{
 			Name:  "get-storage-values",
@@ -326,7 +326,7 @@ var EthGetStorageValues = MethodTests{
 					addr: {key},
 				}
 				var result map[common.Address][]hexutil.Bytes
-				err := t.rpc.CallContext(ctx, &result, "eth_getStorageValues", requests, "latest")
+				err := t.rpc.CallContext(ctx, &result, "sil_getStorageValues", requests, "latest")
 				if err != nil {
 					return err
 				}
@@ -355,7 +355,7 @@ var EthGetStorageValues = MethodTests{
 					nonAccount:   {common.Hash{1}},
 				}
 				var result map[common.Address][]hexutil.Bytes
-				err := t.rpc.CallContext(ctx, &result, "eth_getStorageValues", requests, "latest")
+				err := t.rpc.CallContext(ctx, &result, "sil_getStorageValues", requests, "latest")
 				if err != nil {
 					return err
 				}
@@ -382,7 +382,7 @@ var EthGetStorageValues = MethodTests{
 					nonAccount: {common.Hash{1}},
 				}
 				var result map[common.Address][]hexutil.Bytes
-				err := t.rpc.CallContext(ctx, &result, "eth_getStorageValues", requests, "latest")
+				err := t.rpc.CallContext(ctx, &result, "sil_getStorageValues", requests, "latest")
 				if err != nil {
 					return err
 				}
@@ -404,7 +404,7 @@ var EthGetStorageValues = MethodTests{
 			About: "requests with an empty map",
 			Run: func(ctx context.Context, t *T) error {
 				requests := map[common.Address][]common.Hash{}
-				err := t.rpc.CallContext(ctx, nil, "eth_getStorageValues", requests, "latest")
+				err := t.rpc.CallContext(ctx, nil, "sil_getStorageValues", requests, "latest")
 				if err == nil {
 					return fmt.Errorf("expected error for empty request")
 				}
@@ -421,7 +421,7 @@ var EthGetStorageValues = MethodTests{
 					addr: {key},
 				}
 				var result map[common.Address][]hexutil.Bytes
-				if err := t.rpc.CallContext(ctx, &result, "eth_getStorageValues", requests); err != nil {
+				if err := t.rpc.CallContext(ctx, &result, "sil_getStorageValues", requests); err != nil {
 					return err
 				}
 				values, ok := result[addr]
@@ -437,16 +437,16 @@ var EthGetStorageValues = MethodTests{
 	},
 }
 
-// EthGetBlockByHash stores a list of all tests against the method.
-var EthGetBlockByHash = MethodTests{
-	"eth_getBlockByHash",
+// SilGetBlockByHash stores a list of all tests against the method.
+var SilGetBlockByHash = MethodTests{
+	"sil_getBlockByHash",
 	[]Test{
 		{
 			Name:  "get-block-by-hash",
 			About: "gets block 1",
 			Run: func(ctx context.Context, t *T) error {
 				want := t.chain.GetBlock(1).Header()
-				got, err := t.eth.BlockByHash(ctx, want.Hash())
+				got, err := t.sil.BlockByHash(ctx, want.Hash())
 				if err != nil {
 					return err
 				}
@@ -460,8 +460,8 @@ var EthGetBlockByHash = MethodTests{
 			Name:  "get-block-by-empty-hash",
 			About: "gets block empty hash",
 			Run: func(ctx context.Context, t *T) error {
-				_, err := t.eth.BlockByHash(ctx, common.Hash{})
-				if !errors.Is(err, ethereum.NotFound) {
+				_, err := t.sil.BlockByHash(ctx, common.Hash{})
+				if !errors.Is(err, sila.NotFound) {
 					return errors.New("expected not found error")
 				}
 				return nil
@@ -471,8 +471,8 @@ var EthGetBlockByHash = MethodTests{
 			Name:  "get-block-by-notfound-hash",
 			About: "gets block not found hash",
 			Run: func(ctx context.Context, t *T) error {
-				_, err := t.eth.BlockByHash(ctx, common.HexToHash("deadbeef"))
-				if !errors.Is(err, ethereum.NotFound) {
+				_, err := t.sil.BlockByHash(ctx, common.HexToHash("deadbeef"))
+				if !errors.Is(err, sila.NotFound) {
 					return errors.New("expected not found error")
 				}
 				return nil
@@ -481,16 +481,16 @@ var EthGetBlockByHash = MethodTests{
 	},
 }
 
-// EthChainID stores a list of all tests against the method.
-var EthGetBalance = MethodTests{
-	"eth_getBalance",
+// SilChainID stores a list of all tests against the method.
+var SilGetBalance = MethodTests{
+	"sil_getBalance",
 	[]Test{
 		{
 			Name:  "get-balance",
 			About: "retrieves the an account balance",
 			Run: func(ctx context.Context, t *T) error {
 				addr := emitContract
-				got, err := t.eth.BalanceAt(ctx, addr, nil)
+				got, err := t.sil.BalanceAt(ctx, addr, nil)
 				if err != nil {
 					return err
 				}
@@ -505,7 +505,7 @@ var EthGetBalance = MethodTests{
 			Name:  "get-balance-unknown-account",
 			About: "requests the balance of a non-existent account",
 			Run: func(ctx context.Context, t *T) error {
-				got, err := t.eth.BalanceAt(ctx, nonAccount, nil)
+				got, err := t.sil.BalanceAt(ctx, nonAccount, nil)
 				if err != nil {
 					return err
 				}
@@ -524,7 +524,7 @@ var EthGetBalance = MethodTests{
 					addr  = emitContract
 					got   hexutil.Big
 				)
-				if err := t.rpc.CallContext(ctx, &got, "eth_getBalance", addr, block.Hash()); err != nil {
+				if err := t.rpc.CallContext(ctx, &got, "sil_getBalance", addr, block.Hash()); err != nil {
 					return err
 				}
 				// We can't really check the result here because there is no state, but the
@@ -541,7 +541,7 @@ var EthGetBalance = MethodTests{
 			Run: func(ctx context.Context, t *T) error {
 				addr := emitContract
 				var got hexutil.Big
-				if err := t.rpc.CallContext(ctx, &got, "eth_getBalance", addr); err != nil {
+				if err := t.rpc.CallContext(ctx, &got, "sil_getBalance", addr); err != nil {
 					return err
 				}
 				want := t.chain.Balance(addr)
@@ -554,15 +554,15 @@ var EthGetBalance = MethodTests{
 	},
 }
 
-// EthGetBlockByNumber stores a list of all tests against the method.
-var EthGetBlockByNumber = MethodTests{
-	"eth_getBlockByNumber",
+// SilGetBlockByNumber stores a list of all tests against the method.
+var SilGetBlockByNumber = MethodTests{
+	"sil_getBlockByNumber",
 	[]Test{
 		{
 			Name:  "get-genesis",
 			About: "gets block number zero",
 			Run: func(ctx context.Context, t *T) error {
-				block, err := t.eth.BlockByNumber(ctx, big.NewInt(0))
+				block, err := t.sil.BlockByNumber(ctx, big.NewInt(0))
 				if err != nil {
 					return err
 				}
@@ -576,7 +576,7 @@ var EthGetBlockByNumber = MethodTests{
 			Name:  "get-latest",
 			About: "gets the block with tag \"latest\"",
 			Run: func(ctx context.Context, t *T) error {
-				block, err := t.eth.BlockByNumber(ctx, nil)
+				block, err := t.sil.BlockByNumber(ctx, nil)
 				if err != nil {
 					return err
 				}
@@ -591,7 +591,7 @@ var EthGetBlockByNumber = MethodTests{
 			Name:  "get-safe",
 			About: "get the block with tag \"safe\"",
 			Run: func(ctx context.Context, t *T) error {
-				block, err := t.eth.BlockByNumber(ctx, big.NewInt(int64(rpc.SafeBlockNumber)))
+				block, err := t.sil.BlockByNumber(ctx, big.NewInt(int64(rpc.SafeBlockNumber)))
 				if err != nil {
 					return err
 				}
@@ -606,7 +606,7 @@ var EthGetBlockByNumber = MethodTests{
 			Name:  "get-finalized",
 			About: "get the block with tag \"finalized\"",
 			Run: func(ctx context.Context, t *T) error {
-				block, err := t.eth.BlockByNumber(ctx, big.NewInt(int64(rpc.FinalizedBlockNumber)))
+				block, err := t.sil.BlockByNumber(ctx, big.NewInt(int64(rpc.FinalizedBlockNumber)))
 				if err != nil {
 					return err
 				}
@@ -621,7 +621,7 @@ var EthGetBlockByNumber = MethodTests{
 			Name:  "get-block-london-fork",
 			About: "requests a block at the London fork",
 			Run: func(ctx context.Context, t *T) error {
-				hdr, err := t.eth.HeaderByNumber(ctx, t.chain.config.LondonBlock)
+				hdr, err := t.sil.HeaderByNumber(ctx, t.chain.config.SilaLondonBlock)
 				if err != nil {
 					return err
 				}
@@ -635,7 +635,7 @@ var EthGetBlockByNumber = MethodTests{
 			Name:  "get-block-merge-fork",
 			About: "requests a block at the merge (Paris) fork",
 			Run: func(ctx context.Context, t *T) error {
-				hdr, err := t.eth.HeaderByNumber(ctx, t.chain.config.MergeNetsplitBlock)
+				hdr, err := t.sil.HeaderByNumber(ctx, t.chain.config.MergeNetsplitBlock)
 				if err != nil {
 					return err
 				}
@@ -649,8 +649,8 @@ var EthGetBlockByNumber = MethodTests{
 			Name:  "get-block-shanghai-fork",
 			About: "requests a block at the Shanghai fork",
 			Run: func(ctx context.Context, t *T) error {
-				blocknum := t.chain.BlockAtTime(*t.chain.config.ShanghaiTime).Number()
-				hdr, err := t.eth.HeaderByNumber(ctx, blocknum)
+				blocknum := t.chain.BlockAtTime(*t.chain.config.SilaShanghaiTime).Number()
+				hdr, err := t.sil.HeaderByNumber(ctx, blocknum)
 				if err != nil {
 					return err
 				}
@@ -664,8 +664,8 @@ var EthGetBlockByNumber = MethodTests{
 			Name:  "get-block-cancun-fork",
 			About: "requests a block at the Cancun fork",
 			Run: func(ctx context.Context, t *T) error {
-				blocknum := t.chain.BlockAtTime(*t.chain.config.CancunTime).Number()
-				b, err := t.eth.HeaderByNumber(ctx, blocknum)
+				blocknum := t.chain.BlockAtTime(*t.chain.config.SilaCancunTime).Number()
+				b, err := t.sil.HeaderByNumber(ctx, blocknum)
 				if err != nil {
 					return err
 				}
@@ -679,8 +679,8 @@ var EthGetBlockByNumber = MethodTests{
 			Name:  "get-block-prague-fork",
 			About: "requests a block at the Prague fork",
 			Run: func(ctx context.Context, t *T) error {
-				blocknum := t.chain.txinfo.EIP7002.Block
-				hdr, err := t.eth.HeaderByNumber(ctx, big.NewInt(int64(blocknum)))
+				blocknum := t.chain.txinfo.SIP7002.Block
+				hdr, err := t.sil.HeaderByNumber(ctx, big.NewInt(int64(blocknum)))
 				if err != nil {
 					return err
 				}
@@ -694,8 +694,8 @@ var EthGetBlockByNumber = MethodTests{
 			Name:  "get-block-notfound",
 			About: "requests a block number that does not exist",
 			Run: func(ctx context.Context, t *T) error {
-				_, err := t.eth.BlockByNumber(ctx, big.NewInt(1000))
-				if !errors.Is(err, ethereum.NotFound) {
+				_, err := t.sil.BlockByNumber(ctx, big.NewInt(1000))
+				if !errors.Is(err, sila.NotFound) {
 					return errors.New("get a non-existent block should return null")
 				}
 				return nil
@@ -704,21 +704,21 @@ var EthGetBlockByNumber = MethodTests{
 	},
 }
 
-// EthCall stores a list of all tests against the method.
-var EthCall = MethodTests{
-	"eth_call",
+// SilCall stores a list of all tests against the method.
+var SilCall = MethodTests{
+	"sil_call",
 	[]Test{
 		{
 			Name:  "call-contract",
 			About: "performs a basic contract call with default settings",
 			Run: func(ctx context.Context, t *T) error {
-				msg := ethereum.CallMsg{
+				msg := sila.CallMsg{
 					To: &t.chain.txinfo.CallMeContract.Addr,
 					// This is the expected input that makes the call pass.
-					// See https://github.com/ethereum/hive/blob/master/cmd/hivechain/contracts/callme.eas
+					// See https://github.com/sila/hive/blob/master/cmd/hivechain/contracts/callme.eas
 					Data: []byte{0xff, 0x01},
 				}
-				result, err := t.eth.CallContract(ctx, msg, nil)
+				result, err := t.sil.CallContract(ctx, msg, nil)
 				if err != nil {
 					return err
 				}
@@ -732,12 +732,12 @@ var EthCall = MethodTests{
 		{
 			Name: "call-callenv",
 			About: `Performs a call to the callenv contract, which echoes the EVM transaction environment.
-See https://github.com/ethereum/hive/tree/master/cmd/hivechain/contracts/callenv.eas for the output structure.`,
+See https://github.com/sila/hive/tree/master/cmd/hivechain/contracts/callenv.eas for the output structure.`,
 			Run: func(ctx context.Context, t *T) error {
-				msg := ethereum.CallMsg{
+				msg := sila.CallMsg{
 					To: &t.chain.txinfo.CallEnvContract.Addr,
 				}
-				result, err := t.eth.CallContract(ctx, msg, nil)
+				result, err := t.sil.CallContract(ctx, msg, nil)
 				if err != nil {
 					return err
 				}
@@ -748,15 +748,15 @@ See https://github.com/ethereum/hive/tree/master/cmd/hivechain/contracts/callenv
 			},
 		},
 		{
-			Name: "call-callenv-options-eip1559",
+			Name: "call-callenv-options-sip1559",
 			About: `Performs a call to the callenv contract, which echoes the EVM transaction environment.
-This call uses EIP1559 transaction options.
-See https://github.com/ethereum/hive/tree/master/cmd/hivechain/contracts/callenv.eas for the output structure.`,
+This call uses SIP1559 transaction options.
+See https://github.com/sila/hive/tree/master/cmd/hivechain/contracts/callenv.eas for the output structure.`,
 			Run: func(ctx context.Context, t *T) error {
 				sender, _ := t.chain.GetSender(1)
 				basefee := t.chain.Head().BaseFee()
 				basefee.Add(basefee, big.NewInt(1))
-				msg := ethereum.CallMsg{
+				msg := sila.CallMsg{
 					From:      sender,
 					To:        &t.chain.txinfo.CallEnvContract.Addr,
 					Gas:       60000,
@@ -765,7 +765,7 @@ See https://github.com/ethereum/hive/tree/master/cmd/hivechain/contracts/callenv
 					Value:     big.NewInt(23),
 					Data:      []byte{0x33, 0x34, 0x35},
 				}
-				result, err := t.eth.CallContract(ctx, msg, nil)
+				result, err := t.sil.CallContract(ctx, msg, nil)
 				if err != nil {
 					return err
 				}
@@ -776,14 +776,14 @@ See https://github.com/ethereum/hive/tree/master/cmd/hivechain/contracts/callenv
 			},
 		},
 		{
-			Name:  "call-eip7702-delegation",
-			About: `Performs a call to an account that has an EIP-7702 code delegation.`,
+			Name:  "call-sip7702-delegation",
+			About: `Performs a call to an account that has an SIP-7702 code delegation.`,
 			Run: func(ctx context.Context, t *T) error {
-				msg := ethereum.CallMsg{
-					To:  &t.chain.txinfo.EIP7702.Account,
+				msg := sila.CallMsg{
+					To:  &t.chain.txinfo.SIP7702.Account,
 					Gas: 100000,
 				}
-				result, err := t.eth.CallContract(ctx, msg, nil)
+				result, err := t.sil.CallContract(ctx, msg, nil)
 				if err != nil {
 					return err
 				}
@@ -792,7 +792,7 @@ See https://github.com/ethereum/hive/tree/master/cmd/hivechain/contracts/callenv
 				}
 				expectedOutput := slices.Concat(
 					make([]byte, 12),
-					t.chain.txinfo.EIP7702.Account[:],
+					t.chain.txinfo.SIP7702.Account[:],
 					[]byte("invoked"),
 					make([]byte, 25),
 				)
@@ -806,12 +806,12 @@ See https://github.com/ethereum/hive/tree/master/cmd/hivechain/contracts/callenv
 			Name:  "call-revert-abi-panic",
 			About: "calls a contract that reverts with an ABI-encoded Panic(uint) value",
 			Run: func(ctx context.Context, t *T) error {
-				msg := ethereum.CallMsg{
+				msg := sila.CallMsg{
 					To:   &t.chain.txinfo.CallRevertContract.Addr,
 					Gas:  100000,
 					Data: []byte{0}, // triggers panic(uint) revert
 				}
-				got, err := t.eth.CallContract(ctx, msg, nil)
+				got, err := t.sil.CallContract(ctx, msg, nil)
 				if len(got) != 0 {
 					return fmt.Errorf("unexpected return value (got: %s, want: nil)", hexutil.Bytes(got))
 				}
@@ -825,12 +825,12 @@ See https://github.com/ethereum/hive/tree/master/cmd/hivechain/contracts/callenv
 			Name:  "call-revert-abi-error",
 			About: "calls a contract that reverts with an ABI-encoded Error(string) value",
 			Run: func(ctx context.Context, t *T) error {
-				msg := ethereum.CallMsg{
+				msg := sila.CallMsg{
 					To:   &t.chain.txinfo.CallRevertContract.Addr,
 					Gas:  100000,
 					Data: []byte{1}, // triggers error(string) revert
 				}
-				got, err := t.eth.CallContract(ctx, msg, nil)
+				got, err := t.sil.CallContract(ctx, msg, nil)
 				if len(got) != 0 {
 					return fmt.Errorf("unexpected return value (got: %s, want: nil)", hexutil.Bytes(got))
 				}
@@ -843,16 +843,16 @@ See https://github.com/ethereum/hive/tree/master/cmd/hivechain/contracts/callenv
 	},
 }
 
-// EthEstimateGas stores a list of all tests against the method.
-var EthEstimateGas = MethodTests{
-	"eth_estimateGas",
+// SilEstimateGas stores a list of all tests against the method.
+var SilEstimateGas = MethodTests{
+	"sil_estimateGas",
 	[]Test{
 		{
 			Name:  "estimate-simple-transfer",
 			About: "estimates a simple transfer",
 			Run: func(ctx context.Context, t *T) error {
-				msg := ethereum.CallMsg{From: common.Address{0xaa}, To: &common.Address{0x01}}
-				got, err := t.eth.EstimateGas(ctx, msg)
+				msg := sila.CallMsg{From: common.Address{0xaa}, To: &common.Address{0x01}}
+				got, err := t.sil.EstimateGas(ctx, msg)
 				if err != nil {
 					return err
 				}
@@ -869,14 +869,14 @@ var EthEstimateGas = MethodTests{
 			Run: func(ctx context.Context, t *T) error {
 				caller := common.Address{1, 2, 3}
 				callme := t.chain.txinfo.CallMeContract.Addr
-				msg := ethereum.CallMsg{
+				msg := sila.CallMsg{
 					From: caller,
 					To:   &callme,
 					// This is the expected input that makes the call pass.
-					// See https://github.com/ethereum/hive/blob/master/cmd/hivechain/contracts/callme.eas
+					// See https://github.com/sila/hive/blob/master/cmd/hivechain/contracts/callme.eas
 					Data: []byte{0xff, 0x01},
 				}
-				got, err := t.eth.EstimateGas(ctx, msg)
+				got, err := t.sil.EstimateGas(ctx, msg)
 				if err != nil {
 					return err
 				}
@@ -894,12 +894,12 @@ var EthEstimateGas = MethodTests{
 			Run: func(ctx context.Context, t *T) error {
 				caller := common.Address{1, 2, 3}
 				callme := t.chain.txinfo.CallMeContract.Addr
-				msg := ethereum.CallMsg{
+				msg := sila.CallMsg{
 					From: caller,
 					To:   &callme,
 					Data: []byte{0xff, 0x03, 0x04, 0x05},
 				}
-				if _, err := t.eth.EstimateGas(ctx, msg); err == nil {
+				if _, err := t.sil.EstimateGas(ctx, msg); err == nil {
 					return fmt.Errorf("expected error for failed contract call")
 				}
 				return nil
@@ -912,20 +912,20 @@ var EthEstimateGas = MethodTests{
 			Run: func(ctx context.Context, t *T) error {
 				caller := common.Address{1, 2, 3}
 				contract := t.chain.txinfo.CallRevertContract.Addr
-				msg := ethereum.CallMsg{
+				msg := sila.CallMsg{
 					From: caller,
 					To:   &contract,
 					Data: []byte{1}, // triggers error(string) revert
 				}
-				if _, err := t.eth.EstimateGas(ctx, msg); err == nil {
+				if _, err := t.sil.EstimateGas(ctx, msg); err == nil {
 					return fmt.Errorf("expected error for failed contract call")
 				}
 				return nil
 			},
 		},
 		{
-			Name:     "estimate-with-eip7702",
-			About:    "checks that including an EIP-7720 authorization in the message increases gas",
+			Name:     "estimate-with-sip7702",
+			About:    "checks that including an SIP-7720 authorization in the message increases gas",
 			SpecOnly: true,
 			Run: func(ctx context.Context, t *T) error {
 				sender, nonce := t.chain.GetSender(0)
@@ -955,10 +955,10 @@ var EthEstimateGas = MethodTests{
 					},
 				}
 				var baseGas, authGas hexutil.Uint64
-				if err := t.rpc.CallContext(ctx, &baseGas, "eth_estimateGas", baseMsg); err != nil {
+				if err := t.rpc.CallContext(ctx, &baseGas, "sil_estimateGas", baseMsg); err != nil {
 					return fmt.Errorf("base estimation failed: %v", err)
 				}
-				if err := t.rpc.CallContext(ctx, &authGas, "eth_estimateGas", withAuth); err != nil {
+				if err := t.rpc.CallContext(ctx, &authGas, "sil_estimateGas", withAuth); err != nil {
 					return fmt.Errorf("with auth estimation failed: %v", err)
 				}
 				if authGas <= baseGas {
@@ -968,8 +968,8 @@ var EthEstimateGas = MethodTests{
 			},
 		},
 		{
-			Name:     "estimate-with-eip4844",
-			About:    "checks gas estimation for blob transactions (EIP-4844)",
+			Name:     "estimate-with-sip4844",
+			About:    "checks gas estimation for blob transactions (SIP-4844)",
 			SpecOnly: true,
 			Run: func(ctx context.Context, t *T) error {
 				sender, nonce := t.chain.GetSender(0)
@@ -986,7 +986,7 @@ var EthEstimateGas = MethodTests{
 					},
 				}
 				var gas hexutil.Uint64
-				if err := t.rpc.CallContext(ctx, &gas, "eth_estimateGas", msg); err != nil {
+				if err := t.rpc.CallContext(ctx, &gas, "sil_estimateGas", msg); err != nil {
 					return fmt.Errorf("estimation failed: %v", err)
 				}
 				if gas < 21000 {
@@ -998,9 +998,9 @@ var EthEstimateGas = MethodTests{
 	},
 }
 
-// EthEstimateGas stores a list of all tests against the method.
-var EthCreateAccessList = MethodTests{
-	"eth_createAccessList",
+// SilEstimateGas stores a list of all tests against the method.
+var SilCreateAccessList = MethodTests{
+	"sil_createAccessList",
 	[]Test{
 		{
 			Name:  "create-al-value-transfer",
@@ -1014,7 +1014,7 @@ var EthCreateAccessList = MethodTests{
 					"nonce": hexutil.Uint64(nonce),
 				}
 				result := make(map[string]any)
-				err := t.rpc.CallContext(ctx, &result, "eth_createAccessList", msg, "latest")
+				err := t.rpc.CallContext(ctx, &result, "sil_createAccessList", msg, "latest")
 				if err != nil {
 					return err
 				}
@@ -1039,7 +1039,7 @@ var EthCreateAccessList = MethodTests{
 				var result struct {
 					AccessList types.AccessList
 				}
-				err := t.rpc.CallContext(ctx, &result, "eth_createAccessList", msg, "latest")
+				err := t.rpc.CallContext(ctx, &result, "sil_createAccessList", msg, "latest")
 				if err != nil {
 					return err
 				}
@@ -1056,9 +1056,9 @@ var EthCreateAccessList = MethodTests{
 			},
 		},
 		{
-			Name: "create-al-contract-eip1559",
+			Name: "create-al-contract-sip1559",
 			About: `Creates an access list for a contract invocation that accesses storage.
-This invocation uses EIP-1559 fields to specify the gas price.`,
+This invocation uses SIP-1559 fields to specify the gas price.`,
 			SpecOnly: true,
 			Run: func(ctx context.Context, t *T) error {
 				gasprice := t.chain.Head().BaseFee()
@@ -1075,7 +1075,7 @@ This invocation uses EIP-1559 fields to specify the gas price.`,
 				var result struct {
 					AccessList types.AccessList
 				}
-				err := t.rpc.CallContext(ctx, &result, "eth_createAccessList", msg, "latest")
+				err := t.rpc.CallContext(ctx, &result, "sil_createAccessList", msg, "latest")
 				if err != nil {
 					return err
 				}
@@ -1107,7 +1107,7 @@ in the "error" field.`,
 					AccessList types.AccessList
 					Error      string
 				}
-				err := t.rpc.CallContext(ctx, &result, "eth_createAccessList", msg, "latest")
+				err := t.rpc.CallContext(ctx, &result, "sil_createAccessList", msg, "latest")
 				if err != nil {
 					return fmt.Errorf("reverting call returned JSON-RPC error")
 				}
@@ -1123,16 +1123,16 @@ in the "error" field.`,
 	},
 }
 
-// EthGetBlockTransactionCountByNumber stores a list of all tests against the method.
-var EthGetBlockTransactionCountByNumber = MethodTests{
-	"eth_getBlockTransactionCountByNumber",
+// SilGetBlockTransactionCountByNumber stores a list of all tests against the method.
+var SilGetBlockTransactionCountByNumber = MethodTests{
+	"sil_getBlockTransactionCountByNumber",
 	[]Test{
 		{
 			Name:  "get-genesis",
 			About: "gets tx count in block 0",
 			Run: func(ctx context.Context, t *T) error {
 				var got hexutil.Uint
-				err := t.rpc.CallContext(ctx, &got, "eth_getBlockTransactionCountByNumber", hexutil.Uint(0))
+				err := t.rpc.CallContext(ctx, &got, "sil_getBlockTransactionCountByNumber", hexutil.Uint(0))
 				if err != nil {
 					return err
 				}
@@ -1148,7 +1148,7 @@ var EthGetBlockTransactionCountByNumber = MethodTests{
 			Run: func(ctx context.Context, t *T) error {
 				block := t.chain.BlockWithTransactions("", nil)
 				var got hexutil.Uint
-				err := t.rpc.CallContext(ctx, &got, "eth_getBlockTransactionCountByNumber", hexutil.Uint64(block.NumberU64()))
+				err := t.rpc.CallContext(ctx, &got, "sil_getBlockTransactionCountByNumber", hexutil.Uint64(block.NumberU64()))
 				if err != nil {
 					return err
 				}
@@ -1162,9 +1162,9 @@ var EthGetBlockTransactionCountByNumber = MethodTests{
 	},
 }
 
-// EthGetBlockTransactionCountByHash stores a list of all tests against the method.
-var EthGetBlockTransactionCountByHash = MethodTests{
-	"eth_getBlockTransactionCountByHash",
+// SilGetBlockTransactionCountByHash stores a list of all tests against the method.
+var SilGetBlockTransactionCountByHash = MethodTests{
+	"sil_getBlockTransactionCountByHash",
 	[]Test{
 		{
 			Name:  "get-genesis",
@@ -1172,7 +1172,7 @@ var EthGetBlockTransactionCountByHash = MethodTests{
 			Run: func(ctx context.Context, t *T) error {
 				block := t.chain.GetBlock(0)
 				var got hexutil.Uint
-				err := t.rpc.CallContext(ctx, &got, "eth_getBlockTransactionCountByHash", block.Hash())
+				err := t.rpc.CallContext(ctx, &got, "sil_getBlockTransactionCountByHash", block.Hash())
 				if err != nil {
 					return err
 				}
@@ -1188,7 +1188,7 @@ var EthGetBlockTransactionCountByHash = MethodTests{
 			Run: func(ctx context.Context, t *T) error {
 				block := t.chain.BlockWithTransactions("any", nil)
 				var got hexutil.Uint
-				err := t.rpc.CallContext(ctx, &got, "eth_getBlockTransactionCountByHash", block.Hash())
+				err := t.rpc.CallContext(ctx, &got, "sil_getBlockTransactionCountByHash", block.Hash())
 				if err != nil {
 					return err
 				}
@@ -1202,9 +1202,9 @@ var EthGetBlockTransactionCountByHash = MethodTests{
 	},
 }
 
-// EthGetTransactionByBlockHashAndIndex stores a list of all tests against the method.
-var EthGetTransactionByBlockHashAndIndex = MethodTests{
-	"eth_getTransactionByBlockNumberAndIndex",
+// SilGetTransactionByBlockHashAndIndex stores a list of all tests against the method.
+var SilGetTransactionByBlockHashAndIndex = MethodTests{
+	"sil_getTransactionByBlockNumberAndIndex",
 	[]Test{
 		{
 			Name:  "get-block-n",
@@ -1212,7 +1212,7 @@ var EthGetTransactionByBlockHashAndIndex = MethodTests{
 			Run: func(ctx context.Context, t *T) error {
 				block := t.chain.BlockWithTransactions("", nil)
 				var got types.Transaction
-				err := t.rpc.CallContext(ctx, &got, "eth_getTransactionByBlockNumberAndIndex", hexutil.Uint64(block.NumberU64()), hexutil.Uint(0))
+				err := t.rpc.CallContext(ctx, &got, "sil_getTransactionByBlockNumberAndIndex", hexutil.Uint64(block.NumberU64()), hexutil.Uint(0))
 				if err != nil {
 					return err
 				}
@@ -1226,9 +1226,9 @@ var EthGetTransactionByBlockHashAndIndex = MethodTests{
 	},
 }
 
-// EthGetTransactionByBlockNumberAndIndex stores a list of all tests against the method.
-var EthGetTransactionByBlockNumberAndIndex = MethodTests{
-	"eth_getTransactionByBlockHashAndIndex",
+// SilGetTransactionByBlockNumberAndIndex stores a list of all tests against the method.
+var SilGetTransactionByBlockNumberAndIndex = MethodTests{
+	"sil_getTransactionByBlockHashAndIndex",
 	[]Test{
 		{
 			Name:  "get-block-n",
@@ -1236,7 +1236,7 @@ var EthGetTransactionByBlockNumberAndIndex = MethodTests{
 			Run: func(ctx context.Context, t *T) error {
 				block := t.chain.BlockWithTransactions("", nil)
 				var got types.Transaction
-				err := t.rpc.CallContext(ctx, &got, "eth_getTransactionByBlockHashAndIndex", block.Hash(), hexutil.Uint(0))
+				err := t.rpc.CallContext(ctx, &got, "sil_getTransactionByBlockHashAndIndex", block.Hash(), hexutil.Uint(0))
 				if err != nil {
 					return err
 				}
@@ -1250,16 +1250,16 @@ var EthGetTransactionByBlockNumberAndIndex = MethodTests{
 	},
 }
 
-// EthGetTransactionCount stores a list of all tests against the method.
-var EthGetTransactionCount = MethodTests{
-	"eth_getTransactionCount",
+// SilGetTransactionCount stores a list of all tests against the method.
+var SilGetTransactionCount = MethodTests{
+	"sil_getTransactionCount",
 	[]Test{
 		{
 			Name:  "get-nonce",
 			About: "gets nonce for a known account",
 			Run: func(ctx context.Context, t *T) error {
 				addr := findAccountWithNonce(t.chain)
-				got, err := t.eth.NonceAt(ctx, addr, nil)
+				got, err := t.sil.NonceAt(ctx, addr, nil)
 				if err != nil {
 					return err
 				}
@@ -1274,12 +1274,12 @@ var EthGetTransactionCount = MethodTests{
 			},
 		},
 		{
-			Name: "get-nonce-eip7702-account",
-			About: `Retrieves the nonce for an account that has an EIP-7702 code delegation applied.
+			Name: "get-nonce-sip7702-account",
+			About: `Retrieves the nonce for an account that has an SIP-7702 code delegation applied.
 For such accounts, the nonce stored in state does not match the 'transaction count'.`,
 			Run: func(ctx context.Context, t *T) error {
-				addr := t.chain.txinfo.EIP7702.Account
-				got, err := t.eth.NonceAt(ctx, addr, nil)
+				addr := t.chain.txinfo.SIP7702.Account
+				got, err := t.sil.NonceAt(ctx, addr, nil)
 				if err != nil {
 					return err
 				}
@@ -1297,7 +1297,7 @@ For such accounts, the nonce stored in state does not match the 'transaction cou
 			Name:  "get-nonce-unknown-account",
 			About: "gets nonce for a non-existent account",
 			Run: func(ctx context.Context, t *T) error {
-				got, err := t.eth.NonceAt(ctx, nonAccount, nil)
+				got, err := t.sil.NonceAt(ctx, nonAccount, nil)
 				if err != nil {
 					return err
 				}
@@ -1317,7 +1317,7 @@ For such accounts, the nonce stored in state does not match the 'transaction cou
 			Run: func(ctx context.Context, t *T) error {
 				addr := findAccountWithNonce(t.chain)
 				var got hexutil.Uint64
-				if err := t.rpc.CallContext(ctx, &got, "eth_getTransactionCount", addr); err != nil {
+				if err := t.rpc.CallContext(ctx, &got, "sil_getTransactionCount", addr); err != nil {
 					return err
 				}
 				want := t.chain.state[addr].Nonce
@@ -1356,16 +1356,16 @@ func matchLegacyTxWithInput(i int, tx *types.Transaction) bool {
 	return tx.Type() == types.LegacyTxType && len(tx.Data()) > 0
 }
 
-// EthGetTransactionByHash stores a list of all tests against the method.
-var EthGetTransactionByHash = MethodTests{
-	"eth_getTransactionByHash",
+// SilGetTransactionByHash stores a list of all tests against the method.
+var SilGetTransactionByHash = MethodTests{
+	"sil_getTransactionByHash",
 	[]Test{
 		{
 			Name:  "get-legacy-tx",
 			About: "gets a legacy transaction",
 			Run: func(ctx context.Context, t *T) error {
 				want := t.chain.FindTransaction("legacy tx", matchLegacyValueTransfer)
-				got, _, err := t.eth.TransactionByHash(ctx, want.Hash())
+				got, _, err := t.sil.TransactionByHash(ctx, want.Hash())
 				if err != nil {
 					return err
 				}
@@ -1380,7 +1380,7 @@ var EthGetTransactionByHash = MethodTests{
 			About: "gets a legacy contract create transaction",
 			Run: func(ctx context.Context, t *T) error {
 				want := t.chain.FindTransaction("legacy create", matchLegacyCreate)
-				got, _, err := t.eth.TransactionByHash(ctx, want.Hash())
+				got, _, err := t.sil.TransactionByHash(ctx, want.Hash())
 				if err != nil {
 					return err
 				}
@@ -1395,7 +1395,7 @@ var EthGetTransactionByHash = MethodTests{
 			About: "gets a legacy transaction with input data",
 			Run: func(ctx context.Context, t *T) error {
 				want := t.chain.FindTransaction("legacy tx w/ input", matchLegacyTxWithInput)
-				got, _, err := t.eth.TransactionByHash(ctx, want.Hash())
+				got, _, err := t.sil.TransactionByHash(ctx, want.Hash())
 				if err != nil {
 					return err
 				}
@@ -1412,7 +1412,7 @@ var EthGetTransactionByHash = MethodTests{
 				want := t.chain.FindTransaction("dynamic fee tx", func(i int, tx *types.Transaction) bool {
 					return tx.Type() == types.DynamicFeeTxType
 				})
-				got, _, err := t.eth.TransactionByHash(ctx, want.Hash())
+				got, _, err := t.sil.TransactionByHash(ctx, want.Hash())
 				if err != nil {
 					return err
 				}
@@ -1429,7 +1429,7 @@ var EthGetTransactionByHash = MethodTests{
 				want := t.chain.FindTransaction("access list tx", func(i int, tx *types.Transaction) bool {
 					return tx.Type() == types.AccessListTxType
 				})
-				got, _, err := t.eth.TransactionByHash(ctx, want.Hash())
+				got, _, err := t.sil.TransactionByHash(ctx, want.Hash())
 				if err != nil {
 					return err
 				}
@@ -1446,7 +1446,7 @@ var EthGetTransactionByHash = MethodTests{
 				tx := t.chain.FindTransaction("blob tx", func(i int, tx *types.Transaction) bool {
 					return tx.Type() == types.BlobTxType
 				})
-				got, _, err := t.eth.TransactionByHash(ctx, tx.Hash())
+				got, _, err := t.sil.TransactionByHash(ctx, tx.Hash())
 				if err != nil {
 					return err
 				}
@@ -1458,10 +1458,10 @@ var EthGetTransactionByHash = MethodTests{
 		},
 		{
 			Name:  "get-setcode-tx",
-			About: "retrieves an EIP-7702 transaction",
+			About: "retrieves an SIP-7702 transaction",
 			Run: func(ctx context.Context, t *T) error {
-				txhash := t.chain.txinfo.EIP7702.AuthorizeTx
-				got, _, err := t.eth.TransactionByHash(ctx, txhash)
+				txhash := t.chain.txinfo.SIP7702.AuthorizeTx
+				got, _, err := t.sil.TransactionByHash(ctx, txhash)
 				if err != nil {
 					return err
 				}
@@ -1475,8 +1475,8 @@ var EthGetTransactionByHash = MethodTests{
 			Name:  "get-empty-tx",
 			About: "requests the zero transaction hash",
 			Run: func(ctx context.Context, t *T) error {
-				_, _, err := t.eth.TransactionByHash(ctx, common.Hash{})
-				if !errors.Is(err, ethereum.NotFound) {
+				_, _, err := t.sil.TransactionByHash(ctx, common.Hash{})
+				if !errors.Is(err, sila.NotFound) {
 					return errors.New("expected not found error")
 				}
 				return nil
@@ -1486,8 +1486,8 @@ var EthGetTransactionByHash = MethodTests{
 			Name:  "get-notfound-tx",
 			About: "gets a non-existent transaction",
 			Run: func(ctx context.Context, t *T) error {
-				_, _, err := t.eth.TransactionByHash(ctx, common.HexToHash("deadbeef"))
-				if !errors.Is(err, ethereum.NotFound) {
+				_, _, err := t.sil.TransactionByHash(ctx, common.HexToHash("deadbeef"))
+				if !errors.Is(err, sila.NotFound) {
 					return errors.New("expected not found error")
 				}
 				return nil
@@ -1496,16 +1496,16 @@ var EthGetTransactionByHash = MethodTests{
 	},
 }
 
-// EthGetTransactionReceipt stores a list of all tests against the method.
-var EthGetTransactionReceipt = MethodTests{
-	"eth_getTransactionReceipt",
+// SilGetTransactionReceipt stores a list of all tests against the method.
+var SilGetTransactionReceipt = MethodTests{
+	"sil_getTransactionReceipt",
 	[]Test{
 		{
 			Name:  "get-legacy-receipt",
 			About: "gets the receipt for a legacy value transfer tx",
 			Run: func(ctx context.Context, t *T) error {
 				tx := t.chain.FindTransaction("legacy tx", matchLegacyValueTransfer)
-				receipt, err := t.eth.TransactionReceipt(ctx, tx.Hash())
+				receipt, err := t.sil.TransactionReceipt(ctx, tx.Hash())
 				if err != nil {
 					return err
 				}
@@ -1520,7 +1520,7 @@ var EthGetTransactionReceipt = MethodTests{
 			About: "gets a legacy contract create transaction",
 			Run: func(ctx context.Context, t *T) error {
 				tx := t.chain.FindTransaction("legacy create", matchLegacyCreate)
-				receipt, err := t.eth.TransactionReceipt(ctx, tx.Hash())
+				receipt, err := t.sil.TransactionReceipt(ctx, tx.Hash())
 				if err != nil {
 					return err
 				}
@@ -1538,7 +1538,7 @@ var EthGetTransactionReceipt = MethodTests{
 			About: "gets a legacy transaction with input data",
 			Run: func(ctx context.Context, t *T) error {
 				tx := t.chain.FindTransaction("legacy tx w/ input", matchLegacyTxWithInput)
-				receipt, err := t.eth.TransactionReceipt(ctx, tx.Hash())
+				receipt, err := t.sil.TransactionReceipt(ctx, tx.Hash())
 				if err != nil {
 					return err
 				}
@@ -1555,7 +1555,7 @@ var EthGetTransactionReceipt = MethodTests{
 				tx := t.chain.FindTransaction("dynamic fee tx", func(i int, tx *types.Transaction) bool {
 					return tx.Type() == types.DynamicFeeTxType
 				})
-				receipt, err := t.eth.TransactionReceipt(ctx, tx.Hash())
+				receipt, err := t.sil.TransactionReceipt(ctx, tx.Hash())
 				if err != nil {
 					return err
 				}
@@ -1575,7 +1575,7 @@ var EthGetTransactionReceipt = MethodTests{
 				tx := t.chain.FindTransaction("access list tx", func(i int, tx *types.Transaction) bool {
 					return tx.Type() == types.AccessListTxType
 				})
-				receipt, err := t.eth.TransactionReceipt(ctx, tx.Hash())
+				receipt, err := t.sil.TransactionReceipt(ctx, tx.Hash())
 				if err != nil {
 					return err
 				}
@@ -1595,7 +1595,7 @@ var EthGetTransactionReceipt = MethodTests{
 				tx := t.chain.FindTransaction("blob tx", func(i int, tx *types.Transaction) bool {
 					return tx.Type() == types.BlobTxType
 				})
-				receipt, err := t.eth.TransactionReceipt(ctx, tx.Hash())
+				receipt, err := t.sil.TransactionReceipt(ctx, tx.Hash())
 				if err != nil {
 					return err
 				}
@@ -1610,10 +1610,10 @@ var EthGetTransactionReceipt = MethodTests{
 		},
 		{
 			Name:  "get-setcode-tx",
-			About: "gets the receipt for a EIP-7702 setcode transaction",
+			About: "gets the receipt for a SIP-7702 setcode transaction",
 			Run: func(ctx context.Context, t *T) error {
-				txhash := t.chain.txinfo.EIP7702.AuthorizeTx
-				receipt, err := t.eth.TransactionReceipt(ctx, txhash)
+				txhash := t.chain.txinfo.SIP7702.AuthorizeTx
+				receipt, err := t.sil.TransactionReceipt(ctx, txhash)
 				if err != nil {
 					return err
 				}
@@ -1630,8 +1630,8 @@ var EthGetTransactionReceipt = MethodTests{
 			Name:  "get-empty-tx",
 			About: "requests the receipt for the zero tx hash",
 			Run: func(ctx context.Context, t *T) error {
-				_, err := t.eth.TransactionReceipt(ctx, common.Hash{})
-				if !errors.Is(err, ethereum.NotFound) {
+				_, err := t.sil.TransactionReceipt(ctx, common.Hash{})
+				if !errors.Is(err, sila.NotFound) {
 					return errors.New("expected not found error")
 				}
 				return nil
@@ -1641,8 +1641,8 @@ var EthGetTransactionReceipt = MethodTests{
 			Name:  "get-notfound-tx",
 			About: "requests the receipt for a non-existent tx hash",
 			Run: func(ctx context.Context, t *T) error {
-				_, err := t.eth.TransactionReceipt(ctx, common.HexToHash("deadbeef"))
-				if !errors.Is(err, ethereum.NotFound) {
+				_, err := t.sil.TransactionReceipt(ctx, common.HexToHash("deadbeef"))
+				if !errors.Is(err, sila.NotFound) {
 					return errors.New("expected not found error")
 				}
 				return nil
@@ -1651,15 +1651,15 @@ var EthGetTransactionReceipt = MethodTests{
 	},
 }
 
-var EthGetBlockReceipts = MethodTests{
-	"eth_getBlockReceipts",
+var SilGetBlockReceipts = MethodTests{
+	"sil_getBlockReceipts",
 	[]Test{
 		{
 			Name:  "get-block-receipts-0",
 			About: "gets receipts for block 0",
 			Run: func(ctx context.Context, t *T) error {
 				var receipts []*types.Receipt
-				if err := t.rpc.CallContext(ctx, &receipts, "eth_getBlockReceipts", hexutil.Uint64(0)); err != nil {
+				if err := t.rpc.CallContext(ctx, &receipts, "sil_getBlockReceipts", hexutil.Uint64(0)); err != nil {
 					return err
 				}
 				// Unfortunately, receipts cannot be checked for correctness.
@@ -1672,7 +1672,7 @@ var EthGetBlockReceipts = MethodTests{
 			Run: func(ctx context.Context, t *T) error {
 				block := t.chain.BlockWithTransactions("", nil)
 				var receipts []*types.Receipt
-				if err := t.rpc.CallContext(ctx, &receipts, "eth_getBlockReceipts", hexutil.Uint64(block.NumberU64())); err != nil {
+				if err := t.rpc.CallContext(ctx, &receipts, "sil_getBlockReceipts", hexutil.Uint64(block.NumberU64())); err != nil {
 					return err
 				}
 				return nil
@@ -1686,7 +1686,7 @@ var EthGetBlockReceipts = MethodTests{
 					receipts []*types.Receipt
 					future   = t.chain.Head().NumberU64() + 1
 				)
-				if err := t.rpc.CallContext(ctx, &receipts, "eth_getBlockReceipts", hexutil.Uint64(future)); err != nil {
+				if err := t.rpc.CallContext(ctx, &receipts, "sil_getBlockReceipts", hexutil.Uint64(future)); err != nil {
 					return err
 				}
 				if len(receipts) != 0 {
@@ -1700,7 +1700,7 @@ var EthGetBlockReceipts = MethodTests{
 			About: "gets receipts for block earliest",
 			Run: func(ctx context.Context, t *T) error {
 				var receipts []*types.Receipt
-				if err := t.rpc.CallContext(ctx, &receipts, "eth_getBlockReceipts", "earliest"); err != nil {
+				if err := t.rpc.CallContext(ctx, &receipts, "sil_getBlockReceipts", "earliest"); err != nil {
 					return err
 				}
 				return nil
@@ -1711,7 +1711,7 @@ var EthGetBlockReceipts = MethodTests{
 			About: "gets receipts for block latest",
 			Run: func(ctx context.Context, t *T) error {
 				var receipts []*types.Receipt
-				if err := t.rpc.CallContext(ctx, &receipts, "eth_getBlockReceipts", "latest"); err != nil {
+				if err := t.rpc.CallContext(ctx, &receipts, "sil_getBlockReceipts", "latest"); err != nil {
 					return err
 				}
 				return nil
@@ -1722,7 +1722,7 @@ var EthGetBlockReceipts = MethodTests{
 			About: "gets receipts for empty block hash",
 			Run: func(ctx context.Context, t *T) error {
 				var receipts []*types.Receipt
-				if err := t.rpc.CallContext(ctx, &receipts, "eth_getBlockReceipts", common.Hash{}); err != nil {
+				if err := t.rpc.CallContext(ctx, &receipts, "sil_getBlockReceipts", common.Hash{}); err != nil {
 					return err
 				}
 				if len(receipts) != 0 {
@@ -1736,7 +1736,7 @@ var EthGetBlockReceipts = MethodTests{
 			About: "gets receipts for notfound hash",
 			Run: func(ctx context.Context, t *T) error {
 				var receipts []*types.Receipt
-				if err := t.rpc.CallContext(ctx, &receipts, "eth_getBlockReceipts", common.HexToHash("deadbeef")); err != nil {
+				if err := t.rpc.CallContext(ctx, &receipts, "sil_getBlockReceipts", common.HexToHash("deadbeef")); err != nil {
 					return err
 				}
 				if len(receipts) != 0 {
@@ -1751,7 +1751,7 @@ var EthGetBlockReceipts = MethodTests{
 			Run: func(ctx context.Context, t *T) error {
 				block := t.chain.BlockWithTransactions("", nil)
 				var receipts []*types.Receipt
-				if err := t.rpc.CallContext(ctx, &receipts, "eth_getBlockReceipts", block.Hash()); err != nil {
+				if err := t.rpc.CallContext(ctx, &receipts, "sil_getBlockReceipts", block.Hash()); err != nil {
 					return err
 				}
 				return nil
@@ -1760,9 +1760,9 @@ var EthGetBlockReceipts = MethodTests{
 	},
 }
 
-// EthSendRawTransaction stores a list of all tests against the method.
-var EthSendRawTransaction = MethodTests{
-	"eth_sendRawTransaction",
+// SilSendRawTransaction stores a list of all tests against the method.
+var SilSendRawTransaction = MethodTests{
+	"sil_sendRawTransaction",
 	[]Test{
 		{
 			Name:  "send-legacy-transaction",
@@ -1779,7 +1779,7 @@ var EthSendRawTransaction = MethodTests{
 					Data:     common.FromHex("5544"),
 				}
 				tx := t.chain.MustSignTx(sender, txdata)
-				if err := t.eth.SendTransaction(ctx, tx); err != nil {
+				if err := t.sil.SendTransaction(ctx, tx); err != nil {
 					return err
 				}
 				t.chain.IncNonce(sender, 1)
@@ -1800,10 +1800,10 @@ var EthSendRawTransaction = MethodTests{
 					Value:     big.NewInt(42),
 					GasTipCap: big.NewInt(500),
 					GasFeeCap: basefee,
-					Data:      common.FromHex("0x3d602d80600a3d3981f3363d3d373d3d3d363d734d11c446473105a02b5c1ab9ebe9b03f33902a295af43d82803e903d91602b57fd5bf3"), // eip1167.minimal.proxy
+					Data:      common.FromHex("0x3d602d80600a3d3981f3363d3d373d3d3d363d734d11c446473105a02b5c1ab9ebe9b03f33902a295af43d82803e903d91602b57fd5bf3"), // sip1167.minimal.proxy
 				}
 				tx := t.chain.MustSignTx(sender, txdata)
-				if err := t.eth.SendTransaction(ctx, tx); err != nil {
+				if err := t.sil.SendTransaction(ctx, tx); err != nil {
 					return err
 				}
 				t.chain.IncNonce(sender, 1)
@@ -1828,7 +1828,7 @@ var EthSendRawTransaction = MethodTests{
 					},
 				}
 				tx := t.chain.MustSignTx(sender, txdata)
-				if err := t.eth.SendTransaction(ctx, tx); err != nil {
+				if err := t.sil.SendTransaction(ctx, tx); err != nil {
 					return err
 				}
 				t.chain.IncNonce(sender, 1)
@@ -1854,7 +1854,7 @@ var EthSendRawTransaction = MethodTests{
 					},
 				}
 				tx := t.chain.MustSignTx(sender, txdata)
-				if err := t.eth.SendTransaction(ctx, tx); err != nil {
+				if err := t.sil.SendTransaction(ctx, tx); err != nil {
 					return err
 				}
 				t.chain.IncNonce(sender, 1)
@@ -1895,7 +1895,7 @@ var EthSendRawTransaction = MethodTests{
 					Sidecar:    sidecar,
 				}
 				tx := t.chain.MustSignTx(sender, txdata)
-				if err := t.eth.SendTransaction(ctx, tx); err != nil {
+				if err := t.sil.SendTransaction(ctx, tx); err != nil {
 					return err
 				}
 				t.chain.IncNonce(sender, 1)
@@ -1905,15 +1905,15 @@ var EthSendRawTransaction = MethodTests{
 	},
 }
 
-// EthGasPrice stores a list of all tests against the method.
-var EthGasPrice = MethodTests{
-	"eth_gasPrice",
+// SilGasPrice stores a list of all tests against the method.
+var SilGasPrice = MethodTests{
+	"sil_gasPrice",
 	[]Test{
 		{
 			Name:  "get-current-gas-price",
 			About: "gets the current gas price in wei",
 			Run: func(ctx context.Context, t *T) error {
-				if _, err := t.eth.SuggestGasPrice(ctx); err != nil {
+				if _, err := t.sil.SuggestGasPrice(ctx); err != nil {
 					return err
 				}
 				return nil
@@ -1922,15 +1922,15 @@ var EthGasPrice = MethodTests{
 	},
 }
 
-// EthMaxPriorityFeePerGas stores a list of all tests against the method.
-var EthMaxPriorityFeePerGas = MethodTests{
-	"eth_maxPriorityFeePerGas",
+// SilMaxPriorityFeePerGas stores a list of all tests against the method.
+var SilMaxPriorityFeePerGas = MethodTests{
+	"sil_maxPriorityFeePerGas",
 	[]Test{
 		{
 			Name:  "get-current-tip",
 			About: "gets the current maxPriorityFeePerGas in wei",
 			Run: func(ctx context.Context, t *T) error {
-				if _, err := t.eth.SuggestGasTipCap(ctx); err != nil {
+				if _, err := t.sil.SuggestGasTipCap(ctx); err != nil {
 					return err
 				}
 				return nil
@@ -1939,54 +1939,54 @@ var EthMaxPriorityFeePerGas = MethodTests{
 	},
 }
 
-var EthBaseFee = MethodTests{
-	"eth_baseFee",
+var SilBaseFee = MethodTests{
+	"sil_baseFee",
 	[]Test{
 		{
 			Name:  "get-current-basefee",
 			About: "gets the base fee of the next block in wei",
 			Run: func(ctx context.Context, t *T) error {
 				var result hexutil.Big
-				err := t.rpc.CallContext(ctx, &result, "eth_baseFee")
+				err := t.rpc.CallContext(ctx, &result, "sil_baseFee")
 				return err
 			},
 		},
 	},
 }
 
-var EthBlobBaseFee = MethodTests{
-	"eth_blobBaseFee",
+var SilBlobBaseFee = MethodTests{
+	"sil_blobBaseFee",
 	[]Test{
 		{
 			Name:  "get-current-blobfee",
 			About: "gets the current blob fee in wei",
 			Run: func(ctx context.Context, t *T) error {
 				var result hexutil.Big
-				err := t.rpc.CallContext(ctx, &result, "eth_blobBaseFee")
+				err := t.rpc.CallContext(ctx, &result, "sil_blobBaseFee")
 				return err
 			},
 		},
 	},
 }
 
-// EthConfig stores a list of all tests against the method.
-var EthConfig = MethodTests{
-	"eth_config",
+// SilConfig stores a list of all tests against the method.
+var SilConfig = MethodTests{
+	"sil_config",
 	[]Test{
 		{
 			Name:  "get-config",
-			About: "retrieves the client's current fork configuration as defined by EIP-7910",
+			About: "retrieves the client's current fork configuration as defined by SIP-7910",
 			Run: func(ctx context.Context, t *T) error {
 				var result map[string]any
-				return t.rpc.CallContext(ctx, &result, "eth_config")
+				return t.rpc.CallContext(ctx, &result, "sil_config")
 			},
 		},
 	},
 }
 
-// EthCapabilities stores a list of all tests against the method.
-var EthCapabilities = MethodTests{
-	"eth_capabilities",
+// SilCapabilities stores a list of all tests against the method.
+var SilCapabilities = MethodTests{
+	"sil_capabilities",
 	[]Test{
 		{
 			Name:  "get-capabilities",
@@ -2004,7 +2004,7 @@ var EthCapabilities = MethodTests{
 						Hash   common.Hash    `json:"hash"`
 					} `json:"head"`
 				}
-				if err := t.rpc.CallContext(ctx, &result, "eth_capabilities"); err != nil {
+				if err := t.rpc.CallContext(ctx, &result, "sil_capabilities"); err != nil {
 					return err
 				}
 				// The head must reflect the current chain head; number and hash
@@ -2022,9 +2022,9 @@ var EthCapabilities = MethodTests{
 	},
 }
 
-// EthFeeHistory stores a list of all tests against the method.
-var EthFeeHistory = MethodTests{
-	"eth_feeHistory",
+// SilFeeHistory stores a list of all tests against the method.
+var SilFeeHistory = MethodTests{
+	"sil_feeHistory",
 	[]Test{
 		{
 			Name:     "fee-history",
@@ -2040,7 +2040,7 @@ var EthFeeHistory = MethodTests{
 					}
 					return false
 				})
-				got, err := t.eth.FeeHistory(ctx, 1, block.Number(), []float64{95, 99})
+				got, err := t.sil.FeeHistory(ctx, 1, block.Number(), []float64{95, 99})
 				if err != nil {
 					return err
 				}
@@ -2061,15 +2061,15 @@ var EthFeeHistory = MethodTests{
 	},
 }
 
-// EthSyncing stores a list of all tests against the method.
-var EthSyncing = MethodTests{
-	"eth_syncing",
+// SilSyncing stores a list of all tests against the method.
+var SilSyncing = MethodTests{
+	"sil_syncing",
 	[]Test{
 		{
 			Name:  "check-syncing",
 			About: "checks client syncing status",
 			Run: func(ctx context.Context, t *T) error {
-				_, err := t.eth.SyncProgress(ctx)
+				_, err := t.sil.SyncProgress(ctx)
 				if err != nil {
 					return err
 				}
@@ -2079,16 +2079,16 @@ var EthSyncing = MethodTests{
 	},
 }
 
-// EthGetUncleByBlockNumberAndIndex stores a list of all tests against the method.
-var EthGetUncleByBlockNumberAndIndex = MethodTests{
-	"eth_getUncleByBlockNumberAndIndex",
+// SilGetUncleByBlockNumberAndIndex stores a list of all tests against the method.
+var SilGetUncleByBlockNumberAndIndex = MethodTests{
+	"sil_getUncleByBlockNumberAndIndex",
 	[]Test{
 		{
 			Name:  "get-uncle",
 			About: "gets uncle header",
 			Run: func(ctx context.Context, t *T) error {
 				var got *types.Header
-				t.rpc.CallContext(ctx, got, "eth_getUncleByBlockNumberAndIndex", hexutil.Uint(2), hexutil.Uint(0))
+				t.rpc.CallContext(ctx, got, "sil_getUncleByBlockNumberAndIndex", hexutil.Uint(2), hexutil.Uint(0))
 				want := t.chain.GetBlock(2).Uncles()[0]
 				if got.Hash() != want.Hash() {
 					return fmt.Errorf("mismatch uncle hash (got: %s, want: %s", got.Hash(), want.Hash())
@@ -2099,15 +2099,15 @@ var EthGetUncleByBlockNumberAndIndex = MethodTests{
 	},
 }
 
-// EthGetProof stores a list of all tests against the method.
-var EthGetProof = MethodTests{
-	"eth_getProof",
+// SilGetProof stores a list of all tests against the method.
+var SilGetProof = MethodTests{
+	"sil_getProof",
 	[]Test{
 		{
 			Name:  "get-account-proof-latest",
 			About: "requests the account proof for a known account",
 			Run: func(ctx context.Context, t *T) error {
-				result, err := t.geth.GetProof(ctx, emitContract, []string{}, nil)
+				result, err := t.sila.GetProof(ctx, emitContract, []string{}, nil)
 				if err != nil {
 					return err
 				}
@@ -2129,7 +2129,7 @@ var EthGetProof = MethodTests{
 					Balance *hexutil.Big `json:"balance"`
 				}
 				var result accountResult
-				if err := t.rpc.CallContext(ctx, &result, "eth_getProof", emitContract, []string{}, t.chain.Head().Hash()); err != nil {
+				if err := t.rpc.CallContext(ctx, &result, "sil_getProof", emitContract, []string{}, t.chain.Head().Hash()); err != nil {
 					return err
 				}
 				balance := t.chain.Balance(emitContract)
@@ -2146,7 +2146,7 @@ var EthGetProof = MethodTests{
 			Name:  "get-account-proof-with-storage",
 			About: "gets proof for a certain account",
 			Run: func(ctx context.Context, t *T) error {
-				result, err := t.geth.GetProof(ctx, emitContract, []string{"0x00"}, nil)
+				result, err := t.sila.GetProof(ctx, emitContract, []string{"0x00"}, nil)
 				if err != nil {
 					return err
 				}
@@ -2168,7 +2168,7 @@ var EthGetProof = MethodTests{
 					Balance *hexutil.Big `json:"balance"`
 				}
 				var result accountResult
-				if err := t.rpc.CallContext(ctx, &result, "eth_getProof", emitContract, []string{}); err != nil {
+				if err := t.rpc.CallContext(ctx, &result, "sil_getProof", emitContract, []string{}); err != nil {
 					return err
 				}
 				balance := t.chain.Balance(emitContract)
@@ -2184,14 +2184,14 @@ var EthGetProof = MethodTests{
 	},
 }
 
-var EthGetLogs = MethodTests{
-	"eth_getLogs",
+var SilGetLogs = MethodTests{
+	"sil_getLogs",
 	[]Test{
 		{
 			Name:  "no-topics",
 			About: "queries for all logs across a range of blocks",
 			Run: func(ctx context.Context, t *T) error {
-				result, err := t.eth.FilterLogs(ctx, ethereum.FilterQuery{
+				result, err := t.sil.FilterLogs(ctx, sila.FilterQuery{
 					FromBlock: big.NewInt(1),
 					ToBlock:   big.NewInt(3),
 				})
@@ -2208,7 +2208,7 @@ var EthGetLogs = MethodTests{
 			Name:  "contract-addr",
 			About: "queries for logs from a specific contract across a range of blocks",
 			Run: func(ctx context.Context, t *T) error {
-				result, err := t.eth.FilterLogs(ctx, ethereum.FilterQuery{
+				result, err := t.sil.FilterLogs(ctx, sila.FilterQuery{
 					FromBlock: big.NewInt(1),
 					ToBlock:   big.NewInt(4),
 					Addresses: []common.Address{emitContract},
@@ -2242,7 +2242,7 @@ var EthGetLogs = MethodTests{
 				info := t.chain.txinfo.LegacyEmit[i]
 				startBlock := uint64(info.Block - 1)
 				endBlock := uint64(info.Block + 2)
-				result, err := t.eth.FilterLogs(ctx, ethereum.FilterQuery{
+				result, err := t.sil.FilterLogs(ctx, sila.FilterQuery{
 					FromBlock: new(big.Int).SetUint64(startBlock),
 					ToBlock:   new(big.Int).SetUint64(endBlock),
 					Topics:    [][]common.Hash{{*info.LogTopic0}, {*info.LogTopic1}},
@@ -2270,7 +2270,7 @@ var EthGetLogs = MethodTests{
 				info := t.chain.txinfo.LegacyEmit[i]
 				startBlock := uint64(info.Block - 1)
 				endBlock := uint64(info.Block + 2)
-				result, err := t.eth.FilterLogs(ctx, ethereum.FilterQuery{
+				result, err := t.sil.FilterLogs(ctx, sila.FilterQuery{
 					FromBlock: new(big.Int).SetUint64(startBlock),
 					ToBlock:   new(big.Int).SetUint64(endBlock),
 					Topics:    [][]common.Hash{{}, {*info.LogTopic1}},
@@ -2297,7 +2297,7 @@ var EthGetLogs = MethodTests{
 				}
 				block := t.chain.GetBlock(int(t.chain.txinfo.LegacyEmit[i].Block))
 				hash := block.Hash()
-				result, err := t.eth.FilterLogs(ctx, ethereum.FilterQuery{BlockHash: &hash})
+				result, err := t.sil.FilterLogs(ctx, sila.FilterQuery{BlockHash: &hash})
 				if err != nil {
 					return err
 				}
@@ -2319,7 +2319,7 @@ var EthGetLogs = MethodTests{
 					return fmt.Errorf("no suitable tx found")
 				}
 				hash := t.chain.GetBlock(int(t.chain.txinfo.LegacyEmit[i].Block)).Hash()
-				result, err := t.eth.FilterLogs(ctx, ethereum.FilterQuery{BlockHash: &hash})
+				result, err := t.sil.FilterLogs(ctx, sila.FilterQuery{BlockHash: &hash})
 				if err != nil {
 					return err
 				}
@@ -2342,7 +2342,7 @@ var EthGetLogs = MethodTests{
 				}
 				info := t.chain.txinfo.LegacyEmit[i]
 				hash := t.chain.GetBlock(int(info.Block)).Hash()
-				result, err := t.eth.FilterLogs(ctx, ethereum.FilterQuery{
+				result, err := t.sil.FilterLogs(ctx, sila.FilterQuery{
 					BlockHash: &hash,
 					Topics:    [][]common.Hash{{*info.LogTopic0}, {*info.LogTopic1}},
 				})
@@ -2359,7 +2359,7 @@ var EthGetLogs = MethodTests{
 			Name:  "filter-error-future-block-range",
 			About: "checks that an error is returned if `toBlock` is greater than the latest block",
 			Run: func(ctx context.Context, t *T) error {
-				_, err := t.eth.FilterLogs(ctx, ethereum.FilterQuery{
+				_, err := t.sil.FilterLogs(ctx, sila.FilterQuery{
 					FromBlock: big.NewInt(int64(len(t.chain.blocks) - 5)),
 					ToBlock:   big.NewInt(int64(len(t.chain.blocks) + 1)),
 				})
@@ -2373,7 +2373,7 @@ var EthGetLogs = MethodTests{
 			Name:  "filter-error-reversed-block-range",
 			About: "checks that an error is returned if `fromBlock` is larger than `toBlock`",
 			Run: func(ctx context.Context, t *T) error {
-				_, err := t.eth.FilterLogs(ctx, ethereum.FilterQuery{
+				_, err := t.sil.FilterLogs(ctx, sila.FilterQuery{
 					FromBlock: big.NewInt(int64(len(t.chain.blocks) - 5)),
 					ToBlock:   big.NewInt(int64(len(t.chain.blocks) - 8)),
 				})
@@ -2385,9 +2385,9 @@ var EthGetLogs = MethodTests{
 		},
 		{
 			Name:  "filter-error-invalid-blockHash-and-range",
-			About: "checks that an error is returned if `fromBlock`/`toBlock` are specified together with `blockHash`",
+			About: "checks that an error is returned if `fromBlock`/`toBlock` are specified tosilaer with `blockHash`",
 			Run: func(ctx context.Context, t *T) error {
-				err := t.rpc.CallContext(ctx, nil, "eth_getLogs", map[string]string{
+				err := t.rpc.CallContext(ctx, nil, "sil_getLogs", map[string]string{
 					"blockHash": t.chain.blocks[10].Hash().String(),
 					"fromBlock": "0x3",
 					"toBlock":   "0x4",
@@ -2555,7 +2555,7 @@ var NetVersion = MethodTests{
 			Name:  "get-network-id",
 			About: "Calls net_version to retrieve the network ID, which is expected to be equal to the chainID of the test chain.",
 			Run: func(ctx context.Context, t *T) error {
-				id, err := t.eth.NetworkID(ctx)
+				id, err := t.sil.NetworkID(ctx)
 				if err != nil {
 					return err
 				}
@@ -2640,7 +2640,7 @@ func validateBuildBlockV1Response(
 	}
 
 	// Verify parentBeaconBlockRoot if Cancun is active and it's present in response
-	if t.chain.Config().IsCancun(parentBlock.Number(), parentBlock.Time()) {
+	if t.chain.Config().IsSilaCancun(parentBlock.Number(), parentBlock.Time()) {
 		if payloadBeaconRoot, hasBeaconRoot := payloadAttrs["parentBeaconBlockRoot"]; hasBeaconRoot {
 			if beaconRootStr, ok := executionPayload["parentBeaconBlockRoot"].(string); ok {
 				expectedBeaconRoot := common.HexToHash(payloadBeaconRoot.(string))
@@ -2698,13 +2698,13 @@ var TestingBuildBlockV1 = MethodTests{
 					"withdrawals":           []interface{}{},
 				}
 
-				if t.chain.Config().IsCancun(parentBlock.Number(), parentBlock.Time()) {
+				if t.chain.Config().IsSilaCancun(parentBlock.Number(), parentBlock.Time()) {
 					beaconRoot := common.Hash{0xcf, 0x8e, 0x0d, 0x4e, 0x95, 0x87, 0x36, 0x9b, 0x23, 0x01, 0xd0, 0x79, 0x03, 0x47, 0x32, 0x03, 0x02, 0xcc, 0x09, 0x43, 0xd5, 0xa1, 0x88, 0x43, 0x65, 0x14, 0x9a, 0x42, 0x21, 0x2e, 0x88, 0x22}
 					payloadAttrs["parentBeaconBlockRoot"] = beaconRoot.Hex()
 				}
 
-				// Use sender index 2 so nonce matches geth state: index 0 (and 3) are used by
-				// eth_sendRawTransaction tests which call IncNonce, so they diverge from geth when run in full suite.
+				// Use sender index 2 so nonce matches sila state: index 0 (and 3) are used by
+				// sil_sendRawTransaction tests which call IncNonce, so they diverge from sila when run in full suite.
 				sender, nonce := t.chain.GetSender(2)
 				basefee := parentBlock.BaseFee()
 				if basefee == nil {
@@ -2787,7 +2787,7 @@ var TestingBuildBlockV1 = MethodTests{
 					"withdrawals":           []interface{}{},
 				}
 
-				if t.chain.Config().IsCancun(parentBlock.Number(), parentBlock.Time()) {
+				if t.chain.Config().IsSilaCancun(parentBlock.Number(), parentBlock.Time()) {
 					beaconRoot := common.Hash{0xcf, 0x8e, 0x0d, 0x4e, 0x95, 0x87, 0x36, 0x9b, 0x23, 0x01, 0xd0, 0x79, 0x03, 0x47, 0x32, 0x03, 0x02, 0xcc, 0x09, 0x43, 0xd5, 0xa1, 0x88, 0x43, 0x65, 0x14, 0x9a, 0x42, 0x21, 0x2e, 0x88, 0x22}
 					payloadAttrs["parentBeaconBlockRoot"] = beaconRoot.Hex()
 				}
@@ -2841,7 +2841,7 @@ var TestingBuildBlockV1 = MethodTests{
 					"withdrawals":           []interface{}{},
 				}
 
-				if t.chain.Config().IsCancun(parentBlock.Number(), parentBlock.Time()) {
+				if t.chain.Config().IsSilaCancun(parentBlock.Number(), parentBlock.Time()) {
 					beaconRoot := common.Hash{0xcf, 0x8e, 0x0d, 0x4e, 0x95, 0x87, 0x36, 0x9b, 0x23, 0x01, 0xd0, 0x79, 0x03, 0x47, 0x32, 0x03, 0x02, 0xcc, 0x09, 0x43, 0xd5, 0xa1, 0x88, 0x43, 0x65, 0x14, 0x9a, 0x42, 0x21, 0x2e, 0x88, 0x22}
 					payloadAttrs["parentBeaconBlockRoot"] = beaconRoot.Hex()
 				}
@@ -2872,7 +2872,7 @@ var TestingBuildBlockV1 = MethodTests{
 				txHex := hexutil.Encode(txBytes)
 
 				var txHash common.Hash
-				err = t.rpc.CallContext(ctx, &txHash, "eth_sendRawTransaction", txHex)
+				err = t.rpc.CallContext(ctx, &txHash, "sil_sendRawTransaction", txHex)
 				if err != nil {
 					return fmt.Errorf("failed to send transaction to mempool: %w", err)
 				}
@@ -2923,7 +2923,7 @@ var TestingBuildBlockV1 = MethodTests{
 					"withdrawals":           []interface{}{},
 				}
 
-				if t.chain.Config().IsCancun(parentBlock.Number(), parentBlock.Time()) {
+				if t.chain.Config().IsSilaCancun(parentBlock.Number(), parentBlock.Time()) {
 					beaconRoot := common.Hash{0xcf, 0x8e, 0x0d, 0x4e, 0x95, 0x87, 0x36, 0x9b, 0x23, 0x01, 0xd0, 0x79, 0x03, 0x47, 0x32, 0x03, 0x02, 0xcc, 0x09, 0x43, 0xd5, 0xa1, 0x88, 0x43, 0x65, 0x14, 0x9a, 0x42, 0x21, 0x2e, 0x88, 0x22}
 					payloadAttrs["parentBeaconBlockRoot"] = beaconRoot.Hex()
 				}
@@ -2974,7 +2974,7 @@ var TestingBuildBlockV1 = MethodTests{
 				}
 
 				// Spec: method MUST NOT modify the chain; head must be unchanged.
-				headBlock, err := t.eth.BlockByNumber(ctx, nil)
+				headBlock, err := t.sil.BlockByNumber(ctx, nil)
 				if err != nil {
 					return fmt.Errorf("failed to get node head after failed call: %w", err)
 				}
@@ -2988,11 +2988,11 @@ var TestingBuildBlockV1 = MethodTests{
 	},
 }
 
-var EthSimulateV1 = MethodTests{
-	"eth_simulateV1",
+var SilSimulateV1 = MethodTests{
+	"sil_simulateV1",
 	[]Test{
 		{
-			Name:  "ethSimulate-blobs",
+			Name:  "silSimulate-blobs",
 			About: "simulates a simple blob transaction",
 
 			Run: func(ctx context.Context, t *T) error {
@@ -3007,7 +3007,7 @@ var EthSimulateV1 = MethodTests{
 					Proofs:      []kzg4844.Proof{emptyBlobProof},
 				}
 				blobVersionedhashes := sidecar.BlobHashes()
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{
 						{
 							BlockOverrides: &BlockOverrides{
@@ -3043,7 +3043,7 @@ var EthSimulateV1 = MethodTests{
 					ReturnFullTransactions: true,
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				if len(res) != len(params.BlockStateCalls) {
@@ -3053,10 +3053,10 @@ var EthSimulateV1 = MethodTests{
 			},
 		},
 		{
-			Name:  "ethSimulate-simple",
-			About: "simulates a ethSimulate transfer",
+			Name:  "silSimulate-simple",
+			About: "simulates a silSimulate transfer",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{
 						{
 							StateOverrides: &StateOverride{
@@ -3075,7 +3075,7 @@ var EthSimulateV1 = MethodTests{
 					},
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				if len(res) != len(params.BlockStateCalls) {
@@ -3085,10 +3085,10 @@ var EthSimulateV1 = MethodTests{
 			},
 		},
 		{
-			Name:  "ethSimulate-simple-validation-fulltx",
-			About: "simulates a ethSimulate transfer",
+			Name:  "silSimulate-simple-validation-fulltx",
+			About: "simulates a silSimulate transfer",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{
 						{
 							BlockOverrides: &BlockOverrides{
@@ -3114,7 +3114,7 @@ var EthSimulateV1 = MethodTests{
 					ReturnFullTransactions: true,
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				if len(res) != len(params.BlockStateCalls) {
@@ -3124,10 +3124,10 @@ var EthSimulateV1 = MethodTests{
 			},
 		},
 		{
-			Name:  "ethSimulate-simple-more-params-validate",
+			Name:  "silSimulate-simple-more-params-validate",
 			About: "simulates a simple do-nothing transaction with more fields set",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{
 						{
 							StateOverrides: &StateOverride{
@@ -3153,7 +3153,7 @@ var EthSimulateV1 = MethodTests{
 					ReturnFullTransactions: true,
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				if len(res) != len(params.BlockStateCalls) {
@@ -3163,41 +3163,41 @@ var EthSimulateV1 = MethodTests{
 			},
 		},
 		{
-			Name:  "ethSimulate-empty-validation",
+			Name:  "silSimulate-empty-validation",
 			About: "simulates empty with validation",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls:        []CallBatch{{}},
 					Validation:             true,
 					ReturnFullTransactions: true,
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-empty",
+			Name:  "silSimulate-empty",
 			About: "simulates empty",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls:        []CallBatch{{}},
 					ReturnFullTransactions: true,
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-simple-more-params-validate",
+			Name:  "silSimulate-simple-more-params-validate",
 			About: "simulates a simple do-nothing transaction with more fields set",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{
 						{
 							StateOverrides: &StateOverride{
@@ -3223,7 +3223,7 @@ var EthSimulateV1 = MethodTests{
 					ReturnFullTransactions: true,
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				if len(res) != len(params.BlockStateCalls) {
@@ -3233,10 +3233,10 @@ var EthSimulateV1 = MethodTests{
 			},
 		},
 		{
-			Name:  "ethSimulate-simple-with-validation-no-funds",
-			About: "simulates a ethSimulate transfer with validation and not enough funds",
+			Name:  "silSimulate-simple-with-validation-no-funds",
+			About: "simulates a silSimulate transfer with validation and not enough funds",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{
 						{
 							StateOverrides: &StateOverride{
@@ -3256,7 +3256,7 @@ var EthSimulateV1 = MethodTests{
 					Validation: false,
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				if len(res) != len(params.BlockStateCalls) {
@@ -3266,10 +3266,10 @@ var EthSimulateV1 = MethodTests{
 			},
 		},
 		{
-			Name:  "ethSimulate-simple-no-funds",
-			About: "simulates a simple ethSimulate transfer when account has no funds",
+			Name:  "silSimulate-simple-no-funds",
+			About: "simulates a simple silSimulate transfer when account has no funds",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{
 						{
 							Calls: []TransactionArgs{{
@@ -3286,16 +3286,16 @@ var EthSimulateV1 = MethodTests{
 					Validation: false,
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-overwrite-existing-contract",
+			Name:  "silSimulate-overwrite-existing-contract",
 			About: "overwrites existing contract with new contract",
 			Run: func(ctx context.Context, t *T) error {
 				contractAddr := common.HexToAddress("0000000000000000000000000000000000031ec7")
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{
 						{
 							Calls: []TransactionArgs{{
@@ -3318,7 +3318,7 @@ var EthSimulateV1 = MethodTests{
 					Validation: false,
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				if len(res) != len(params.BlockStateCalls) {
@@ -3329,10 +3329,10 @@ var EthSimulateV1 = MethodTests{
 		},
 
 		{
-			Name:  "ethSimulate-overflow-nonce",
+			Name:  "silSimulate-overflow-nonce",
 			About: "test to overflow nonce",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{
 						{
 							StateOverrides: &StateOverride{
@@ -3353,7 +3353,7 @@ var EthSimulateV1 = MethodTests{
 					Validation: false,
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				if len(res) != len(params.BlockStateCalls) {
@@ -3363,10 +3363,10 @@ var EthSimulateV1 = MethodTests{
 			},
 		},
 		{
-			Name:  "ethSimulate-overflow-nonce-validation",
+			Name:  "silSimulate-overflow-nonce-validation",
 			About: "test to overflow nonce-validation",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{
 						{
 							StateOverrides: &StateOverride{
@@ -3387,15 +3387,15 @@ var EthSimulateV1 = MethodTests{
 					Validation: true,
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-simple-no-funds-with-balance-querying",
-			About: "simulates a simple ethSimulate transfer when account has no funds with querying balances before and after",
+			Name:  "silSimulate-simple-no-funds-with-balance-querying",
+			About: "simulates a simple silSimulate transfer when account has no funds with querying balances before and after",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
 							common.Address{0xc2}: OverrideAccount{
@@ -3449,15 +3449,15 @@ var EthSimulateV1 = MethodTests{
 					ReturnFullTransactions: true,
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-check-that-balance-is-there-after-new-block",
+			Name:  "silSimulate-check-that-balance-is-there-after-new-block",
 			About: "checks that balances are kept to next block",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
 							common.Address{0xc0}: OverrideAccount{
@@ -3505,7 +3505,7 @@ var EthSimulateV1 = MethodTests{
 					}},
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				if len(res) != len(params.BlockStateCalls) {
@@ -3515,10 +3515,10 @@ var EthSimulateV1 = MethodTests{
 			},
 		},
 		{
-			Name:  "ethSimulate-simple-no-funds-with-validation",
-			About: "simulates a simple ethSimulate transfer when account has no funds with validation",
+			Name:  "silSimulate-simple-no-funds-with-validation",
+			About: "simulates a simple silSimulate transfer when account has no funds with validation",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{
 						{
 							Calls: []TransactionArgs{{
@@ -3537,15 +3537,15 @@ var EthSimulateV1 = MethodTests{
 					Validation: true,
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-simple-no-funds-with-validation-without-nonces",
-			About: "simulates a simple ethSimulate transfer when account has no funds with validation. This should fail as the nonce is not set for the second transaction.",
+			Name:  "silSimulate-simple-no-funds-with-validation-without-nonces",
+			About: "simulates a simple silSimulate transfer when account has no funds with validation. This should fail as the nonce is not set for the second transaction.",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{
 						{
 							Calls: []TransactionArgs{{
@@ -3563,18 +3563,18 @@ var EthSimulateV1 = MethodTests{
 					Validation: true,
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-simple-send-from-contract",
-			About: "Sending eth from contract",
+			Name:  "silSimulate-simple-send-from-contract",
+			About: "Sending sil from contract",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
-							common.Address{0xc0}: OverrideAccount{Balance: newRPCBalance(1000), Code: getEthForwarder()},
+							common.Address{0xc0}: OverrideAccount{Balance: newRPCBalance(1000), Code: getSilForwarder()},
 						},
 						Calls: []TransactionArgs{{
 							From:  &common.Address{0xc0},
@@ -3586,7 +3586,7 @@ var EthSimulateV1 = MethodTests{
 					Validation:     false,
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				if len(res) != len(params.BlockStateCalls) {
@@ -3596,13 +3596,13 @@ var EthSimulateV1 = MethodTests{
 			},
 		},
 		{
-			Name:  "ethSimulate-simple-send-from-contract-no-balance",
-			About: "Sending eth from contract without balance",
+			Name:  "silSimulate-simple-send-from-contract-no-balance",
+			About: "Sending sil from contract without balance",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
-							common.Address{0xc0}: OverrideAccount{Code: getEthForwarder()},
+							common.Address{0xc0}: OverrideAccount{Code: getSilForwarder()},
 						},
 						Calls: []TransactionArgs{{
 							From:  &common.Address{0xc0},
@@ -3614,18 +3614,18 @@ var EthSimulateV1 = MethodTests{
 					Validation:     false,
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-simple-send-from-contract-with-validation",
-			About: "Sending eth from contract with validation enabled",
+			Name:  "silSimulate-simple-send-from-contract-with-validation",
+			About: "Sending sil from contract with validation enabled",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
-							common.Address{0xc0}: OverrideAccount{Balance: newRPCBalance(1000), Code: getEthForwarder()},
+							common.Address{0xc0}: OverrideAccount{Balance: newRPCBalance(1000), Code: getSilForwarder()},
 						},
 						Calls: []TransactionArgs{{
 							From:  &common.Address{0xc0},
@@ -3638,15 +3638,15 @@ var EthSimulateV1 = MethodTests{
 					ReturnFullTransactions: true,
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-transfer-over-BlockStateCalls",
+			Name:  "silSimulate-transfer-over-BlockStateCalls",
 			About: "simulates a transfering value over multiple BlockStateCalls",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
 							common.Address{0xc0}: OverrideAccount{Balance: newRPCBalance(5000)},
@@ -3680,16 +3680,16 @@ var EthSimulateV1 = MethodTests{
 					}},
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-override-block-num",
+			Name:  "silSimulate-override-block-num",
 			About: "simulates calls overriding the block num",
 			Run: func(ctx context.Context, t *T) error {
 				latestBlockNumber := t.chain.Head().Number().Int64()
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						BlockOverrides: &BlockOverrides{
 							Number: (*hexutil.Big)(big.NewInt(latestBlockNumber + 1)),
@@ -3719,16 +3719,16 @@ var EthSimulateV1 = MethodTests{
 					}},
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-block-num-order-38020",
+			Name:  "silSimulate-block-num-order-38020",
 			About: "simulates calls with invalid block num order (-38020)",
 			Run: func(ctx context.Context, t *T) error {
 				latestBlockNumber := t.chain.Head().Number().Int64()
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						BlockOverrides: &BlockOverrides{
 							Number: (*hexutil.Big)(big.NewInt(latestBlockNumber + 100)),
@@ -3756,16 +3756,16 @@ var EthSimulateV1 = MethodTests{
 					}},
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-block-timestamp-order-38021",
+			Name:  "silSimulate-block-timestamp-order-38021",
 			About: "Error: simulates calls with invalid timestamp order (-38021)",
 			Run: func(ctx context.Context, t *T) error {
 				latestBlockTime := hexutil.Uint64(t.chain.Head().Time())
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{
 						{
 							BlockOverrides: &BlockOverrides{
@@ -3779,16 +3779,16 @@ var EthSimulateV1 = MethodTests{
 					},
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-block-timestamp-non-increment",
+			Name:  "silSimulate-block-timestamp-non-increment",
 			About: "Error: simulates calls with timestamp staying the same",
 			Run: func(ctx context.Context, t *T) error {
 				latestBlockTime := hexutil.Uint64(t.chain.Head().Time())
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{
 						{
 							BlockOverrides: &BlockOverrides{
@@ -3802,16 +3802,16 @@ var EthSimulateV1 = MethodTests{
 					},
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-block-timestamps-incrementing",
+			Name:  "silSimulate-block-timestamps-incrementing",
 			About: "checks that you can set timestamp and increment it in next block",
 			Run: func(ctx context.Context, t *T) error {
 				latestBlockTime := hexutil.Uint64(t.chain.Head().Time())
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{
 						{
 							BlockOverrides: &BlockOverrides{
@@ -3825,16 +3825,16 @@ var EthSimulateV1 = MethodTests{
 					},
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-block-timestamp-auto-increment",
+			Name:  "silSimulate-block-timestamp-auto-increment",
 			About: "Error: simulates calls with timestamp incrementing over another",
 			Run: func(ctx context.Context, t *T) error {
 				latestBlockTime := hexutil.Uint64(t.chain.Head().Time())
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{
 						{
 							BlockOverrides: &BlockOverrides{
@@ -3855,15 +3855,15 @@ var EthSimulateV1 = MethodTests{
 					},
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-set-read-storage",
+			Name:  "silSimulate-set-read-storage",
 			About: "simulates calls setting and reading from storage contract",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
 							common.Address{0xc2}: OverrideAccount{
@@ -3885,7 +3885,7 @@ var EthSimulateV1 = MethodTests{
 					}},
 				}
 				res := make([]interface{}, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				if len(res) != len(params.BlockStateCalls) {
@@ -3895,10 +3895,10 @@ var EthSimulateV1 = MethodTests{
 			},
 		},
 		{
-			Name:  "ethSimulate-logs",
+			Name:  "silSimulate-logs",
 			About: "simulates calls with logs",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
 							common.Address{0xc2}: OverrideAccount{
@@ -3921,7 +3921,7 @@ var EthSimulateV1 = MethodTests{
 					}},
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				if len(res) != len(params.BlockStateCalls) {
@@ -3931,10 +3931,10 @@ var EthSimulateV1 = MethodTests{
 			},
 		},
 		{
-			Name:  "ethSimulate-blockhash-simple",
+			Name:  "silSimulate-blockhash-simple",
 			About: "gets blockhash of block 1 (included in original chain)",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
 							common.Address{0xc2}: OverrideAccount{
@@ -3949,7 +3949,7 @@ var EthSimulateV1 = MethodTests{
 					}},
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				if len(res) != len(params.BlockStateCalls) {
@@ -3965,11 +3965,11 @@ var EthSimulateV1 = MethodTests{
 			},
 		},
 		{
-			Name:  "ethSimulate-blockhash-complex",
+			Name:  "silSimulate-blockhash-complex",
 			About: "gets blockhash of simulated block",
 			Run: func(ctx context.Context, t *T) error {
 				latestBlockNumber := t.chain.Head().Number().Int64()
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
 							common.Address{0xc0}: OverrideAccount{
@@ -4005,16 +4005,16 @@ var EthSimulateV1 = MethodTests{
 					}},
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-blockhash-start-before-head",
+			Name:  "silSimulate-blockhash-start-before-head",
 			About: "gets blockhash of simulated block",
 			Run: func(ctx context.Context, t *T) error {
 				latestBlockNumber := t.chain.Head().Number().Int64()
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
 							common.Address{0xc0}: OverrideAccount{
@@ -4051,66 +4051,66 @@ var EthSimulateV1 = MethodTests{
 					}},
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-empty-with-block-num-set-firstblock",
+			Name:  "silSimulate-empty-with-block-num-set-firstblock",
 			About: "set block number otherwise empty",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{}},
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, (*hexutil.Big)(big.NewInt(1)))
+				t.rpc.Call(&res, "sil_simulateV1", params, (*hexutil.Big)(big.NewInt(1)))
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-empty-with-block-num-set-minusone",
+			Name:  "silSimulate-empty-with-block-num-set-minusone",
 			About: "set block number otherwise empty with latest - 1",
 			Run: func(ctx context.Context, t *T) error {
 				latestBlockNumber := t.chain.Head().Number().Int64()
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{}},
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, (*hexutil.Big)(big.NewInt(latestBlockNumber-1)))
+				t.rpc.Call(&res, "sil_simulateV1", params, (*hexutil.Big)(big.NewInt(latestBlockNumber-1)))
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-empty-with-block-num-set-current",
+			Name:  "silSimulate-empty-with-block-num-set-current",
 			About: "set block number otherwise empty with latest",
 			Run: func(ctx context.Context, t *T) error {
 				latestBlockNumber := t.chain.Head().Number().Int64()
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{}},
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, (*hexutil.Big)(big.NewInt(latestBlockNumber)))
+				t.rpc.Call(&res, "sil_simulateV1", params, (*hexutil.Big)(big.NewInt(latestBlockNumber)))
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-empty-with-block-num-set-plus1",
+			Name:  "silSimulate-empty-with-block-num-set-plus1",
 			About: "set block number otherwise empty with latest + 1",
 			Run: func(ctx context.Context, t *T) error {
 				latestBlockNumber := t.chain.Head().Number().Int64()
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{}},
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, (*hexutil.Big)(big.NewInt(latestBlockNumber+1)))
+				t.rpc.Call(&res, "sil_simulateV1", params, (*hexutil.Big)(big.NewInt(latestBlockNumber+1)))
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-self-destructing-state-override",
+			Name:  "silSimulate-self-destructing-state-override",
 			About: "when selfdestructing a state override, the state override should go away",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
 							common.Address{0xc2}: OverrideAccount{
@@ -4153,7 +4153,7 @@ var EthSimulateV1 = MethodTests{
 					}},
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				if len(res) != len(params.BlockStateCalls) {
@@ -4163,10 +4163,10 @@ var EthSimulateV1 = MethodTests{
 			},
 		},
 		{
-			Name:  "ethSimulate-run-out-of-gas-in-block-38015",
+			Name:  "silSimulate-run-out-of-gas-in-block-38015",
 			About: "we should get out of gas error if a block consumes too much gas (-38015)",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
 							common.Address{0xc0}: OverrideAccount{
@@ -4195,15 +4195,15 @@ var EthSimulateV1 = MethodTests{
 					},
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-run-gas-spending",
+			Name:  "silSimulate-run-gas-spending",
 			About: "spend a lot gas in separate blocks",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{
 						{
 							StateOverrides: &StateOverride{
@@ -4256,15 +4256,15 @@ var EthSimulateV1 = MethodTests{
 					},
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-eth-send-should-produce-logs",
-			About: "when sending eth we should get ETH logs when traceTransfers is set",
+			Name:  "silSimulate-sil-send-should-produce-logs",
+			About: "when sending sil we should get SIL logs when traceTransfers is set",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
 							common.Address{0xc0}: OverrideAccount{Balance: newRPCBalance(2000)},
@@ -4278,7 +4278,7 @@ var EthSimulateV1 = MethodTests{
 					TraceTransfers: true,
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				if len(res) != len(params.BlockStateCalls) {
@@ -4294,10 +4294,10 @@ var EthSimulateV1 = MethodTests{
 			},
 		},
 		{
-			Name:  "ethSimulate-override-address-twice",
+			Name:  "silSimulate-override-address-twice",
 			About: "override address twice",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
 							common.Address{0xc0}: OverrideAccount{Balance: newRPCBalance(2000)},
@@ -4312,15 +4312,15 @@ var EthSimulateV1 = MethodTests{
 					TraceTransfers: true,
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-empty-calls-and-overrides-ethSimulate",
-			About: "ethSimulate with state overrides and calls but they are empty",
+			Name:  "silSimulate-empty-calls-and-overrides-silSimulate",
+			About: "silSimulate with state overrides and calls but they are empty",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{
 						{
 							StateOverrides: &StateOverride{},
@@ -4334,15 +4334,15 @@ var EthSimulateV1 = MethodTests{
 					TraceTransfers: true,
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-override-address-twice-in-separate-BlockStateCalls",
+			Name:  "silSimulate-override-address-twice-in-separate-BlockStateCalls",
 			About: "override address twice in separate BlockStateCalls",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{
 						{
 							StateOverrides: &StateOverride{
@@ -4368,17 +4368,17 @@ var EthSimulateV1 = MethodTests{
 					TraceTransfers: true,
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-eth-send-should-not-produce-logs-on-revert",
-			About: "we should not be producing eth logs if the transaction reverts and ETH is not sent",
+			Name:  "silSimulate-sil-send-should-not-produce-logs-on-revert",
+			About: "we should not be producing sil logs if the transaction reverts and SIL is not sent",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
 							common.Address{0xc0}: OverrideAccount{Balance: newRPCBalance(2000)},
@@ -4394,7 +4394,7 @@ var EthSimulateV1 = MethodTests{
 					ReturnFullTransactions: true,
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				if len(res) != len(params.BlockStateCalls) {
@@ -4407,14 +4407,14 @@ var EthSimulateV1 = MethodTests{
 			},
 		},
 		{
-			Name:  "ethSimulate-eth-send-should-produce-more-logs-on-forward",
-			About: "we should be getting more logs if eth is forwarded",
+			Name:  "silSimulate-sil-send-should-produce-more-logs-on-forward",
+			About: "we should be getting more logs if sil is forwarded",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
 							common.Address{0xc0}: OverrideAccount{Balance: newRPCBalance(2000)},
-							common.Address{0xc1}: OverrideAccount{Code: getEthForwarder()},
+							common.Address{0xc1}: OverrideAccount{Code: getSilForwarder()},
 						},
 						Calls: []TransactionArgs{{
 							From:  &common.Address{0xc0},
@@ -4426,7 +4426,7 @@ var EthSimulateV1 = MethodTests{
 					TraceTransfers: true,
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				if len(res) != len(params.BlockStateCalls) {
@@ -4439,14 +4439,14 @@ var EthSimulateV1 = MethodTests{
 			},
 		},
 		{
-			Name:  "ethSimulate-eth-send-should-produce-no-logs-on-forward-revert",
-			About: "we should be getting no logs if eth is forwarded but then the tx reverts",
+			Name:  "silSimulate-sil-send-should-produce-no-logs-on-forward-revert",
+			About: "we should be getting no logs if sil is forwarded but then the tx reverts",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
 							common.Address{0xc0}: OverrideAccount{Balance: newRPCBalance(2000)},
-							common.Address{0xc1}: OverrideAccount{Code: getEthForwarder()},
+							common.Address{0xc1}: OverrideAccount{Code: getSilForwarder()},
 							common.Address{0xc2}: OverrideAccount{Code: getRevertingContract()},
 						},
 						Calls: []TransactionArgs{{
@@ -4459,7 +4459,7 @@ var EthSimulateV1 = MethodTests{
 					TraceTransfers: true,
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				if len(res) != len(params.BlockStateCalls) {
@@ -4472,10 +4472,10 @@ var EthSimulateV1 = MethodTests{
 			},
 		},
 		{
-			Name:  "ethSimulate-eth-send-should-not-produce-logs-by-default",
-			About: "when sending eth we should not get ETH logs by default",
+			Name:  "silSimulate-sil-send-should-not-produce-logs-by-default",
+			About: "when sending sil we should not get SIL logs by default",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
 							common.Address{0xc0}: OverrideAccount{Balance: newRPCBalance(2000)},
@@ -4488,7 +4488,7 @@ var EthSimulateV1 = MethodTests{
 					}},
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				if len(res) != len(params.BlockStateCalls) {
@@ -4501,10 +4501,10 @@ var EthSimulateV1 = MethodTests{
 			},
 		},
 		{
-			Name:  "ethSimulate-transaction-too-low-nonce-38010",
+			Name:  "silSimulate-transaction-too-low-nonce-38010",
 			About: "Error: Nonce too low (-38010)",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
 							common.Address{0xc0}: OverrideAccount{Nonce: getUint64Ptr(10)},
@@ -4517,15 +4517,15 @@ var EthSimulateV1 = MethodTests{
 					}},
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-transaction-too-high-nonce",
+			Name:  "silSimulate-transaction-too-high-nonce",
 			About: "Error: Nonce too high",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						Calls: []TransactionArgs{{
 							Nonce: getUint64Ptr(100),
@@ -4535,7 +4535,7 @@ var EthSimulateV1 = MethodTests{
 					}},
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				if len(res) != len(params.BlockStateCalls) {
@@ -4545,10 +4545,10 @@ var EthSimulateV1 = MethodTests{
 			},
 		},
 		{
-			Name:  "ethSimulate-basefee-too-low-with-validation-38012",
+			Name:  "silSimulate-basefee-too-low-with-validation-38012",
 			About: "Error: BaseFeePerGas too low with validation (-38012)",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
 							common.Address{0xc0}: OverrideAccount{Balance: newRPCBalance(2000)},
@@ -4566,15 +4566,15 @@ var EthSimulateV1 = MethodTests{
 					Validation: true,
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-basefee-too-low-without-validation-38012",
+			Name:  "silSimulate-basefee-too-low-without-validation-38012",
 			About: "Error: BaseFeePerGas too low with no validation (-38012)",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
 							common.Address{0xc0}: OverrideAccount{Balance: newRPCBalance(2000)},
@@ -4592,15 +4592,15 @@ var EthSimulateV1 = MethodTests{
 					Validation: false,
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-basefee-too-low-without-validation-38012-without-basefee-override",
+			Name:  "silSimulate-basefee-too-low-without-validation-38012-without-basefee-override",
 			About: "tries to send transaction with zero basefee",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						Calls: []TransactionArgs{{
 							From:                 &common.Address{0xc1},
@@ -4612,15 +4612,15 @@ var EthSimulateV1 = MethodTests{
 					Validation: false,
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-instrict-gas-38013",
+			Name:  "silSimulate-instrict-gas-38013",
 			About: "Error: Not enough gas provided to pay for intrinsic gas (-38013)",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						Calls: []TransactionArgs{{
 							From: &common.Address{0xc1},
@@ -4630,15 +4630,15 @@ var EthSimulateV1 = MethodTests{
 					}},
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-gas-fees-and-value-error-38014",
+			Name:  "silSimulate-gas-fees-and-value-error-38014",
 			About: "Error: Insufficient funds to pay for gas fees and value (-38014)",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						Calls: []TransactionArgs{{
 							From:  &common.Address{0xc0},
@@ -4648,15 +4648,15 @@ var EthSimulateV1 = MethodTests{
 					}},
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-gas-fees-and-value-error-38014-with-validation",
+			Name:  "silSimulate-gas-fees-and-value-error-38014-with-validation",
 			About: "Error: Insufficient funds to pay for gas fees and value (-38014) with validation",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						Calls: []TransactionArgs{{
 							From:  &common.Address{0xc0},
@@ -4667,15 +4667,15 @@ var EthSimulateV1 = MethodTests{
 					Validation: true,
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-move-to-address-itself-reference-38022",
+			Name:  "silSimulate-move-to-address-itself-reference-38022",
 			About: "Error: MovePrecompileToAddress referenced itself in replacement (-38022)",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
 							common.Address{0xc0}: OverrideAccount{Balance: newRPCBalance(200000)},
@@ -4689,15 +4689,15 @@ var EthSimulateV1 = MethodTests{
 					}},
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-move-two-non-precompiles-accounts-to-same",
+			Name:  "silSimulate-move-two-non-precompiles-accounts-to-same",
 			About: "Move two non-precompiles to same adddress",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
 							common.Address{0x1}: OverrideAccount{
@@ -4710,17 +4710,17 @@ var EthSimulateV1 = MethodTests{
 					}},
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-move-two-accounts-to-same-38023",
+			Name:  "silSimulate-move-two-accounts-to-same-38023",
 			About: "Move two accounts to the same destination (-38023)",
 			Run: func(ctx context.Context, t *T) error {
 				ecRecoverAddress := common.BytesToAddress(*hex2Bytes("0000000000000000000000000000000000000001"))
 				keccakAddress := common.BytesToAddress(*hex2Bytes("0000000000000000000000000000000000000002"))
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
 							ecRecoverAddress: OverrideAccount{
@@ -4733,15 +4733,15 @@ var EthSimulateV1 = MethodTests{
 					}},
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-try-to-move-non-precompile",
+			Name:  "silSimulate-try-to-move-non-precompile",
 			About: "try to move non-precompile",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{
 						{
 							StateOverrides: &StateOverride{
@@ -4768,15 +4768,15 @@ var EthSimulateV1 = MethodTests{
 					Validation: true,
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-make-call-with-future-block",
-			About: "start ethSimulate with future block",
+			Name:  "silSimulate-make-call-with-future-block",
+			About: "start silSimulate with future block",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{
 						{
 							Calls: []TransactionArgs{{
@@ -4788,15 +4788,15 @@ var EthSimulateV1 = MethodTests{
 					Validation: true,
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "0x111")
+				t.rpc.Call(&res, "sil_simulateV1", params, "0x111")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-check-that-nonce-increases",
+			Name:  "silSimulate-check-that-nonce-increases",
 			About: "check that nonce increases",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{
 						{
 							StateOverrides: &StateOverride{
@@ -4830,15 +4830,15 @@ var EthSimulateV1 = MethodTests{
 					Validation: true,
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-check-invalid-nonce",
+			Name:  "silSimulate-check-invalid-nonce",
 			About: "check that nonce cannot decrease",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{
 						{
 							BlockOverrides: &BlockOverrides{
@@ -4870,19 +4870,19 @@ var EthSimulateV1 = MethodTests{
 					Validation: true,
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-override-all-in-BlockStateCalls",
+			Name:  "silSimulate-override-all-in-BlockStateCalls",
 			About: "override all values in block and see that they are set in return value",
 			Run: func(ctx context.Context, t *T) error {
 				latestBlockTime := hexutil.Uint64(t.chain.Head().Time())
 				latestBlockNumber := t.chain.Head().Number().Int64()
 				feeRecipient := common.Address{0xc2}
 				randDao := common.Hash{0xc3}
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						BlockOverrides: &BlockOverrides{
 							Number:        (*hexutil.Big)(big.NewInt(latestBlockNumber + 10)),
@@ -4895,17 +4895,17 @@ var EthSimulateV1 = MethodTests{
 					}},
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-move-ecrecover-and-call",
+			Name:  "silSimulate-move-ecrecover-and-call",
 			About: "move ecrecover and try calling it",
 			Run: func(ctx context.Context, t *T) error {
 				ecRecoverAddress := common.BytesToAddress(*hex2Bytes("0000000000000000000000000000000000000001"))
 				ecRecoverMovedToAddress := common.BytesToAddress(*hex2Bytes("0000000000000000000000000000000000123456"))
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						Calls: []TransactionArgs{ // just call ecrecover normally
 							{ // call with invalid params, should fail (resolve to 0x0)
@@ -4945,7 +4945,7 @@ var EthSimulateV1 = MethodTests{
 					}},
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				if len(res) != len(params.BlockStateCalls) {
@@ -4958,13 +4958,13 @@ var EthSimulateV1 = MethodTests{
 			},
 		},
 		{
-			Name:  "ethSimulate-move-ecrecover-twice-and-call",
+			Name:  "silSimulate-move-ecrecover-twice-and-call",
 			About: "move ecrecover and try calling it, then move it again and call it",
 			Run: func(ctx context.Context, t *T) error {
 				ecRecoverAddress := common.BytesToAddress(*hex2Bytes("0000000000000000000000000000000000000001"))
 				ecRecoverMovedToAddress := common.BytesToAddress(*hex2Bytes("0000000000000000000000000000000000123456"))
 				ecRecoverMovedToAddress2 := common.BytesToAddress(*hex2Bytes("0000000000000000000000000000000000123457"))
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						Calls: []TransactionArgs{ // just call ecrecover normally
 							{ // call with invalid params, should fail (resolve to 0x0)
@@ -5032,17 +5032,17 @@ var EthSimulateV1 = MethodTests{
 					}},
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-override-ecrecover",
+			Name:  "silSimulate-override-ecrecover",
 			About: "override ecrecover",
 			Run: func(ctx context.Context, t *T) error {
 				ecRecoverAddress := common.BytesToAddress(*hex2Bytes("0000000000000000000000000000000000000001"))
 				ecRecoverMovedToAddress := common.BytesToAddress(*hex2Bytes("0000000000000000000000000000000000123456"))
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
 							ecRecoverAddress: OverrideAccount{
@@ -5086,7 +5086,7 @@ var EthSimulateV1 = MethodTests{
 					}},
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				if len(res) != len(params.BlockStateCalls) {
@@ -5117,12 +5117,12 @@ var EthSimulateV1 = MethodTests{
 			},
 		},
 		{
-			Name:  "ethSimulate-override-sha256",
+			Name:  "silSimulate-override-sha256",
 			About: "override sha256 precompile",
 			Run: func(ctx context.Context, t *T) error {
 				sha256Address := common.BytesToAddress(*hex2Bytes("0000000000000000000000000000000000000002"))
 				sha256MovedToAddress := common.BytesToAddress(*hex2Bytes("0000000000000000000000000000000000123456"))
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
 							sha256Address: OverrideAccount{
@@ -5145,17 +5145,17 @@ var EthSimulateV1 = MethodTests{
 					}},
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-two-blocks-with-complete-eth-sends",
-			About: "two blocks with eth sends",
+			Name:  "silSimulate-two-blocks-with-complete-sil-sends",
+			About: "two blocks with sil sends",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						BlockOverrides: &BlockOverrides{
 							BaseFeePerGas: (*hexutil.Big)(big.NewInt(10)),
@@ -5327,19 +5327,19 @@ var EthSimulateV1 = MethodTests{
 						}},
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-override-identity",
+			Name:  "silSimulate-override-identity",
 			About: "override identity precompile",
 			Run: func(ctx context.Context, t *T) error {
 				identityAddress := common.BytesToAddress(*hex2Bytes("0000000000000000000000000000000000000004"))
 				identityMovedToAddress := common.BytesToAddress(*hex2Bytes("0000000000000000000000000000000000123456"))
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
 							identityAddress: OverrideAccount{
@@ -5362,19 +5362,19 @@ var EthSimulateV1 = MethodTests{
 					}},
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-precompile-is-sending-transaction",
+			Name:  "silSimulate-precompile-is-sending-transaction",
 			About: "send transaction from a precompile",
 			Run: func(ctx context.Context, t *T) error {
 				identityAddress := common.BytesToAddress(*hex2Bytes("0000000000000000000000000000000000000004"))
 				sha256Address := common.BytesToAddress(*hex2Bytes("0000000000000000000000000000000000000002"))
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						Calls: []TransactionArgs{
 							{
@@ -5386,19 +5386,19 @@ var EthSimulateV1 = MethodTests{
 					}},
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-simple-state-diff",
+			Name:  "silSimulate-simple-state-diff",
 			About: "override one state variable with statediff",
 			Run: func(ctx context.Context, t *T) error {
 				stateChanges := make(map[common.Hash]common.Hash)
 				stateChanges[common.BytesToHash(*hex2Bytes("0000000000000000000000000000000000000000000000000000000000000000"))] = common.Hash{0x12} //slot 0 -> 0x12
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{
 						{
 							StateOverrides: &StateOverride{
@@ -5445,19 +5445,19 @@ var EthSimulateV1 = MethodTests{
 					TraceTransfers: true,
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-simple-state-diff",
+			Name:  "silSimulate-simple-state-diff",
 			About: "override one state variable with state",
 			Run: func(ctx context.Context, t *T) error {
 				stateChanges := make(map[common.Hash]common.Hash)
 				stateChanges[common.BytesToHash(*hex2Bytes("0000000000000000000000000000000000000000000000000000000000000000"))] = common.Hash{0x12} //slot 0 -> 0x12
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{
 						{
 							StateOverrides: &StateOverride{
@@ -5505,19 +5505,19 @@ var EthSimulateV1 = MethodTests{
 					ReturnFullTransactions: true,
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-override-storage-slots",
+			Name:  "silSimulate-override-storage-slots",
 			About: "override storage slots",
 			Run: func(ctx context.Context, t *T) error {
 				stateChanges := make(map[common.Hash]common.Hash)
 				stateChanges[common.BytesToHash(*hex2Bytes("0000000000000000000000000000000000000000000000000000000000000000"))] = common.Hash{0x12} //slot 0 -> 0x12
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{
 						{
 							StateOverrides: &StateOverride{
@@ -5594,7 +5594,7 @@ var EthSimulateV1 = MethodTests{
 					ReturnFullTransactions: true,
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				if len(res) != len(params.BlockStateCalls) {
@@ -5624,12 +5624,12 @@ var EthSimulateV1 = MethodTests{
 			},
 		},
 		{
-			Name:  "ethSimulate-block-override-reflected-in-contract-simple",
+			Name:  "silSimulate-block-override-reflected-in-contract-simple",
 			About: "Checks that block overrides are true in contract for block number and time",
 			Run: func(ctx context.Context, t *T) error {
 				latestBlockTime := hexutil.Uint64(t.chain.Head().Time())
 				latestBlockNumber := t.chain.Head().Number().Int64()
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{
 						{
 							BlockOverrides: &BlockOverrides{
@@ -5652,15 +5652,15 @@ var EthSimulateV1 = MethodTests{
 					},
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-get-block-properties",
+			Name:  "silSimulate-get-block-properties",
 			About: "gets various block properties from chain",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{
 						{
 							StateOverrides: &StateOverride{
@@ -5679,7 +5679,7 @@ var EthSimulateV1 = MethodTests{
 					},
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				if len(res) != len(params.BlockStateCalls) {
@@ -5689,7 +5689,7 @@ var EthSimulateV1 = MethodTests{
 			},
 		},
 		{
-			Name:  "ethSimulate-block-override-reflected-in-contract",
+			Name:  "silSimulate-block-override-reflected-in-contract",
 			About: "Checks that block overrides are true in contract",
 			Run: func(ctx context.Context, t *T) error {
 				prevRandDao1 := common.BytesToHash(*hex2Bytes("123"))
@@ -5697,7 +5697,7 @@ var EthSimulateV1 = MethodTests{
 				prevRandDao3 := common.BytesToHash(*hex2Bytes("12345"))
 				latestBlockTime := hexutil.Uint64(t.chain.Head().Time())
 				latestBlockNumber := t.chain.Head().Number().Int64()
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{
 						{
 							StateOverrides: &StateOverride{
@@ -5758,16 +5758,16 @@ var EthSimulateV1 = MethodTests{
 					},
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-add-more-non-defined-BlockStateCalls-than-fit",
+			Name:  "silSimulate-add-more-non-defined-BlockStateCalls-than-fit",
 			About: "Add more BlockStateCalls between two BlockStateCalls than it actually fits there",
 			Run: func(ctx context.Context, t *T) error {
 				latestBlockNumber := t.chain.Head().Number().Int64()
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{
 						{
 							StateOverrides: &StateOverride{
@@ -5810,16 +5810,16 @@ var EthSimulateV1 = MethodTests{
 					},
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-add-more-non-defined-BlockStateCalls-than-fit-but-now-with-fit",
+			Name:  "silSimulate-add-more-non-defined-BlockStateCalls-than-fit-but-now-with-fit",
 			About: "Not all block numbers are defined",
 			Run: func(ctx context.Context, t *T) error {
 				latestBlockNumber := t.chain.Head().Number().Int64()
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{
 						{
 							StateOverrides: &StateOverride{
@@ -5871,18 +5871,18 @@ var EthSimulateV1 = MethodTests{
 					},
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-fee-recipient-receiving-funds",
+			Name:  "silSimulate-fee-recipient-receiving-funds",
 			About: "Check that fee recipient gets funds",
 			Run: func(ctx context.Context, t *T) error {
 				latestBlockNumber := t.chain.Head().Number().Int64()
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{
 						{
 							StateOverrides: &StateOverride{
@@ -5929,17 +5929,17 @@ var EthSimulateV1 = MethodTests{
 					ReturnFullTransactions: true,
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-contract-calls-itself",
+			Name:  "silSimulate-contract-calls-itself",
 			About: "contract calls itself",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{
 						{
 							StateOverrides: &StateOverride{
@@ -5958,17 +5958,17 @@ var EthSimulateV1 = MethodTests{
 					TraceTransfers: true,
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-send-eth-and-delegate-call",
-			About: "sending eth and delegate calling should only produce one log",
+			Name:  "silSimulate-send-sil-and-delegate-call",
+			About: "sending sil and delegate calling should only produce one log",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
 							common.Address{0xc0}: OverrideAccount{
@@ -5992,7 +5992,7 @@ var EthSimulateV1 = MethodTests{
 					Validation:     false,
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				if res[0].Calls[0].Status != 1 {
@@ -6005,10 +6005,10 @@ var EthSimulateV1 = MethodTests{
 			},
 		},
 		{
-			Name:  "ethSimulate-send-eth-and-delegate-call-to-payble-contract",
-			About: "sending eth and delegate calling a payable contract should only produce one log",
+			Name:  "silSimulate-send-sil-and-delegate-call-to-payble-contract",
+			About: "sending sil and delegate calling a payable contract should only produce one log",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
 							common.Address{0xc0}: OverrideAccount{
@@ -6032,7 +6032,7 @@ var EthSimulateV1 = MethodTests{
 					Validation:     false,
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				if res[0].Calls[0].Status != 1 {
@@ -6045,10 +6045,10 @@ var EthSimulateV1 = MethodTests{
 			},
 		},
 		{
-			Name:  "ethSimulate-send-eth-and-delegate-call-to-eoa",
-			About: "sending eth and delegate calling a eoa should only produce one log",
+			Name:  "silSimulate-send-sil-and-delegate-call-to-eoa",
+			About: "sending sil and delegate calling a eoa should only produce one log",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
 							common.Address{0xc0}: OverrideAccount{
@@ -6069,7 +6069,7 @@ var EthSimulateV1 = MethodTests{
 					Validation:     false,
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				if res[0].Calls[0].Status != 1 {
@@ -6082,10 +6082,10 @@ var EthSimulateV1 = MethodTests{
 			},
 		},
 		{
-			Name:  "ethSimulate-extcodehash-override",
+			Name:  "silSimulate-extcodehash-override",
 			About: "test extcodehash getting of overriden contract",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
 							common.Address{0xc0}: OverrideAccount{
@@ -6116,7 +6116,7 @@ var EthSimulateV1 = MethodTests{
 					Validation:     false,
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				if res[0].Calls[0].Status != 1 {
@@ -6132,11 +6132,11 @@ var EthSimulateV1 = MethodTests{
 			},
 		},
 		{
-			Name:  "ethSimulate-extcodehash-existing-contract",
+			Name:  "silSimulate-extcodehash-existing-contract",
 			About: "test extcodehash getting of existing contract and then overriding it",
 			Run: func(ctx context.Context, t *T) error {
 				contractAddr := common.HexToAddress("0000000000000000000000000000000000031ec7")
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
 							common.Address{0xc1}: OverrideAccount{
@@ -6164,7 +6164,7 @@ var EthSimulateV1 = MethodTests{
 					Validation:     false,
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				if res[0].Calls[0].Status != 1 {
@@ -6180,11 +6180,11 @@ var EthSimulateV1 = MethodTests{
 			},
 		},
 		{
-			Name:  "ethSimulate-extcodehash-precompile",
+			Name:  "silSimulate-extcodehash-precompile",
 			About: "test extcodehash getting of precompile and then again after override",
 			Run: func(ctx context.Context, t *T) error {
 				ecRecoverAddress := common.BytesToAddress(*hex2Bytes("0000000000000000000000000000000000000001"))
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
 							common.Address{0xc1}: OverrideAccount{
@@ -6212,7 +6212,7 @@ var EthSimulateV1 = MethodTests{
 					Validation:     false,
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				if res[0].Calls[0].Status != 1 {
@@ -6228,10 +6228,10 @@ var EthSimulateV1 = MethodTests{
 			},
 		},
 		{
-			Name:  "ethSimulate-self-destructive-contract-produces-logs",
+			Name:  "silSimulate-self-destructive-contract-produces-logs",
 			About: "self destructive contract produces logs",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
 							common.Address{0xc2}: OverrideAccount{
@@ -6248,17 +6248,17 @@ var EthSimulateV1 = MethodTests{
 					TraceTransfers: true,
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-no-fields-call",
+			Name:  "silSimulate-no-fields-call",
 			About: "make a call with no fields",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						Calls: []TransactionArgs{{}},
 					}},
@@ -6266,15 +6266,15 @@ var EthSimulateV1 = MethodTests{
 					ReturnFullTransactions: true,
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-only-from-transaction",
+			Name:  "silSimulate-only-from-transaction",
 			About: "make a call with only from field",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						Calls: []TransactionArgs{{
 							From: &common.Address{0xc0},
@@ -6283,15 +6283,15 @@ var EthSimulateV1 = MethodTests{
 					TraceTransfers: true,
 				}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-only-from-to-transaction",
+			Name:  "silSimulate-only-from-to-transaction",
 			About: "make a call with only from and to fields",
 			Run: func(ctx context.Context, t *T) error {
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						Calls: []TransactionArgs{{
 							From: &common.Address{0xc0},
@@ -6301,30 +6301,30 @@ var EthSimulateV1 = MethodTests{
 					TraceTransfers: true,
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-big-block-state-calls-array",
+			Name:  "silSimulate-big-block-state-calls-array",
 			About: "Have a block state calls with 300 blocks",
 			Run: func(ctx context.Context, t *T) error {
 				calls := make([]CallBatch, 300)
-				params := ethSimulateOpts{BlockStateCalls: calls}
+				params := silSimulateOpts{BlockStateCalls: calls}
 				res := make([]blockResult, 0)
-				t.rpc.Call(&res, "eth_simulateV1", params, "latest")
+				t.rpc.Call(&res, "sil_simulateV1", params, "latest")
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-move-ecrecover-and-call-old-and-new",
+			Name:  "silSimulate-move-ecrecover-and-call-old-and-new",
 			About: "move ecrecover and try calling the moved and non-moved version",
 			Run: func(ctx context.Context, t *T) error {
 				ecRecoverAddress := common.BytesToAddress(*hex2Bytes("0000000000000000000000000000000000000001"))
 				ecRecoverMovedToAddress := common.BytesToAddress(*hex2Bytes("0000000000000000000000000000000000123456"))
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{ // move ecRecover and call it in new address
 							ecRecoverAddress: OverrideAccount{
@@ -6356,7 +6356,7 @@ var EthSimulateV1 = MethodTests{
 					}},
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				if len(res) != len(params.BlockStateCalls) {
@@ -6369,8 +6369,8 @@ var EthSimulateV1 = MethodTests{
 			},
 		},
 		{
-			Name:  "ethSimulate-use-as-many-features-as-possible",
-			About: "try using all eth simulates features at once",
+			Name:  "silSimulate-use-as-many-features-as-possible",
+			About: "try using all sil simulates features at once",
 			Run: func(ctx context.Context, t *T) error {
 				latestBlockNumber := t.chain.Head().Number().Int64()
 				latestBlockTime := hexutil.Uint64(t.chain.Head().Time())
@@ -6379,7 +6379,7 @@ var EthSimulateV1 = MethodTests{
 				stateChanges[common.BytesToHash(*hex2Bytes("0000000000000000000000000000000000000000000000000000000000000000"))] = common.Hash{0x12} //slot 0 -> 0x12
 				ecRecoverAddress := common.BytesToAddress(*hex2Bytes("0000000000000000000000000000000000000001"))
 				ecRecoverMovedToAddress := common.BytesToAddress(*hex2Bytes("0000000000000000000000000000000000123456"))
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{
 						{
 							BlockOverrides: &BlockOverrides{
@@ -6757,19 +6757,19 @@ var EthSimulateV1 = MethodTests{
 					ReturnFullTransactions: true,
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				return nil
 			},
 		},
 		{
-			Name:  "ethSimulate-blocknumber-increment",
+			Name:  "silSimulate-blocknumber-increment",
 			About: "blocknumbers should increment",
 			Run: func(ctx context.Context, t *T) error {
 				latestBlockNumber := t.chain.Head().Number().Int64()
 				latestBlockTime := hexutil.Uint64(t.chain.Head().Time())
-				params := ethSimulateOpts{
+				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{
 						{
 							BlockOverrides: &BlockOverrides{
@@ -6790,7 +6790,7 @@ var EthSimulateV1 = MethodTests{
 					ReturnFullTransactions: true,
 				}
 				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "eth_simulateV1", params, "latest"); err != nil {
+				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
 				}
 				return nil
@@ -6815,7 +6815,7 @@ type TransactionArgs struct {
 
 	// We accept "data" and "input" for backwards-compatibility reasons.
 	// "input" is the newer name and should be preferred by clients.
-	// Issue detail: https://github.com/ethereum/go-ethereum/issues/15628
+	// Issue detail: https://github.com/sila-chain/go-sila/issues/15628
 	Data  *hexutil.Bytes `json:"data,omitempty"`
 	Input *hexutil.Bytes `json:"input,omitempty"`
 
@@ -6853,8 +6853,8 @@ type OverrideAccount struct {
 // StateOverride is the collection of overridden accounts.
 type StateOverride map[common.Address]OverrideAccount
 
-// ethSimulateOpts is the wrapper for ethSimulate parameters.
-type ethSimulateOpts struct {
+// silSimulateOpts is the wrapper for silSimulate parameters.
+type silSimulateOpts struct {
 	BlockStateCalls        []CallBatch `json:"blockStateCalls,omitempty"`
 	TraceTransfers         bool        `json:"traceTransfers,omitempty"`
 	Validation             bool        `json:"validation,omitempty"`

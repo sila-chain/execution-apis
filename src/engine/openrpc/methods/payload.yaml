@@ -2,7 +2,7 @@
   summary: Runs execution payload validation
   externalDocs:
     description: Method specification
-    url: https://github.com/ethereum/execution-apis/blob/main/src/engine/paris.md#engine_newpayloadv1
+    url: https://github.com/sila-chain/execution-apis/blob/main/src/engine/paris.md#engine_newpayloadv1
   params:
     - name: Execution payload
       required: true
@@ -65,7 +65,7 @@
   summary: Runs execution payload validation
   externalDocs:
     description: Method specification
-    url: https://github.com/ethereum/execution-apis/blob/main/src/engine/shanghai.md#engine_newpayloadv2
+    url: https://github.com/sila-chain/execution-apis/blob/main/src/engine/shanghai.md#engine_newpayloadv2
   params:
     - name: Execution payload
       required: true
@@ -123,7 +123,7 @@
   summary: Runs execution payload validation
   externalDocs:
     description: Method specification
-    url: https://github.com/ethereum/execution-apis/blob/main/src/engine/cancun.md#engine_newpayloadv3
+    url: https://github.com/sila-chain/execution-apis/blob/main/src/engine/cancun.md#engine_newpayloadv3
   params:
     - name: Execution payload
       required: true
@@ -196,7 +196,7 @@
   summary: Runs execution payload validation
   externalDocs:
     description: Method specification
-    url: https://github.com/ethereum/execution-apis/blob/main/src/engine/prague.md#engine_newpayloadv4
+    url: https://github.com/sila-chain/execution-apis/blob/main/src/engine/prague.md#engine_newpayloadv4
   params:
     - name: Execution payload
       required: true
@@ -280,7 +280,7 @@
   summary: Obtains execution payload from payload build process
   externalDocs:
     description: Method specification
-    url: https://github.com/ethereum/execution-apis/blob/main/src/engine/paris.md#engine_getpayloadv1
+    url: https://github.com/sila-chain/execution-apis/blob/main/src/engine/paris.md#engine_getpayloadv1
   params:
     - name: Payload id
       required: true
@@ -319,7 +319,7 @@
   summary: Obtains execution payload from payload build process
   externalDocs:
     description: Method specification
-    url: https://github.com/ethereum/execution-apis/blob/main/src/engine/shanghai.md#engine_getpayloadv2
+    url: https://github.com/sila-chain/execution-apis/blob/main/src/engine/shanghai.md#engine_getpayloadv2
   params:
     - name: Payload id
       required: true
@@ -386,7 +386,7 @@
   summary: Obtains execution payload from payload build process
   externalDocs:
     description: Method specification
-    url: https://github.com/ethereum/execution-apis/blob/main/src/engine/cancun.md#engine_getpayloadv3
+    url: https://github.com/sila-chain/execution-apis/blob/main/src/engine/cancun.md#engine_getpayloadv3
   params:
     - name: Payload id
       required: true
@@ -469,7 +469,7 @@
   summary: Obtains execution payload from payload build process
   externalDocs:
     description: Method specification
-    url: https://github.com/ethereum/execution-apis/blob/main/src/engine/prague.md#engine_getpayloadv4
+    url: https://github.com/sila-chain/execution-apis/blob/main/src/engine/prague.md#engine_getpayloadv4
   params:
     - name: Payload id
       required: true
@@ -562,7 +562,7 @@
   summary: Obtains execution payload from payload build process
   externalDocs:
     description: Method specification
-    url: https://github.com/ethereum/execution-apis/blob/main/src/engine/osaka.md#engine_getpayloadv5
+    url: https://github.com/sila-chain/execution-apis/blob/main/src/engine/osaka.md#engine_getpayloadv5
   params:
     - name: Payload id
       required: true
@@ -782,7 +782,7 @@
   summary: Given block hashes returns bodies of the corresponding execution payloads
   externalDocs:
     description: Method specification
-    url: https://github.com/ethereum/execution-apis/blob/main/src/engine/shanghai.md#engine_getpayloadbodiesbyhashv1
+    url: https://github.com/sila-chain/execution-apis/blob/main/src/engine/shanghai.md#engine_getpayloadbodiesbyhashv1
   params:
     - name: Array of block hashes
       required: true
@@ -837,7 +837,7 @@
   summary: Given a range of block numbers returns bodies of the corresponding execution payloads
   externalDocs:
     description: Method specification
-    url: https://github.com/ethereum/execution-apis/blob/main/src/engine/shanghai.md#engine_getpayloadbodiesbyrangev1
+    url: https://github.com/sila-chain/execution-apis/blob/main/src/engine/shanghai.md#engine_getpayloadbodiesbyrangev1
   params:
     - name: Starting block number
       required: true
@@ -894,7 +894,7 @@
   summary: Given block hashes returns bodies of the corresponding execution payloads including block access lists
   externalDocs:
     description: Method specification
-    url: https://github.com/ethereum/execution-apis/blob/main/src/engine/amsterdam.md#engine_getpayloadbodiesbyhashv2
+    url: https://github.com/sila-chain/execution-apis/blob/main/src/engine/amsterdam.md#engine_getpayloadbodiesbyhashv2
   params:
     - name: Array of block hashes
       required: true
@@ -941,7 +941,7 @@
   summary: Given a range of block numbers returns bodies of the corresponding execution payloads including block access lists
   externalDocs:
     description: Method specification
-    url: https://github.com/ethereum/execution-apis/blob/main/src/engine/amsterdam.md#engine_getpayloadbodiesbyrangev2
+    url: https://github.com/sila-chain/execution-apis/blob/main/src/engine/amsterdam.md#engine_getpayloadbodiesbyrangev2
   params:
     - name: Starting block number
       required: true
@@ -990,7 +990,7 @@
   summary: Runs execution payload validation
   externalDocs:
     description: Method specification
-    url: https://github.com/ethereum/execution-apis/blob/main/src/engine/amsterdam.md#engine_newpayloadv5
+    url: https://github.com/sila-chain/execution-apis/blob/main/src/engine/amsterdam.md#engine_newpayloadv5
   params:
     - name: Execution payload
       required: true
@@ -1074,7 +1074,7 @@
   summary: Obtains execution payload from payload build process
   externalDocs:
     description: Method specification
-    url: https://github.com/ethereum/execution-apis/blob/main/src/engine/amsterdam.md#engine_getpayloadv6
+    url: https://github.com/sila-chain/execution-apis/blob/main/src/engine/amsterdam.md#engine_getpayloadv6
   params:
     - name: Payload id
       required: true

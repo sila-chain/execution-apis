@@ -8,13 +8,13 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/node"
-	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/sila-chain/go-sila/common"
+	"github.com/sila-chain/go-sila/common/hexutil"
+	"github.com/sila-chain/go-sila/node"
+	"github.com/sila-chain/go-sila/rpc"
 )
 
-// Client is an interface for generically interacting with Ethereum clients.
+// Client is an interface for generically interacting with Sila clients.
 type Client interface {
 	// Start starts client, but does not wait for the command to exit.
 	Start(ctx context.Context, verbose bool) error
@@ -29,8 +29,8 @@ type Client interface {
 	Close() error
 }
 
-// gethClient is a wrapper around a go-ethereum instance on a separate thread.
-type gethClient struct {
+// silaClient is a wrapper around a go-sila instance on a separate thread.
+type silaClient struct {
 	cmd     *exec.Cmd
 	path    string
 	workdir string
@@ -43,11 +43,11 @@ type rpcRequest struct {
 	Params []any
 }
 
-// newGethClient instantiates a new GethClient.
+// newSilaClient instantiates a new SilaClient.
 //
 // The client's data directory is set to a temporary location and it
 // initializes with the genesis and the provided blocks.
-func newGethClient(ctx context.Context, geth string, chaindir string, verbose bool) (*gethClient, error) {
+func newSilaClient(ctx context.Context, sila string, chaindir string, verbose bool) (*silaClient, error) {
 	// Load ForkchoiceUpdated from test chain.
 	var fcuRequest rpcRequest
 	fcuFile := filepath.Join(chaindir, "headfcu.json")
@@ -70,16 +70,16 @@ func newGethClient(ctx context.Context, geth string, chaindir string, verbose bo
 		scheme = fmt.Sprintf("--state.scheme=%s", "hash")
 	)
 
-	// Run geth init.
+	// Run sila init.
 	options := []string{datadir, gcmode, scheme, loglevel, "init", filepath.Join(chaindir, "genesis.json")}
-	err = runCmd(ctx, geth, verbose, options...)
+	err = runCmd(ctx, sila, verbose, options...)
 	if err != nil {
 		return nil, err
 	}
 
-	// Run geth import.
+	// Run sila import.
 	options = []string{datadir, gcmode, loglevel, "import", filepath.Join(chaindir, "chain.rlp")}
-	err = runCmd(ctx, geth, verbose, options...)
+	err = runCmd(ctx, sila, verbose, options...)
 	if err != nil {
 		return nil, err
 	}
@@ -90,12 +90,12 @@ func newGethClient(ctx context.Context, geth string, chaindir string, verbose bo
 		return nil, err
 	}
 
-	g := &gethClient{path: geth, workdir: tmp, jwt: jwt, fcu: fcuRequest}
+	g := &silaClient{path: sila, workdir: tmp, jwt: jwt, fcu: fcuRequest}
 	return g, nil
 }
 
-// Start starts geth, but does not wait for the command to exit.
-func (g *gethClient) Start(ctx context.Context, verbose bool) error {
+// Start starts sila, but does not wait for the command to exit.
+func (g *silaClient) Start(ctx context.Context, verbose bool) error {
 	fmt.Println("starting client")
 
 	var (
@@ -107,7 +107,7 @@ func (g *gethClient) Start(ctx context.Context, verbose bool) error {
 			"--gcmode=archive",
 			"--nodiscover",
 			"--http",
-			"--http.api=admin,eth,debug,net,txpool,testing",
+			"--http.api=admin,sil,debug,net,txpool,testing",
 			fmt.Sprintf("--http.addr=%s", HOST),
 			fmt.Sprintf("--http.port=%s", PORT),
 			fmt.Sprintf("--authrpc.port=%s", AUTHPORT),
@@ -127,7 +127,7 @@ func (g *gethClient) Start(ctx context.Context, verbose bool) error {
 
 // AfterStart is called after the client has been fully started.
 // We send a forkchoiceUpdatedV2 request to the engine to trigger a post-merge forkchoice.
-func (g *gethClient) AfterStart(ctx context.Context) error {
+func (g *silaClient) AfterStart(ctx context.Context) error {
 	auth := node.NewJWTAuth(common.BytesToHash(g.jwt))
 	endpoint := fmt.Sprintf("http://%s:%s", HOST, AUTHPORT)
 	cl, err := rpc.DialOptions(ctx, endpoint, rpc.WithHTTPAuth(auth))
@@ -137,18 +137,18 @@ func (g *gethClient) AfterStart(ctx context.Context) error {
 	defer cl.Close()
 	err = cl.CallContext(ctx, nil, g.fcu.Method, g.fcu.Params...)
 	if err != nil {
-		return fmt.Errorf("geth rejected forkchoiceUpdated: %v", err)
+		return fmt.Errorf("sila rejected forkchoiceUpdated: %v", err)
 	}
 	return nil
 }
 
 // HttpAddr returns the address where the client is servering its JSON-RPC.
-func (g *gethClient) HttpAddr() string {
+func (g *silaClient) HttpAddr() string {
 	return fmt.Sprintf("http://%s:%s", HOST, PORT)
 }
 
 // Close closes the client.
-func (g *gethClient) Close() error {
+func (g *silaClient) Close() error {
 	g.cmd.Process.Kill()
 	g.cmd.Wait()
 	return os.RemoveAll(g.workdir)

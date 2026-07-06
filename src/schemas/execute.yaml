@@ -1,5 +1,5 @@
-EthSimulatePayload:
-  title: Arguments for eth_simulate
+SilSimulatePayload:
+  title: Arguments for sil_simulate
   required:
     - blockStateCalls
   properties:
@@ -8,15 +8,15 @@ EthSimulatePayload:
       description: Definition of blocks that can contain calls and overrides
       $ref: '#/components/schemas/BlockStateCalls'
     traceTransfers:
-      title: Trace ETH Transfers
+      title: Trace SIL Transfers
       description: |-
-        Adds ETH transfers as ERC20 transfer events to the logs. These transfers have emitter contract parameter set as address(0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee).
+        Adds SIL transfers as ERC20 transfer events to the logs. These transfers have emitter contract parameter set as address(0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee).
         Default: false.
       type: boolean
     validation:
       title: Validation
       description: |-
-        When true, the eth_simulateV1 does all validations that a normal EVM would do, except contract sender and signature checks. When false, eth_simulateV1 behaves like eth_call.
+        When true, the sil_simulateV1 does all validations that a normal EVM would do, except contract sender and signature checks. When false, sil_simulateV1 behaves like sil_call.
         Default: false.
       type: boolean
     returnFullTransactions:
@@ -83,7 +83,7 @@ AccountOverrideState:
       $ref: '#/components/schemas/address'
     state:
       title: Storage
-      description: Key-value mapping to override all slots in the account storage before executing the call. This functions similar to eth_call's state parameter.
+      description: Key-value mapping to override all slots in the account storage before executing the call. This functions similar to sil_call's state parameter.
       $ref: '#/components/schemas/AccountStorage'
 AccountOverrideStateDiff:
   title: Account override with partial storage modification
@@ -105,7 +105,7 @@ AccountOverrideStateDiff:
       description: Moves addresses precompile into the specified address. This move is done before the 'code' override is set. Can only move precompiles.
     stateDiff:
       title: Storage difference
-      description: Key-value mapping to override individual slots in the account storage before executing the call. This functions similar to eth_call's state parameter.
+      description: Key-value mapping to override individual slots in the account storage before executing the call. This functions similar to sil_call's state parameter.
       $ref: '#/components/schemas/AccountStorage'
 AccountStorage:
   title: Storage slots for an account
@@ -144,18 +144,18 @@ BlockOverrides:
     blobBaseFee:
       title: Base fee per unit of blob gas
       $ref: '#/components/schemas/uint64'
-EthSimulateResult:
-  title: Full results of eth_simulate
+SilSimulateResult:
+  title: Full results of sil_simulate
   type: array
   items:
-    $ref: '#/components/schemas/EthSimulateBlockResultSingleSuccess'
-EthSimulateBlockResultSingleSuccess:
-  title: Result of eth_simulate block-level, with array of calls
+    $ref: '#/components/schemas/SilSimulateBlockResultSingleSuccess'
+SilSimulateBlockResultSingleSuccess:
+  title: Result of sil_simulate block-level, with array of calls
   type: object
   allOf:
     - $ref: '#/components/schemas/Block'
     - type: object
-      title: Eth Simulate call results
+      title: Sil Simulate call results
       required:
         - calls
       properties:
@@ -163,7 +163,7 @@ EthSimulateBlockResultSingleSuccess:
           title: Call Results
           $ref: '#/components/schemas/CallResults'
 CallResults:
-  title: Results of eth_simulate within block
+  title: Results of sil_simulate within block
   type: array
   items:
     oneOf:
@@ -302,12 +302,12 @@ GenericCallTransaction:
     accessList:
       title: accessList
       description: |-
-        EIP-2930 access list
+        SIP-2930 access list
         Default: []
       $ref: '#/components/schemas/AccessList'
     blobVersionedHashes:
       title: Blob versioned hashes
       description: |-
-        EIP-4844 versioned hashes
+        SIP-4844 versioned hashes
         Default: []
       $ref: '#/components/schemas/bytes32'

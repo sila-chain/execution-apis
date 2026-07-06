@@ -1,4 +1,4 @@
-EthCapabilities:
+SilCapabilities:
   title: Effective routing capabilities
   description: Describes the data available on the node. Each resource reports the oldest available block and the deletion strategy, allowing RPC routers to determine which historical queries a node can serve.
   type: object
@@ -15,27 +15,27 @@ EthCapabilities:
     head:
       title: Current head block
       description: The latest block known to the node, useful for determining sync status.
-      $ref: '#/components/schemas/EthCapabilitiesHead'
+      $ref: '#/components/schemas/SilCapabilitiesHead'
     state:
-      description: "Account and contract state including balances, nonces, code, and storage. Determines the available range for historical state queries. Affects: eth_getBalance, eth_getCode, eth_getStorageAt, eth_getTransactionCount, eth_call, eth_estimateGas, eth_createAccessList."
-      $ref: '#/components/schemas/EthCapabilitiesEffectiveResource'
+      description: "Account and contract state including balances, nonces, code, and storage. Determines the available range for historical state queries. Affects: sil_getBalance, sil_getCode, sil_getStorageAt, sil_getTransactionCount, sil_call, sil_estimateGas, sil_createAccessList."
+      $ref: '#/components/schemas/SilCapabilitiesEffectiveResource'
     tx:
-      description: "Transaction data and lookup indices. Determines the available range for transaction lookups by hash or block position. Affects: eth_getTransactionByHash, eth_getTransactionByBlockHashAndIndex, eth_getTransactionByBlockNumberAndIndex."
-      $ref: '#/components/schemas/EthCapabilitiesEffectiveResource'
+      description: "Transaction data and lookup indices. Determines the available range for transaction lookups by hash or block position. Affects: sil_getTransactionByHash, sil_getTransactionByBlockHashAndIndex, sil_getTransactionByBlockNumberAndIndex."
+      $ref: '#/components/schemas/SilCapabilitiesEffectiveResource'
     logs:
-      description: "Event logs emitted by smart contracts. Determines the available block range for log queries and filters. Affects: eth_getLogs, eth_getFilterLogs, eth_getFilterChanges, eth_newFilter."
-      $ref: '#/components/schemas/EthCapabilitiesEffectiveResource'
+      description: "Event logs emitted by smart contracts. Determines the available block range for log queries and filters. Affects: sil_getLogs, sil_getFilterLogs, sil_getFilterChanges, sil_newFilter."
+      $ref: '#/components/schemas/SilCapabilitiesEffectiveResource'
     receipts:
-      description: "Transaction execution receipts including status, gas used, and logs bloom. Determines the available range for receipt lookups. Affects: eth_getTransactionReceipt, eth_getBlockReceipts."
-      $ref: '#/components/schemas/EthCapabilitiesEffectiveResource'
+      description: "Transaction execution receipts including status, gas used, and logs bloom. Determines the available range for receipt lookups. Affects: sil_getTransactionReceipt, sil_getBlockReceipts."
+      $ref: '#/components/schemas/SilCapabilitiesEffectiveResource'
     blocks:
-      description: "Block headers and bodies including transactions and uncles. Determines the available range for block retrieval. Affects: eth_getBlockByHash, eth_getBlockByNumber, eth_getBlockTransactionCountByHash, eth_getBlockTransactionCountByNumber, eth_getUncleCountByBlockHash, eth_getUncleCountByBlockNumber."
-      $ref: '#/components/schemas/EthCapabilitiesEffectiveResource'
+      description: "Block headers and bodies including transactions and uncles. Determines the available range for block retrieval. Affects: sil_getBlockByHash, sil_getBlockByNumber, sil_getBlockTransactionCountByHash, sil_getBlockTransactionCountByNumber, sil_getUncleCountByBlockHash, sil_getUncleCountByBlockNumber."
+      $ref: '#/components/schemas/SilCapabilitiesEffectiveResource'
     stateproofs:
-      description: "Merkle proofs for account and storage state. Determines the available range for proof generation. Affects: eth_getProof."
-      $ref: '#/components/schemas/EthCapabilitiesEffectiveResource'
+      description: "Merkle proofs for account and storage state. Determines the available range for proof generation. Affects: sil_getProof."
+      $ref: '#/components/schemas/SilCapabilitiesEffectiveResource'
 
-EthCapabilitiesEffectiveResource:
+SilCapabilitiesEffectiveResource:
   title: Effective resource capability
   type: object
   additionalProperties: false
@@ -47,9 +47,9 @@ EthCapabilitiesEffectiveResource:
     oldestBlock:
       $ref: '#/components/schemas/uint'
     deleteStrategy:
-      $ref: '#/components/schemas/EthCapabilitiesDeleteStrategy'
+      $ref: '#/components/schemas/SilCapabilitiesDeleteStrategy'
 
-EthCapabilitiesHead:
+SilCapabilitiesHead:
   title: Current head block
   type: object
   additionalProperties: false
@@ -64,7 +64,7 @@ EthCapabilitiesHead:
       title: Head block hash
       $ref: '#/components/schemas/hash32'
 
-EthCapabilitiesDeleteStrategy:
+SilCapabilitiesDeleteStrategy:
   title: Delete strategy
   oneOf:
     - title: Sliding window deletion

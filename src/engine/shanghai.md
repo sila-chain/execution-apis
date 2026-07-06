@@ -68,12 +68,12 @@ This structure has the syntax of `ExecutionPayloadV1` and appends a single field
 - `extraData`: `DATA`, 0 to 32 Bytes
 - `baseFeePerGas`: `QUANTITY`, 256 Bits
 - `blockHash`: `DATA`, 32 Bytes
-- `transactions`: `Array of DATA` - Array of transaction objects, each object is a byte list (`DATA`) representing `TransactionType || TransactionPayload` or `LegacyTransaction` as defined in [EIP-2718](https://eips.ethereum.org/EIPS/eip-2718)
+- `transactions`: `Array of DATA` - Array of transaction objects, each object is a byte list (`DATA`) representing `TransactionType || TransactionPayload` or `LegacyTransaction` as defined in [SIP-2718](https://sips.sila.org/SIPS/sip-2718)
 - `withdrawals`: `Array of WithdrawalV1` - Array of withdrawals, each object is an `OBJECT` containing the fields of a `WithdrawalV1` structure.
 
 ### ExecutionPayloadBodyV1
 This structure contains a body of an execution payload. The fields are encoded as follows:
-- `transactions`: `Array of DATA` - Array of transaction objects, each object is a byte list (`DATA`) representing `TransactionType || TransactionPayload` or `LegacyTransaction` as defined in [EIP-2718](https://eips.ethereum.org/EIPS/eip-2718)
+- `transactions`: `Array of DATA` - Array of transaction objects, each object is a byte list (`DATA`) representing `TransactionType || TransactionPayload` or `LegacyTransaction` as defined in [SIP-2718](https://sips.sila.org/SIPS/sip-2718)
 - `withdrawals`: `Array of WithdrawalV1` - Array of withdrawals, each object is an `OBJECT` containing the fields of a `WithdrawalV1` structure.
 
 ### PayloadAttributesV2
@@ -191,7 +191,7 @@ This method follows the same specification as [`engine_getPayloadV1`](./paris.md
 
 1. Client software **MUST** set `withdrawals` field to `null` for bodies of pre-Shanghai blocks.
 
-1. This request maps to [`BeaconBlocksByRoot`](https://github.com/ethereum/consensus-specs/blob/master/specs/phase0/p2p-interface.md#beaconblocksbyroot-v1) in the consensus layer `p2p` specification. Callers must be careful to use the execution block hash, instead of the beacon block root.
+1. This request maps to [`BeaconBlocksByRoot`](https://github.com/sila/consensus-specs/blob/master/specs/phase0/p2p-interface.md#beaconblocksbyroot-v1) in the consensus layer `p2p` specification. Callers must be careful to use the execution block hash, instead of the beacon block root.
 
 1. Callers must consider that syncing execution layer client may not serve any block bodies, including those that were supplied by `engine_newPayload` calls.
 
@@ -218,7 +218,7 @@ This method follows the same specification as [`engine_getPayloadV1`](./paris.md
 
 1. Client software **MUST** return `-32602: Invalid params` error if either `start` or `count` value is less than `1`.
 
-1. Client software **MUST** place `null` in the response array for unavailable blocks which numbers are lower than a number of the latest known block. Client software **MUST NOT** return trailing `null` values if the request extends past the current latest known block. Execution Layer client software is expected to download and carry the full block history until EIP-4444 or a similar proposal takes into effect. Consider the following response examples:
+1. Client software **MUST** place `null` in the response array for unavailable blocks which numbers are lower than a number of the latest known block. Client software **MUST NOT** return trailing `null` values if the request extends past the current latest known block. Execution Layer client software is expected to download and carry the full block history until SIP-4444 or a similar proposal takes into effect. Consider the following response examples:
     * `[B1.body, B2.body, ..., Bn.body]` -- entire requested range is filled with block bodies,
     * `[null, null, B3.body, ..., Bn.body]` -- first two blocks are unavailable (either pruned or not yet downloaded),
     * `[null, null, ..., null]` -- requested range is behind the latest known block and all blocks are unavailable,
@@ -228,7 +228,7 @@ This method follows the same specification as [`engine_getPayloadV1`](./paris.md
 
 1. Client software **MUST** set `withdrawals` field to `null` for bodies of pre-Shanghai blocks.
 
-1. This request maps to [`BeaconBlocksByRange`](https://github.com/ethereum/consensus-specs/blob/master/specs/phase0/p2p-interface.md#beaconblocksbyrange-v1) in the consensus layer `p2p` specification.
+1. This request maps to [`BeaconBlocksByRange`](https://github.com/sila/consensus-specs/blob/master/specs/phase0/p2p-interface.md#beaconblocksbyrange-v1) in the consensus layer `p2p` specification.
 
 1. Callers must be careful to not confuse `start` with a slot number, instead mapping the slot to a block number. Callers must also be careful to request non-finalized blocks by hash in order to avoid race conditions around the current view of the canonical chain.
 

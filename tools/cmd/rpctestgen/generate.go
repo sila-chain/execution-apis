@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/cespare/cp"
-	"github.com/ethereum/execution-apis/tools/testgen"
-	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/sila-chain/execution-apis/tools/testgen"
+	"github.com/sila-chain/go-sila/silclient"
+	"github.com/sila-chain/go-sila/rpc"
 )
 
 // runGenerator generates test fixtures against the specified client and writes
@@ -28,7 +28,7 @@ func runGenerator(ctx context.Context) error {
 		return err
 	}
 
-	// Start Ethereum client.
+	// Start Sila client.
 	client, err := spawnClient(ctx, args)
 	if err != nil {
 		return err
@@ -59,9 +59,9 @@ func runGenerator(ctx context.Context) error {
 			filename := fmt.Sprintf("%s/%s.io", methodDir, test.Name)
 			fmt.Printf("generating %s", filename)
 
-			// Connect ethclient to Ethereum client. This happens
+			// Connect silclient to Sila client. This happens
 			// every test to force the json-rpc id to always be 0.
-			handler, err := newEthclientHandler(client.HttpAddr())
+			handler, err := newSilclientHandler(client.HttpAddr())
 			if err != nil {
 				return err
 			}
@@ -100,7 +100,7 @@ func runGenerator(ctx context.Context) error {
 	return nil
 }
 
-// spawnClient starts an Ethereum client on a separate thread.
+// spawnClient starts an Sila client on a separate thread.
 //
 // It waits until the client is responding to JSON-RPC requests
 // before returning.
@@ -112,8 +112,8 @@ func spawnClient(ctx context.Context, args *Args) (Client, error) {
 
 	// Initialize specified client and start it in a separate thread.
 	switch args.ClientType {
-	case "geth":
-		client, err = newGethClient(ctx, args.ClientBin, args.ChainDir, args.Verbose)
+	case "sila":
+		client, err = newSilaClient(ctx, args.ClientBin, args.ChainDir, args.Verbose)
 		if err != nil {
 			return nil, err
 		}
@@ -173,7 +173,7 @@ func tryConnection(ctx context.Context, addr string, waitTime time.Duration) err
 	if err != nil {
 		return err
 	}
-	e := ethclient.NewClient(c)
+	e := silclient.NewClient(c)
 	for {
 		if _, err := e.BlockNumber(ctx); err == nil {
 			break

@@ -1,10 +1,10 @@
 # Introduction
 
-Welcome to the Ethereum JSON-RPC documentation. This site provides comprehensive information about the JSON-RPC APIs provided by Ethereum execution clients.
+Welcome to the Sila JSON-RPC documentation. This site provides comprehensive information about the JSON-RPC APIs provided by Sila execution clients.
 
 ## What are Execution APIs?
 
-Execution APIs are the set of JSON-RPC endpoints that allow applications to interact with Ethereum nodes. These APIs enable developers to:
+Execution APIs are the set of JSON-RPC endpoints that allow applications to interact with Sila nodes. These APIs enable developers to:
 
 - Query blockchain data
 - Send transactions
@@ -16,9 +16,9 @@ Execution APIs are the set of JSON-RPC endpoints that allow applications to inte
 
 To get started with the Execution APIs:
 
-1. Choose an Ethereum client implementation
+1. Choose an Sila client implementation
 2. Set up your development environment
-3. Connect to an Ethereum node
+3. Connect to an Sila node
 4. Start making JSON-RPC calls
 
 ## API Categories
@@ -31,7 +31,7 @@ The Execution APIs are organized into several categories:
 - Debug APIs
 - Trace APIs
 
-Each category serves specific purposes and provides different functionalities for interacting with the Ethereum network.
+Each category serves specific purposes and provides different functionalities for interacting with the Sila network.
 
 ## Contributing
 

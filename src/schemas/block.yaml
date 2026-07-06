@@ -108,10 +108,10 @@ Block:
       items:
         $ref: '#/components/schemas/hash32'
     requestsHash:
-      title: EIP-7685 requests hash
+      title: SIP-7685 requests hash
       $ref: '#/components/schemas/hash32'
     blockAccessListHash:
-      title: EIP-7928 block access list hash
+      title: SIP-7928 block access list hash
       $ref: '#/components/schemas/hash32'
 BlockTag:
   title: Block tag

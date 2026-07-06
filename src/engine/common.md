@@ -26,25 +26,25 @@ This document specifies common definitions and requirements affecting Engine API
 ## Underlying protocol
 
 Message format and encoding notation used by this specification are inherited
-from [Ethereum JSON-RPC Specification][json-rpc-spec].
+from [Sila JSON-RPC Specification][json-rpc-spec].
 
 Client software **MUST** expose Engine API at a port independent from JSON-RPC API.
 The default port for the Engine API is 8551.
 The Engine API is exposed under the `engine` namespace.
 
 To facilitate an Engine API consumer to access state and logs (e.g. proof-of-stake deposits) through the same connection,
-the client **MUST** also expose the following subset of `eth` methods:
-* `eth_blockNumber`
-* `eth_call`
-* `eth_chainId`
-* `eth_getCode`
-* `eth_getBlockByHash`
-* `eth_getBlockByNumber`
-* `eth_getLogs`
-* `eth_sendRawTransaction`
-* `eth_syncing`
+the client **MUST** also expose the following subset of `sil` methods:
+* `sil_blockNumber`
+* `sil_call`
+* `sil_chainId`
+* `sil_getCode`
+* `sil_getBlockByHash`
+* `sil_getBlockByNumber`
+* `sil_getLogs`
+* `sil_sendRawTransaction`
+* `sil_syncing`
 
-These methods are described in [Ethereum JSON-RPC Specification][json-rpc-spec].
+These methods are described in [Sila JSON-RPC Specification][json-rpc-spec].
 
 ### Authentication
 
@@ -137,7 +137,7 @@ Values of a field of `QUANTITY` type **MUST** be encoded as a hexadecimal string
 
 *Note:* Byte order of encoded value having `QUANTITY` type is big-endian.
 
-[json-rpc-spec]: https://playground.open-rpc.org/?schemaUrl=https://raw.githubusercontent.com/ethereum/execution-apis/assembled-spec/openrpc.json&uiSchema[appBar][ui:splitView]=false&uiSchema[appBar][ui:input]=false&uiSchema[appBar][ui:examplesDropdown]=false
+[json-rpc-spec]: https://playground.open-rpc.org/?schemaUrl=https://raw.githubusercontent.com/sila/execution-apis/assembled-spec/openrpc.json&uiSchema[appBar][ui:splitView]=false&uiSchema[appBar][ui:input]=false&uiSchema[appBar][ui:examplesDropdown]=false
 
 ## Capabilities
 
