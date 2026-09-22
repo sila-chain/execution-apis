@@ -18,7 +18,7 @@ jobs:
       - name: Refresh Sila generator authority for closure evidence
         working-directory: ./tools
         run: |
-          go get github.com/sila-chain/go-sila@2c2deea9ac4a2f41ce099734f3015338f490651f
+          go get github.com/sila-chain/go-sila@5ea49e9d531645998680883a003ff8226db825f3
           grep 'github.com/sila-chain/go-sila' go.mod go.sum || true
           go mod tidy
 
@@ -26,20 +26,12 @@ jobs:
         uses: actions/checkout@v7
         with:
           repository: sila-chain/sila-hive
-          ref: main
+          ref: 92aa8a80399dd82b107d58d6ee0b7d884b7eda2c
           path: _sila-hive
 
       - name: Build Sila-native hivechain
         working-directory: ./_sila-hive
-        run: |
-          go mod edit -droprequire=github.com/crate-crypto/go-sil-kzg
-          go mod edit -droprequire=github.com/sila-chain/c-kzg-4844/v2
-          go mod edit -droprequire=github.com/sila-chain/go-bigmodexpfix
-          go mod edit -droprequire=github.com/sila-chain/go-verkle
-          go mod edit -droprequire=github.com/sila-chain/go-sila
-          go get github.com/sila-chain/go-sila@2c2deea9ac4a2f41ce099734f3015338f490651f
-          go mod tidy
-          go build -o ../tools/hivechain ./cmd/hivechain
+        run: go build -o ../tools/hivechain ./cmd/hivechain
 
       - name: Regenerate Sila-native RPC test chain
         working-directory: ./tools
