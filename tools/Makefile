@@ -21,4 +21,4 @@ lint:
 	staticcheck ./...
 
 fill: build sila
-	./rpctestgen --bin ./sila -chain ./chain --out ../tests
+	./rpctestgen -v --bin ./sila -chain ./chain --out ../tests
