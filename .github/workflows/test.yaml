@@ -33,7 +33,9 @@ jobs:
         working-directory: ./_sila-hive
         run: |
           go mod edit -droprequire=github.com/crate-crypto/go-sil-kzg
-          go get github.com/sila-chain/go-sil-kzg@v1.5.1
+          go mod edit -droprequire=github.com/sila-chain/c-kzg-4844/v2
+          go mod edit -droprequire=github.com/sila-chain/go-bigmodexpfix
+          go mod edit -droprequire=github.com/sila-chain/go-verkle
           go get github.com/sila-chain/go-sila@2c2deea9ac4a2f41ce099734f3015338f490651f
           go mod tidy
           go build -o ../tools/hivechain ./cmd/hivechain
