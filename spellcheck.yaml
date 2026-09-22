@@ -6,9 +6,9 @@ matrix:
       lang: en
       d: en_US
       ignore-case: true
-      run-tosilaer: true
-      run-tosilaer-min: 2
-      run-tosilaer-limit: 256
+      run-together: true
+      run-together-min: 2
+      run-together-limit: 256
     dictionary:
       wordlists:
         - wordlist.txt
@@ -33,9 +33,9 @@ matrix:
       lang: en
       d: en_US
       ignore-case: true
-      run-tosilaer: true
-      run-tosilaer-min: 2
-      run-tosilaer-limit: 256
+      run-together: true
+      run-together-min: 2
+      run-together-limit: 256
     dictionary:
       wordlists:
         - wordlist.txt
