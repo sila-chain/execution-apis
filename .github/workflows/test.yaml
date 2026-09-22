@@ -59,7 +59,9 @@ jobs:
         run: |
           set -eu
           sha256sum tools/go.mod tools/go.sum tests/chain.rlp tools/chain/chain.rlp
-          for f in tools/go.mod tools/go.sum tools/chain/chain.rlp; do
+          for f in \
+            tests/sil_getLogs/filter-error-invalid-blockHash-and-range.io \
+            tests/sil_simulateV1/silSimulate-gas-fees-and-value-error-38014-with-validation.io; do
             key=$(echo "$f" | tr '/.' '__')
             echo "BEGIN_BASE64_${key}"
             base64 -w0 "$f"
