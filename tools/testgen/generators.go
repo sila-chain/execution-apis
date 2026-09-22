@@ -723,7 +723,7 @@ var EthCall = MethodTests{
 				msg := sila.CallMsg{
 					To: &t.chain.txinfo.CallMeContract.Addr,
 					// This is the expected input that makes the call pass.
-					// See https://github.com/ethereum/hive/blob/master/cmd/hivechain/contracts/callme.eas
+					// See https://github.com/sila-chain/sila-hive/blob/main/cmd/hivechain/contracts/callme.eas
 					Data: []byte{0xff, 0x01},
 				}
 				result, err := t.sil.CallContract(ctx, msg, nil)
@@ -740,7 +740,7 @@ var EthCall = MethodTests{
 		{
 			Name: "call-callenv",
 			About: `Performs a call to the callenv contract, which echoes the EVM transaction environment.
-See https://github.com/ethereum/hive/tree/master/cmd/hivechain/contracts/callenv.eas for the output structure.`,
+See https://github.com/sila-chain/sila-hive/blob/main/cmd/hivechain/contracts/callenv.eas for the output structure.`,
 			Run: func(ctx context.Context, t *T) error {
 				msg := sila.CallMsg{
 					To: &t.chain.txinfo.CallEnvContract.Addr,
@@ -759,7 +759,7 @@ See https://github.com/ethereum/hive/tree/master/cmd/hivechain/contracts/callenv
 			Name: "call-callenv-options-sip1559",
 			About: `Performs a call to the callenv contract, which echoes the EVM transaction environment.
 This call uses SIP1559 transaction options.
-See https://github.com/ethereum/hive/tree/master/cmd/hivechain/contracts/callenv.eas for the output structure.`,
+See https://github.com/sila-chain/sila-hive/blob/main/cmd/hivechain/contracts/callenv.eas for the output structure.`,
 			Run: func(ctx context.Context, t *T) error {
 				sender, _ := t.chain.GetSender(1)
 				basefee := t.chain.Head().BaseFee()
@@ -881,7 +881,7 @@ var EthEstimateGas = MethodTests{
 					From: caller,
 					To:   &callme,
 					// This is the expected input that makes the call pass.
-					// See https://github.com/ethereum/hive/blob/master/cmd/hivechain/contracts/callme.eas
+					// See https://github.com/sila-chain/sila-hive/blob/main/cmd/hivechain/contracts/callme.eas
 					Data: []byte{0xff, 0x01},
 				}
 				got, err := t.sil.EstimateGas(ctx, msg)
