@@ -1,4 +1,4 @@
-EthSimulatePayload:
+SilSimulatePayload:
   title: Arguments for sil_simulate
   required:
     - blockStateCalls
@@ -145,12 +145,12 @@ BlockOverrides:
     blobBaseFee:
       title: Base fee per unit of blob gas
       $ref: '#/components/schemas/uint64'
-EthSimulateResult:
+SilSimulateResult:
   title: Full results of sil_simulate
   type: array
   items:
-    $ref: '#/components/schemas/EthSimulateBlockResultSingleSuccess'
-EthSimulateBlockResultSingleSuccess:
+    $ref: '#/components/schemas/SilSimulateBlockResultSingleSuccess'
+SilSimulateBlockResultSingleSuccess:
   title: Result of sil_simulate block-level, with array of calls
   type: object
   allOf:
