@@ -58,6 +58,10 @@ jobs:
             refs-openrpc.json
 
   deploy:
+    # Sila Pages is not enabled for this repository yet. Keep the docs build,
+    # artifact upload, and assembled-spec deployment required, but skip only
+    # the Pages API call until repository Pages is explicitly configured.
+    if: ${{ false }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
