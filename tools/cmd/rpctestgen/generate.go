@@ -10,8 +10,8 @@ import (
 
 	"github.com/cespare/cp"
 	"github.com/sila-chain/execution-apis/tools/testgen"
-	"github.com/sila-chain/go-sila/silclient"
 	"github.com/sila-chain/go-sila/rpc"
+	"github.com/sila-chain/go-sila/silclient"
 )
 
 // runGenerator generates test fixtures against the specified client and writes
