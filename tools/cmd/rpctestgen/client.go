@@ -161,14 +161,9 @@ func runCmd(ctx context.Context, path string, verbose bool, args ...string) erro
 	if verbose {
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
-		if err := cmd.Run(); err != nil {
-			return fmt.Errorf("%s %v: %w", path, args, err)
-		}
-		return nil
 	}
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("%s %v: %w\n%s", path, args, err, output)
+	if err := cmd.Run(); err != nil {
+		return err
 	}
 	return nil
 }
