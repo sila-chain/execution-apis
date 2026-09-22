@@ -22,6 +22,26 @@ jobs:
           grep 'github.com/sila-chain/go-sila' go.mod go.sum || true
           go mod tidy
 
+      - name: Checkout Sila Hive authority
+        uses: actions/checkout@v7
+        with:
+          repository: sila-chain/sila-hive
+          ref: main
+          path: _sila-hive
+
+      - name: Build Sila-native hivechain
+        working-directory: ./_sila-hive
+        run: |
+          go get github.com/sila-chain/go-sila@2c2deea9ac4a2f41ce099734f3015338f490651f
+          go mod tidy
+          go build -o ../tools/hivechain ./cmd/hivechain
+
+      - name: Regenerate Sila-native RPC test chain
+        working-directory: ./tools
+        run: |
+          rm -rf chain
+          bash ./mkchain.sh
+
       - name: Build the spec
         run: make build
 
@@ -42,7 +62,7 @@ jobs:
         run: |
           set -eu
           sha256sum tools/go.mod tools/go.sum tests/chain.rlp tools/chain/chain.rlp
-          for f in tools/go.mod tools/go.sum tests/chain.rlp; do
+          for f in tools/go.mod tools/go.sum tools/chain/chain.rlp; do
             key=$(echo "$f" | tr '/.' '__')
             echo "BEGIN_BASE64_${key}"
             base64 -w0 "$f"
