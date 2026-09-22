@@ -21,7 +21,7 @@ jobs:
       - name: Align go-sila with Sila Hive authority
         working-directory: ./tools
         run: |
-          go get github.com/sila-chain/go-sila@5ea49e9d5316
+          go get github.com/sila-chain/go-sila@fc02921e342c
           go mod tidy
 
       - name: Checkout Sila Hive authority
@@ -30,6 +30,12 @@ jobs:
           repository: sila-chain/sila-hive
           ref: 92aa8a80399dd82b107d58d6ee0b7d884b7eda2c
           path: _sila-hive
+
+      - name: Align checked-out Sila Hive with fixed go-sila authority
+        working-directory: ./_sila-hive
+        run: |
+          go get github.com/sila-chain/go-sila@fc02921e342c
+          go mod tidy
 
       - name: Build Sila-native hivechain
         working-directory: ./_sila-hive
