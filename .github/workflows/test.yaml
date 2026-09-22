@@ -36,6 +36,7 @@ jobs:
           go mod edit -droprequire=github.com/sila-chain/c-kzg-4844/v2
           go mod edit -droprequire=github.com/sila-chain/go-bigmodexpfix
           go mod edit -droprequire=github.com/sila-chain/go-verkle
+          go mod edit -droprequire=github.com/sila-chain/go-sila
           go get github.com/sila-chain/go-sila@2c2deea9ac4a2f41ce099734f3015338f490651f
           go mod tidy
           go build -o ../tools/hivechain ./cmd/hivechain
