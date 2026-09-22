@@ -314,8 +314,8 @@ github.com/sila-chain/go-bigmodexpfix v0.0.1 h1:robSHPjnMd4CTulnUACUXjDzmQaizlpq
 github.com/sila-chain/go-bigmodexpfix v0.0.1/go.mod h1:aLw7e4n+2pYipuQtRD1REsnGILZ+SEEMMfbqJLOiJAk=
 github.com/sila-chain/go-sil-kzg v1.5.1 h1:vpBvSirK3UZ54L7SAd84v6ldo39yF2FqM1jXYqFxOSU=
 github.com/sila-chain/go-sil-kzg v1.5.1/go.mod h1:vaqFVUTnql2p9GaDnEvUzgNzM7icXONNOstyktIH7RM=
-github.com/sila-chain/go-sila v1.17.4-0.20260920222330-2c2deea9ac4a h1:KOf2ZitMKzAI4VVeKOas9tK/oyUpzZPM2KSLRiyP+XE=
-github.com/sila-chain/go-sila v1.17.4-0.20260920222330-2c2deea9ac4a/go.mod h1:LazJQFN4R16NpV7exkSHuGoJYbBVykfsvGS/OrxCddY=
+github.com/sila-chain/go-sila v1.17.4-0.20260922192656-fc02921e342c h1:4pY03QilweOnoyFVhm8kODpo5Xvy895+yw/LNBBOe5M=
+github.com/sila-chain/go-sila v1.17.4-0.20260922192656-fc02921e342c/go.mod h1:LazJQFN4R16NpV7exkSHuGoJYbBVykfsvGS/OrxCddY=
 github.com/sila-chain/hid v1.0.1-sila.3 h1:lfF1Ym+Lf+PLydoI8kgPxERIL9yuYN4Dsl9zJIFa6Wc=
 github.com/sila-chain/hid v1.0.1-sila.3/go.mod h1:kD1bh+0SRr69wvPOuaq40IqgiBptCCklVVEr/Hl35BA=
 github.com/sila-chain/zrnt v0.34.1-sila.5 h1:JDw/p28JlciTcDL8djB8r/8yrQnDoWczFurf2Z5is8Q=

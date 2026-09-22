@@ -10,7 +10,7 @@ require (
 	github.com/open-rpc/spec-types/generated/packages/go v0.1.1
 	github.com/santhosh-tekuri/jsonschema/v5 v5.3.1
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.2
-	github.com/sila-chain/go-sila v1.17.4-0.20260920222330-2c2deea9ac4a
+	github.com/sila-chain/go-sila v1.17.4-0.20260922192656-fc02921e342c
 	golang.org/x/exp v0.0.0-20240112132812-db7319d0e0e3
 	gopkg.in/yaml.v3 v3.0.1
 )
