@@ -15,6 +15,12 @@ jobs:
           cache-dependency-path: tools/go.sum
         id: go
 
+      - name: Refresh Sila generator authority for closure evidence
+        working-directory: ./tools
+        run: |
+          go get github.com/sila-chain/go-sila@2c2deea9ac4a2f41ce099734f3015338f490651f
+          go mod tidy
+
       - name: Build the spec
         run: make build
 
@@ -29,6 +35,19 @@ jobs:
       - name: Fill tests
         working-directory: ./tools
         run: make fill
+
+      - name: Emit Sila-native generated closure evidence
+        shell: bash
+        run: |
+          set -eu
+          sha256sum tools/go.mod tools/go.sum tests/chain.rlp tools/chain/chain.rlp
+          for f in tools/go.mod tools/go.sum tests/chain.rlp; do
+            key=$(echo "$f" | tr '/.' '__')
+            echo "BEGIN_BASE64_${key}"
+            base64 -w0 "$f"
+            echo
+            echo "END_BASE64_${key}"
+          done
 
       - name: Fail if any files are untracked or have changes
         # sila outputs non-deterministic responses for two tests-
