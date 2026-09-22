@@ -23,7 +23,7 @@
     "bpo2Time": 540,
     "terminalTotalDifficulty": 4732352,
     "depositContractAddress": "0x0000000000000000000000000000000000000000",
-    "ethash": {},
+    "silash": {},
     "blobSchedule": {
       "cancun": {
         "target": 3,
