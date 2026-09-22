@@ -18,6 +18,12 @@ jobs:
           cache-dependency-path: tools/go.sum
         id: go
 
+      - name: Align go-sila with Sila Hive authority
+        working-directory: ./tools
+        run: |
+          go get github.com/sila-chain/go-sila@5ea49e9d5316
+          go mod tidy
+
       - name: Checkout Sila Hive authority
         uses: actions/checkout@v7
         with:
@@ -57,7 +63,7 @@ jobs:
         run: |
           set -eu
           rm -rf _sila-hive
-          git add tools/chain tests
+          git add tools/go.mod tools/go.sum tools/chain tests
           git reset --             tests/sil_createAccessList/create-al-contract.io             tests/sil_createAccessList/create-al-contract-sip1559.io
           if ! git diff --cached --quiet; then
             git config user.name "Sila CI"
