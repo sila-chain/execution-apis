@@ -1,4 +1,5 @@
 name: Test
+# Final validation after committing Sila-native generated fixtures.
 
 on: [push, pull_request, workflow_dispatch]
 
