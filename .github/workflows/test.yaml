@@ -2,52 +2,18 @@ name: Test
 
 on: [push, pull_request, workflow_dispatch]
 
-permissions:
-  contents: write
-
 jobs:
   lint-and-check:
     runs-on: ubuntu-latest
     steps:
       # Specification
       - uses: actions/checkout@v7
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - uses: actions/setup-go@v7
         with:
           go-version: ^1.26
           cache-dependency-path: tools/go.sum
         id: go
-
-      - name: Align go-sila with Sila Hive authority
-        working-directory: ./tools
-        run: |
-          go get github.com/sila-chain/go-sila@fc02921e342c
-          go mod tidy
-
-      - name: Checkout Sila Hive authority
-        uses: actions/checkout@v7
-        with:
-          repository: sila-chain/sila-hive
-          ref: 92aa8a80399dd82b107d58d6ee0b7d884b7eda2c
-          path: _sila-hive
-
-      - name: Align checked-out Sila Hive with fixed go-sila authority
-        working-directory: ./_sila-hive
-        run: |
-          go get github.com/sila-chain/go-sila@fc02921e342c
-          go mod tidy
-
-      - name: Build Sila-native hivechain
-        working-directory: ./_sila-hive
-        run: go build -o ../tools/hivechain ./cmd/hivechain
-
-      - name: Regenerate Sila-native RPC test chain
-        working-directory: ./tools
-        run: |
-          rm -rf chain
-          bash ./mkchain.sh
 
       - name: Build the spec
         run: make build
@@ -63,22 +29,6 @@ jobs:
       - name: Fill tests
         working-directory: ./tools
         run: make fill
-
-      - name: Commit deterministic Sila-native chain and fixtures
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
-        env:
-          HEAD_BRANCH: ${{ github.head_ref }}
-        run: |
-          set -eu
-          rm -rf _sila-hive
-          git add tools/go.mod tools/go.sum tools/chain tests
-          git reset --             tests/sil_createAccessList/create-al-contract.io             tests/sil_createAccessList/create-al-contract-sip1559.io
-          if ! git diff --cached --quiet; then
-            git config user.name "Sila CI"
-            git config user.email "ci@sila.local"
-            git commit -m "generated: regenerate RPC fixtures from Sila Hive"
-            git push origin "HEAD:${HEAD_BRANCH}"
-          fi
 
       - name: Fail if any files are untracked or have changes
         # sila outputs non-deterministic responses for two tests-
