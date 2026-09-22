@@ -1,5 +1,6 @@
 SilSimulatePayload:
   title: Arguments for sil_simulate
+  type: object
   required:
     - blockStateCalls
   properties:
