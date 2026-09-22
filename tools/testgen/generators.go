@@ -9,16 +9,16 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/holiman/uint256"
 	"github.com/sila-chain/go-sila"
 	"github.com/sila-chain/go-sila/common"
 	"github.com/sila-chain/go-sila/common/hexutil"
 	"github.com/sila-chain/go-sila/core/types"
 	"github.com/sila-chain/go-sila/crypto/kzg4844"
-	"github.com/sila-chain/go-sila/ethclient"
-	"github.com/sila-chain/go-sila/ethclient/gethclient"
 	"github.com/sila-chain/go-sila/params"
 	"github.com/sila-chain/go-sila/rpc"
-	"github.com/holiman/uint256"
+	"github.com/sila-chain/go-sila/silclient"
+	"github.com/sila-chain/go-sila/silclient/silaclient"
 	"golang.org/x/exp/maps"
 )
 
@@ -28,15 +28,15 @@ var (
 )
 
 type T struct {
-	sil   *ethclient.Client
-	sila  *gethclient.Client
+	sil   *silclient.Client
+	sila  *silaclient.Client
 	rpc   *rpc.Client
 	chain *Chain
 }
 
 func NewT(client *rpc.Client, chain *Chain) *T {
-	sil := ethclient.NewClient(client)
-	sila := gethclient.New(client)
+	sil := silclient.NewClient(client)
+	sila := silaclient.New(client)
 	return &T{sil, sila, client, chain}
 }
 
