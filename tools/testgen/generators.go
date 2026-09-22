@@ -629,7 +629,7 @@ var EthGetBlockByNumber = MethodTests{
 			Name:  "get-block-london-fork",
 			About: "requests a block at the London fork",
 			Run: func(ctx context.Context, t *T) error {
-				hdr, err := t.sil.HeaderByNumber(ctx, t.chain.config.LondonBlock)
+				hdr, err := t.sil.HeaderByNumber(ctx, t.chain.config.SilaLondonBlock)
 				if err != nil {
 					return err
 				}
@@ -657,7 +657,7 @@ var EthGetBlockByNumber = MethodTests{
 			Name:  "get-block-shanghai-fork",
 			About: "requests a block at the Shanghai fork",
 			Run: func(ctx context.Context, t *T) error {
-				blocknum := t.chain.BlockAtTime(*t.chain.config.ShanghaiTime).Number()
+				blocknum := t.chain.BlockAtTime(*t.chain.config.SilaShanghaiTime).Number()
 				hdr, err := t.sil.HeaderByNumber(ctx, blocknum)
 				if err != nil {
 					return err
@@ -672,7 +672,7 @@ var EthGetBlockByNumber = MethodTests{
 			Name:  "get-block-cancun-fork",
 			About: "requests a block at the Cancun fork",
 			Run: func(ctx context.Context, t *T) error {
-				blocknum := t.chain.BlockAtTime(*t.chain.config.CancunTime).Number()
+				blocknum := t.chain.BlockAtTime(*t.chain.config.SilaCancunTime).Number()
 				b, err := t.sil.HeaderByNumber(ctx, blocknum)
 				if err != nil {
 					return err
@@ -2731,7 +2731,7 @@ func validateBuildBlockV1Response(
 	}
 
 	// Verify parentBeaconBlockRoot if Cancun is active and it's present in response
-	if t.chain.Config().IsCancun(parentBlock.Number(), parentBlock.Time()) {
+	if t.chain.Config().IsSilaCancun(parentBlock.Number(), parentBlock.Time()) {
 		if payloadBeaconRoot, hasBeaconRoot := payloadAttrs["parentBeaconBlockRoot"]; hasBeaconRoot {
 			if beaconRootStr, ok := executionPayload["parentBeaconBlockRoot"].(string); ok {
 				expectedBeaconRoot := common.HexToHash(payloadBeaconRoot.(string))
@@ -2789,7 +2789,7 @@ var TestingBuildBlockV1 = MethodTests{
 					"withdrawals":           []interface{}{},
 				}
 
-				if t.chain.Config().IsCancun(parentBlock.Number(), parentBlock.Time()) {
+				if t.chain.Config().IsSilaCancun(parentBlock.Number(), parentBlock.Time()) {
 					beaconRoot := common.Hash{0xcf, 0x8e, 0x0d, 0x4e, 0x95, 0x87, 0x36, 0x9b, 0x23, 0x01, 0xd0, 0x79, 0x03, 0x47, 0x32, 0x03, 0x02, 0xcc, 0x09, 0x43, 0xd5, 0xa1, 0x88, 0x43, 0x65, 0x14, 0x9a, 0x42, 0x21, 0x2e, 0x88, 0x22}
 					payloadAttrs["parentBeaconBlockRoot"] = beaconRoot.Hex()
 				}
@@ -2878,7 +2878,7 @@ var TestingBuildBlockV1 = MethodTests{
 					"withdrawals":           []interface{}{},
 				}
 
-				if t.chain.Config().IsCancun(parentBlock.Number(), parentBlock.Time()) {
+				if t.chain.Config().IsSilaCancun(parentBlock.Number(), parentBlock.Time()) {
 					beaconRoot := common.Hash{0xcf, 0x8e, 0x0d, 0x4e, 0x95, 0x87, 0x36, 0x9b, 0x23, 0x01, 0xd0, 0x79, 0x03, 0x47, 0x32, 0x03, 0x02, 0xcc, 0x09, 0x43, 0xd5, 0xa1, 0x88, 0x43, 0x65, 0x14, 0x9a, 0x42, 0x21, 0x2e, 0x88, 0x22}
 					payloadAttrs["parentBeaconBlockRoot"] = beaconRoot.Hex()
 				}
@@ -2932,7 +2932,7 @@ var TestingBuildBlockV1 = MethodTests{
 					"withdrawals":           []interface{}{},
 				}
 
-				if t.chain.Config().IsCancun(parentBlock.Number(), parentBlock.Time()) {
+				if t.chain.Config().IsSilaCancun(parentBlock.Number(), parentBlock.Time()) {
 					beaconRoot := common.Hash{0xcf, 0x8e, 0x0d, 0x4e, 0x95, 0x87, 0x36, 0x9b, 0x23, 0x01, 0xd0, 0x79, 0x03, 0x47, 0x32, 0x03, 0x02, 0xcc, 0x09, 0x43, 0xd5, 0xa1, 0x88, 0x43, 0x65, 0x14, 0x9a, 0x42, 0x21, 0x2e, 0x88, 0x22}
 					payloadAttrs["parentBeaconBlockRoot"] = beaconRoot.Hex()
 				}
@@ -3014,7 +3014,7 @@ var TestingBuildBlockV1 = MethodTests{
 					"withdrawals":           []interface{}{},
 				}
 
-				if t.chain.Config().IsCancun(parentBlock.Number(), parentBlock.Time()) {
+				if t.chain.Config().IsSilaCancun(parentBlock.Number(), parentBlock.Time()) {
 					beaconRoot := common.Hash{0xcf, 0x8e, 0x0d, 0x4e, 0x95, 0x87, 0x36, 0x9b, 0x23, 0x01, 0xd0, 0x79, 0x03, 0x47, 0x32, 0x03, 0x02, 0xcc, 0x09, 0x43, 0xd5, 0xa1, 0x88, 0x43, 0x65, 0x14, 0x9a, 0x42, 0x21, 0x2e, 0x88, 0x22}
 					payloadAttrs["parentBeaconBlockRoot"] = beaconRoot.Hex()
 				}
@@ -3088,7 +3088,7 @@ func commitBlockV1PayloadAttrs(t *T, parentBlock *types.Block, salt string) map[
 		"suggestedFeeRecipient": common.Address{}.Hex(),
 		"withdrawals":           []interface{}{},
 	}
-	if t.chain.Config().IsCancun(parentBlock.Number(), parentBlock.Time()) {
+	if t.chain.Config().IsSilaCancun(parentBlock.Number(), parentBlock.Time()) {
 		beaconRoot := common.HexToHash("0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884365149a42212e8822")
 		attrs["parentBeaconBlockRoot"] = beaconRoot.Hex()
 	}
@@ -3946,7 +3946,7 @@ var EthSimulateV1 = MethodTests{
 				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
-							common.Address{0xc0}: OverrideAccount{Balance: newRPCBalance(1000), Code: getEthForwarder()},
+							common.Address{0xc0}: OverrideAccount{Balance: newRPCBalance(1000), Code: getSilForwarder()},
 						},
 						Calls: []TransactionArgs{{
 							From:  &common.Address{0xc0},
@@ -3974,7 +3974,7 @@ var EthSimulateV1 = MethodTests{
 				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
-							common.Address{0xc0}: OverrideAccount{Code: getEthForwarder()},
+							common.Address{0xc0}: OverrideAccount{Code: getSilForwarder()},
 						},
 						Calls: []TransactionArgs{{
 							From:  &common.Address{0xc0},
@@ -3997,7 +3997,7 @@ var EthSimulateV1 = MethodTests{
 				params := silSimulateOpts{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
-							common.Address{0xc0}: OverrideAccount{Balance: newRPCBalance(1000), Code: getEthForwarder()},
+							common.Address{0xc0}: OverrideAccount{Balance: newRPCBalance(1000), Code: getSilForwarder()},
 						},
 						Calls: []TransactionArgs{{
 							From:  &common.Address{0xc0},
@@ -4786,7 +4786,7 @@ var EthSimulateV1 = MethodTests{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
 							common.Address{0xc0}: OverrideAccount{Balance: newRPCBalance(2000)},
-							common.Address{0xc1}: OverrideAccount{Code: getEthForwarder()},
+							common.Address{0xc1}: OverrideAccount{Code: getSilForwarder()},
 						},
 						Calls: []TransactionArgs{{
 							From:  &common.Address{0xc0},
@@ -4819,7 +4819,7 @@ var EthSimulateV1 = MethodTests{
 					BlockStateCalls: []CallBatch{{
 						StateOverrides: &StateOverride{
 							common.Address{0xc0}: OverrideAccount{Balance: newRPCBalance(2000)},
-							common.Address{0xc1}: OverrideAccount{Code: getEthForwarder()},
+							common.Address{0xc1}: OverrideAccount{Code: getSilForwarder()},
 							common.Address{0xc2}: OverrideAccount{Code: getRevertingContract()},
 						},
 						Calls: []TransactionArgs{{
