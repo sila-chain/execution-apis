@@ -15,30 +15,6 @@ jobs:
           cache-dependency-path: tools/go.sum
         id: go
 
-      - name: Refresh Sila generator authority for closure evidence
-        working-directory: ./tools
-        run: |
-          go get github.com/sila-chain/go-sila@2c2deea9ac4a2f41ce099734f3015338f490651f
-          grep 'github.com/sila-chain/go-sila' go.mod go.sum || true
-          go mod tidy
-
-      - name: Checkout Sila Hive authority
-        uses: actions/checkout@v7
-        with:
-          repository: sila-chain/sila-hive
-          ref: 92aa8a80399dd82b107d58d6ee0b7d884b7eda2c
-          path: _sila-hive
-
-      - name: Build Sila-native hivechain
-        working-directory: ./_sila-hive
-        run: go build -o ../tools/hivechain ./cmd/hivechain
-
-      - name: Regenerate Sila-native RPC test chain
-        working-directory: ./tools
-        run: |
-          rm -rf chain
-          bash ./mkchain.sh
-
       - name: Build the spec
         run: make build
 
@@ -53,21 +29,6 @@ jobs:
       - name: Fill tests
         working-directory: ./tools
         run: make fill
-
-      - name: Emit Sila-native generated closure evidence
-        shell: bash
-        run: |
-          set -eu
-          sha256sum tools/go.mod tools/go.sum tests/chain.rlp tools/chain/chain.rlp
-          for f in \
-            tests/sil_getLogs/filter-error-invalid-blockHash-and-range.io \
-            tests/sil_simulateV1/silSimulate-gas-fees-and-value-error-38014-with-validation.io; do
-            key=$(echo "$f" | tr '/.' '__')
-            echo "BEGIN_BASE64_${key}"
-            base64 -w0 "$f"
-            echo
-            echo "END_BASE64_${key}"
-          done
 
       - name: Fail if any files are untracked or have changes
         # sila outputs non-deterministic responses for two tests-
