@@ -1,3 +1,3 @@
 // gets tx count in a non-empty block
->> {"jsonrpc":"2.0","id":1,"method":"sil_getBlockTransactionCountByHash","params":["0x79ba0368c2c6563a7d263695b583dcc6d1c25d4988daa0105804d38bdd987f2f"]}
+>> {"jsonrpc":"2.0","id":1,"method":"sil_getBlockTransactionCountByHash","params":["0x2e57cfd78259d9ec918c3c64b2a44c605bca12c426a49aefd052018cf176224a"]}
 << {"jsonrpc":"2.0","id":1,"result":"0x4"}

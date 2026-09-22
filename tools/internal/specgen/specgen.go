@@ -10,8 +10,8 @@ import (
 	"os"
 	"slices"
 
-	"github.com/sila-chain/execution-apis/tools/internal/metaschema"
 	"github.com/santhosh-tekuri/jsonschema/v6"
+	"github.com/sila-chain/execution-apis/tools/internal/metaschema"
 	"gopkg.in/yaml.v3"
 )
 

@@ -10,7 +10,7 @@ require (
 	github.com/open-rpc/spec-types/generated/packages/go v0.1.1
 	github.com/santhosh-tekuri/jsonschema/v5 v5.3.1
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.2
-	github.com/sila-chain/go-sila v0.0.0-20260706142717-4f2a43a72608
+	github.com/sila-chain/go-sila v1.17.4-0.20260922192656-fc02921e342c
 	golang.org/x/exp v0.0.0-20240112132812-db7319d0e0e3
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -62,7 +62,7 @@ require (
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
-	github.com/golang/snappy v1.0.0 // indirect
+	github.com/golang/snappy v1.0.1-0.20260716114414-9ae09f520e93 // indirect
 	github.com/google/pprof v0.0.0-20230207041349-798e818bf904 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
@@ -113,9 +113,9 @@ require (
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/shirou/gopsutil v3.21.4-0.20210419000835-c7a38de76ee5+incompatible // indirect
 	github.com/sila-chain/bls12-381-util v0.1.0-sila.1 // indirect
-	github.com/sila-chain/c-kzg-4844/v2 v2.1.6 // indirect
+	github.com/sila-chain/c-kzg-4844/v2 v2.1.8 // indirect
 	github.com/sila-chain/go-bigmodexpfix v0.0.1 // indirect
-	github.com/sila-chain/go-sil-kzg v1.5.0 // indirect
+	github.com/sila-chain/go-sil-kzg v1.5.1 // indirect
 	github.com/sila-chain/hid v1.0.1-sila.3 // indirect
 	github.com/sila-chain/zrnt v0.34.1-sila.5 // indirect
 	github.com/spf13/cobra v1.10.2 // indirect

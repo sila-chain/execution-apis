@@ -106,10 +106,9 @@ The test cases in the `tests/` directory are run against execution clients using
 the [`hive`][hive] simulator [`rpc-compat`][rpc-compat]. During Docker build,
 rpc-compat clones this repository and copies the `tests/` directory into the
 simulator container. By default it fetches `main`; the `branch` build arg can
-target a specific ref. Results are published at
-[hive.silpandaops.io][hivetests] under the `rpc-compat` tag. Versioned releases
-are planned so hive can target specific execution-apis versions. See the
-[tests documentation][test-gen] for more details.
+target a specific ref. The Sila-native `rpc-compat` simulator is maintained in [Sila Hive][hive].
+Versioned releases are planned so Hive can target specific execution-apis
+versions. See the [tests documentation][test-gen] for more details.
 
 ## GraphQL
 
@@ -185,15 +184,14 @@ Examples of changes by version type:
 
 This repository is licensed under [CC0][license].
 
-[playground]: https://sila.github.io/execution-apis
+[playground]: https://sila-chain.github.io/execution-apis
 [openrpc]: https://open-rpc.org
-[graphql-schema]: http://graphql-schema.sildevops.io/?url=https://raw.githubusercontent.com/sila/execution-apis/main/graphql.json
+[graphql-schema]: http://graphql-schema.ethdevops.io/?url=https://raw.githubusercontent.com/sila-chain/execution-apis/main/graphql.json
 [sip-1767]: https://sips.sila.org/SIPS/sip-1767
 [contributors-guide]: https://github.com/sila-chain/execution-apis/blob/main/docs-api/docs/contributors-guide.md
 [json-schema]: https://json-schema.org
-[hive]: https://github.com/sila/hive
-[rpc-compat]: https://github.com/sila/hive/tree/master/simulators/sila/rpc-compat
-[hivetests]: https://hive.silpandaops.io
+[hive]: https://github.com/sila-chain/sila-hive
+[rpc-compat]: https://github.com/sila-chain/sila-hive/tree/main/simulators/sila/rpc-compat
 [semver]: https://semver.org/
 [test-gen]: https://github.com/sila-chain/execution-apis/blob/main/docs-api/docs/tests.md
 [license]: https://github.com/sila-chain/execution-apis/blob/main/LICENSE

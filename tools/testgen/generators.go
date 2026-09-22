@@ -61,31 +61,31 @@ type Test struct {
 
 // AllMethods is a slice of all JSON-RPC methods with tests.
 var AllMethods = []MethodTests{
-	SilBlockNumber,
-	SilGetBlockByNumber,
-	SilGetBlockByHash,
-	SilGetProof,
-	SilChainID,
-	SilGetBalance,
-	SilGetCode,
-	SilGetStorage,
-	SilGetStorageValues,
-	SilCall,
-	SilSimulateV1,
-	SilEstimateGas,
-	SilCreateAccessList,
-	SilGetBlockTransactionCountByNumber,
-	SilGetBlockTransactionCountByHash,
-	SilGetTransactionByBlockHashAndIndex,
-	SilGetTransactionByBlockNumberAndIndex,
-	SilGetTransactionCount,
-	SilGetTransactionByHash,
-	SilGetTransactionReceipt,
-	SilGetBlockReceipts,
-	SilSendRawTransaction,
-	SilSyncing,
-	SilFeeHistory,
-	SilGetLogs,
+	EthBlockNumber,
+	EthGetBlockByNumber,
+	EthGetBlockByHash,
+	EthGetProof,
+	EthChainID,
+	EthGetBalance,
+	EthGetCode,
+	EthGetStorage,
+	EthGetStorageValues,
+	EthCall,
+	EthSimulateV1,
+	EthEstimateGas,
+	EthCreateAccessList,
+	EthGetBlockTransactionCountByNumber,
+	EthGetBlockTransactionCountByHash,
+	EthGetTransactionByBlockHashAndIndex,
+	EthGetTransactionByBlockNumberAndIndex,
+	EthGetTransactionCount,
+	EthGetTransactionByHash,
+	EthGetTransactionReceipt,
+	EthGetBlockReceipts,
+	EthSendRawTransaction,
+	EthSyncing,
+	EthFeeHistory,
+	EthGetLogs,
 	DebugGetRawHeader,
 	DebugGetRawBlock,
 	DebugGetRawReceipts,
@@ -93,26 +93,34 @@ var AllMethods = []MethodTests{
 	DebugTraceTransaction,
 	DebugTraceBlockByNumber,
 	DebugTraceBlockByHash,
-	SilBaseFee,
-	SilBlobBaseFee,
-	SilConfig,
-	SilCapabilities,
+	EthBaseFee,
+	EthBlobBaseFee,
+	EthConfig,
+	EthCapabilities,
 	NetVersion,
+	NetListening,
+	NetPeerCount,
 	TestingBuildBlockV1,
+
+	// testing_commitBlockV1 must come before txpool_* so that fill order matches
+	// hive's lexical replay order (testing_buildBlockV1, testing_commitBlockV1,
+	// txpool_*). It advances the canonical head, so it must also come after every
+	// read-only test that assumes the static chain head.
+	TestingCommitBlockV1,
+
 	TxpoolStatus,
 	TxpoolContent,
 	TxpoolContentFrom,
 
-	// -- gas price tests are disabled because of non-determinism
-	// SilGasPrice,
-	// SilMaxPriorityFeePerGas,
+	EthGasPrice,
+	EthMaxPriorityFeePerGas,
 
 	// -- uncle APIs are not required anymore after the merge
-	// SilGetUncleByBlockNumberAndIndex,
+	// EthGetUncleByBlockNumberAndIndex,
 }
 
-// SilBlockNumber stores a list of all tests against the method.
-var SilBlockNumber = MethodTests{
+// EthBlockNumber stores a list of all tests against the method.
+var EthBlockNumber = MethodTests{
 	"sil_blockNumber",
 	[]Test{
 		{
@@ -131,8 +139,8 @@ var SilBlockNumber = MethodTests{
 	},
 }
 
-// SilChainID stores a list of all tests against the method.
-var SilChainID = MethodTests{
+// EthChainID stores a list of all tests against the method.
+var EthChainID = MethodTests{
 	"sil_chainId",
 	[]Test{
 		{
@@ -151,8 +159,8 @@ var SilChainID = MethodTests{
 	},
 }
 
-// SilGetCode stores a list of all tests against the method.
-var SilGetCode = MethodTests{
+// EthGetCode stores a list of all tests against the method.
+var EthGetCode = MethodTests{
 	"sil_getCode",
 	[]Test{
 		{
@@ -223,8 +231,8 @@ the delegation designator.`,
 	},
 }
 
-// SilGetStorage stores a list of all tests against the method.
-var SilGetStorage = MethodTests{
+// EthGetStorage stores a list of all tests against the method.
+var EthGetStorage = MethodTests{
 	"sil_getStorageAt",
 	[]Test{
 		{
@@ -312,8 +320,8 @@ var SilGetStorage = MethodTests{
 	},
 }
 
-// SilGetStorageValues stores a list of all tests against the method.
-var SilGetStorageValues = MethodTests{
+// EthGetStorageValues stores a list of all tests against the method.
+var EthGetStorageValues = MethodTests{
 	"sil_getStorageValues",
 	[]Test{
 		{
@@ -437,8 +445,8 @@ var SilGetStorageValues = MethodTests{
 	},
 }
 
-// SilGetBlockByHash stores a list of all tests against the method.
-var SilGetBlockByHash = MethodTests{
+// EthGetBlockByHash stores a list of all tests against the method.
+var EthGetBlockByHash = MethodTests{
 	"sil_getBlockByHash",
 	[]Test{
 		{
@@ -481,8 +489,8 @@ var SilGetBlockByHash = MethodTests{
 	},
 }
 
-// SilChainID stores a list of all tests against the method.
-var SilGetBalance = MethodTests{
+// EthChainID stores a list of all tests against the method.
+var EthGetBalance = MethodTests{
 	"sil_getBalance",
 	[]Test{
 		{
@@ -554,8 +562,8 @@ var SilGetBalance = MethodTests{
 	},
 }
 
-// SilGetBlockByNumber stores a list of all tests against the method.
-var SilGetBlockByNumber = MethodTests{
+// EthGetBlockByNumber stores a list of all tests against the method.
+var EthGetBlockByNumber = MethodTests{
 	"sil_getBlockByNumber",
 	[]Test{
 		{
@@ -704,8 +712,8 @@ var SilGetBlockByNumber = MethodTests{
 	},
 }
 
-// SilCall stores a list of all tests against the method.
-var SilCall = MethodTests{
+// EthCall stores a list of all tests against the method.
+var EthCall = MethodTests{
 	"sil_call",
 	[]Test{
 		{
@@ -715,7 +723,7 @@ var SilCall = MethodTests{
 				msg := sila.CallMsg{
 					To: &t.chain.txinfo.CallMeContract.Addr,
 					// This is the expected input that makes the call pass.
-					// See https://github.com/sila/hive/blob/master/cmd/hivechain/contracts/callme.eas
+					// See https://github.com/sila-chain/sila-hive/blob/main/cmd/hivechain/contracts/callme.eas
 					Data: []byte{0xff, 0x01},
 				}
 				result, err := t.sil.CallContract(ctx, msg, nil)
@@ -732,7 +740,7 @@ var SilCall = MethodTests{
 		{
 			Name: "call-callenv",
 			About: `Performs a call to the callenv contract, which echoes the EVM transaction environment.
-See https://github.com/sila/hive/tree/master/cmd/hivechain/contracts/callenv.eas for the output structure.`,
+See https://github.com/sila-chain/sila-hive/blob/main/cmd/hivechain/contracts/callenv.eas for the output structure.`,
 			Run: func(ctx context.Context, t *T) error {
 				msg := sila.CallMsg{
 					To: &t.chain.txinfo.CallEnvContract.Addr,
@@ -751,7 +759,7 @@ See https://github.com/sila/hive/tree/master/cmd/hivechain/contracts/callenv.eas
 			Name: "call-callenv-options-sip1559",
 			About: `Performs a call to the callenv contract, which echoes the EVM transaction environment.
 This call uses SIP1559 transaction options.
-See https://github.com/sila/hive/tree/master/cmd/hivechain/contracts/callenv.eas for the output structure.`,
+See https://github.com/sila-chain/sila-hive/blob/main/cmd/hivechain/contracts/callenv.eas for the output structure.`,
 			Run: func(ctx context.Context, t *T) error {
 				sender, _ := t.chain.GetSender(1)
 				basefee := t.chain.Head().BaseFee()
@@ -843,8 +851,8 @@ See https://github.com/sila/hive/tree/master/cmd/hivechain/contracts/callenv.eas
 	},
 }
 
-// SilEstimateGas stores a list of all tests against the method.
-var SilEstimateGas = MethodTests{
+// EthEstimateGas stores a list of all tests against the method.
+var EthEstimateGas = MethodTests{
 	"sil_estimateGas",
 	[]Test{
 		{
@@ -873,7 +881,7 @@ var SilEstimateGas = MethodTests{
 					From: caller,
 					To:   &callme,
 					// This is the expected input that makes the call pass.
-					// See https://github.com/sila/hive/blob/master/cmd/hivechain/contracts/callme.eas
+					// See https://github.com/sila-chain/sila-hive/blob/main/cmd/hivechain/contracts/callme.eas
 					Data: []byte{0xff, 0x01},
 				}
 				got, err := t.sil.EstimateGas(ctx, msg)
@@ -998,8 +1006,8 @@ var SilEstimateGas = MethodTests{
 	},
 }
 
-// SilEstimateGas stores a list of all tests against the method.
-var SilCreateAccessList = MethodTests{
+// EthEstimateGas stores a list of all tests against the method.
+var EthCreateAccessList = MethodTests{
 	"sil_createAccessList",
 	[]Test{
 		{
@@ -1123,8 +1131,8 @@ in the "error" field.`,
 	},
 }
 
-// SilGetBlockTransactionCountByNumber stores a list of all tests against the method.
-var SilGetBlockTransactionCountByNumber = MethodTests{
+// EthGetBlockTransactionCountByNumber stores a list of all tests against the method.
+var EthGetBlockTransactionCountByNumber = MethodTests{
 	"sil_getBlockTransactionCountByNumber",
 	[]Test{
 		{
@@ -1162,8 +1170,8 @@ var SilGetBlockTransactionCountByNumber = MethodTests{
 	},
 }
 
-// SilGetBlockTransactionCountByHash stores a list of all tests against the method.
-var SilGetBlockTransactionCountByHash = MethodTests{
+// EthGetBlockTransactionCountByHash stores a list of all tests against the method.
+var EthGetBlockTransactionCountByHash = MethodTests{
 	"sil_getBlockTransactionCountByHash",
 	[]Test{
 		{
@@ -1202,8 +1210,8 @@ var SilGetBlockTransactionCountByHash = MethodTests{
 	},
 }
 
-// SilGetTransactionByBlockHashAndIndex stores a list of all tests against the method.
-var SilGetTransactionByBlockHashAndIndex = MethodTests{
+// EthGetTransactionByBlockHashAndIndex stores a list of all tests against the method.
+var EthGetTransactionByBlockHashAndIndex = MethodTests{
 	"sil_getTransactionByBlockNumberAndIndex",
 	[]Test{
 		{
@@ -1226,8 +1234,8 @@ var SilGetTransactionByBlockHashAndIndex = MethodTests{
 	},
 }
 
-// SilGetTransactionByBlockNumberAndIndex stores a list of all tests against the method.
-var SilGetTransactionByBlockNumberAndIndex = MethodTests{
+// EthGetTransactionByBlockNumberAndIndex stores a list of all tests against the method.
+var EthGetTransactionByBlockNumberAndIndex = MethodTests{
 	"sil_getTransactionByBlockHashAndIndex",
 	[]Test{
 		{
@@ -1250,8 +1258,8 @@ var SilGetTransactionByBlockNumberAndIndex = MethodTests{
 	},
 }
 
-// SilGetTransactionCount stores a list of all tests against the method.
-var SilGetTransactionCount = MethodTests{
+// EthGetTransactionCount stores a list of all tests against the method.
+var EthGetTransactionCount = MethodTests{
 	"sil_getTransactionCount",
 	[]Test{
 		{
@@ -1345,7 +1353,7 @@ func findAccountWithNonce(c *Chain) common.Address {
 }
 
 func matchLegacyValueTransfer(i int, tx *types.Transaction) bool {
-	return tx.Type() == types.LegacyTxType && tx.To() != nil && len(tx.Data()) == 0
+	return tx.Type() == types.LegacyTxType && tx.To() != nil && len(tx.Data()) == 0 && tx.Value().Sign() > 0
 }
 
 func matchLegacyCreate(i int, tx *types.Transaction) bool {
@@ -1356,8 +1364,8 @@ func matchLegacyTxWithInput(i int, tx *types.Transaction) bool {
 	return tx.Type() == types.LegacyTxType && len(tx.Data()) > 0
 }
 
-// SilGetTransactionByHash stores a list of all tests against the method.
-var SilGetTransactionByHash = MethodTests{
+// EthGetTransactionByHash stores a list of all tests against the method.
+var EthGetTransactionByHash = MethodTests{
 	"sil_getTransactionByHash",
 	[]Test{
 		{
@@ -1496,8 +1504,8 @@ var SilGetTransactionByHash = MethodTests{
 	},
 }
 
-// SilGetTransactionReceipt stores a list of all tests against the method.
-var SilGetTransactionReceipt = MethodTests{
+// EthGetTransactionReceipt stores a list of all tests against the method.
+var EthGetTransactionReceipt = MethodTests{
 	"sil_getTransactionReceipt",
 	[]Test{
 		{
@@ -1651,7 +1659,7 @@ var SilGetTransactionReceipt = MethodTests{
 	},
 }
 
-var SilGetBlockReceipts = MethodTests{
+var EthGetBlockReceipts = MethodTests{
 	"sil_getBlockReceipts",
 	[]Test{
 		{
@@ -1760,8 +1768,8 @@ var SilGetBlockReceipts = MethodTests{
 	},
 }
 
-// SilSendRawTransaction stores a list of all tests against the method.
-var SilSendRawTransaction = MethodTests{
+// EthSendRawTransaction stores a list of all tests against the method.
+var EthSendRawTransaction = MethodTests{
 	"sil_sendRawTransaction",
 	[]Test{
 		{
@@ -1866,19 +1874,20 @@ var SilSendRawTransaction = MethodTests{
 			About: "sends a blob transaction",
 			Run: func(ctx context.Context, t *T) error {
 				var (
-					sender, nonce      = t.chain.GetSender(3)
-					basefee            = uint256.MustFromBig(t.chain.Head().BaseFee())
-					fee                = uint256.NewInt(500)
-					emptyBlob          = kzg4844.Blob{}
-					emptyBlobCommit, _ = kzg4844.BlobToCommitment(&emptyBlob)
-					emptyBlobProof, _  = kzg4844.ComputeBlobProof(&emptyBlob, emptyBlobCommit)
+					sender, nonce          = t.chain.GetSender(3)
+					basefee                = uint256.MustFromBig(t.chain.Head().BaseFee())
+					fee                    = uint256.NewInt(500)
+					emptyBlob              = kzg4844.Blob{}
+					emptyBlobCommit, _     = kzg4844.BlobToCommitment(&emptyBlob)
+					emptyBlobCellProofs, _ = kzg4844.ComputeCellProofs(&emptyBlob)
 				)
 				fee.Add(basefee, fee)
-				sidecar := &types.BlobTxSidecar{
-					Blobs:       []kzg4844.Blob{emptyBlob},
-					Commitments: []kzg4844.Commitment{emptyBlobCommit},
-					Proofs:      []kzg4844.Proof{emptyBlobProof},
-				}
+				sidecar := types.NewBlobTxSidecar(
+					types.BlobSidecarVersion1,
+					[]kzg4844.Blob{emptyBlob},
+					[]kzg4844.Commitment{emptyBlobCommit},
+					emptyBlobCellProofs,
+				)
 
 				txdata := &types.BlobTx{
 					Nonce:     nonce,
@@ -1905,13 +1914,14 @@ var SilSendRawTransaction = MethodTests{
 	},
 }
 
-// SilGasPrice stores a list of all tests against the method.
-var SilGasPrice = MethodTests{
+// EthGasPrice stores a list of all tests against the method.
+var EthGasPrice = MethodTests{
 	"sil_gasPrice",
 	[]Test{
 		{
-			Name:  "get-current-gas-price",
-			About: "gets the current gas price in wei",
+			Name:     "get-current-gas-price",
+			About:    "gets the current gas price in wei",
+			SpecOnly: true, // Gas price suggestions are not required to be identical across clients.
 			Run: func(ctx context.Context, t *T) error {
 				if _, err := t.sil.SuggestGasPrice(ctx); err != nil {
 					return err
@@ -1922,13 +1932,14 @@ var SilGasPrice = MethodTests{
 	},
 }
 
-// SilMaxPriorityFeePerGas stores a list of all tests against the method.
-var SilMaxPriorityFeePerGas = MethodTests{
+// EthMaxPriorityFeePerGas stores a list of all tests against the method.
+var EthMaxPriorityFeePerGas = MethodTests{
 	"sil_maxPriorityFeePerGas",
 	[]Test{
 		{
-			Name:  "get-current-tip",
-			About: "gets the current maxPriorityFeePerGas in wei",
+			Name:     "get-current-tip",
+			About:    "gets the current maxPriorityFeePerGas in wei",
+			SpecOnly: true, // Priority fee suggestions are not required to be identical across clients.
 			Run: func(ctx context.Context, t *T) error {
 				if _, err := t.sil.SuggestGasTipCap(ctx); err != nil {
 					return err
@@ -1939,7 +1950,7 @@ var SilMaxPriorityFeePerGas = MethodTests{
 	},
 }
 
-var SilBaseFee = MethodTests{
+var EthBaseFee = MethodTests{
 	"sil_baseFee",
 	[]Test{
 		{
@@ -1954,7 +1965,7 @@ var SilBaseFee = MethodTests{
 	},
 }
 
-var SilBlobBaseFee = MethodTests{
+var EthBlobBaseFee = MethodTests{
 	"sil_blobBaseFee",
 	[]Test{
 		{
@@ -1969,8 +1980,8 @@ var SilBlobBaseFee = MethodTests{
 	},
 }
 
-// SilConfig stores a list of all tests against the method.
-var SilConfig = MethodTests{
+// EthConfig stores a list of all tests against the method.
+var EthConfig = MethodTests{
 	"sil_config",
 	[]Test{
 		{
@@ -1984,8 +1995,8 @@ var SilConfig = MethodTests{
 	},
 }
 
-// SilCapabilities stores a list of all tests against the method.
-var SilCapabilities = MethodTests{
+// EthCapabilities stores a list of all tests against the method.
+var EthCapabilities = MethodTests{
 	"sil_capabilities",
 	[]Test{
 		{
@@ -2022,8 +2033,8 @@ var SilCapabilities = MethodTests{
 	},
 }
 
-// SilFeeHistory stores a list of all tests against the method.
-var SilFeeHistory = MethodTests{
+// EthFeeHistory stores a list of all tests against the method.
+var EthFeeHistory = MethodTests{
 	"sil_feeHistory",
 	[]Test{
 		{
@@ -2061,8 +2072,8 @@ var SilFeeHistory = MethodTests{
 	},
 }
 
-// SilSyncing stores a list of all tests against the method.
-var SilSyncing = MethodTests{
+// EthSyncing stores a list of all tests against the method.
+var EthSyncing = MethodTests{
 	"sil_syncing",
 	[]Test{
 		{
@@ -2079,8 +2090,8 @@ var SilSyncing = MethodTests{
 	},
 }
 
-// SilGetUncleByBlockNumberAndIndex stores a list of all tests against the method.
-var SilGetUncleByBlockNumberAndIndex = MethodTests{
+// EthGetUncleByBlockNumberAndIndex stores a list of all tests against the method.
+var EthGetUncleByBlockNumberAndIndex = MethodTests{
 	"sil_getUncleByBlockNumberAndIndex",
 	[]Test{
 		{
@@ -2099,8 +2110,8 @@ var SilGetUncleByBlockNumberAndIndex = MethodTests{
 	},
 }
 
-// SilGetProof stores a list of all tests against the method.
-var SilGetProof = MethodTests{
+// EthGetProof stores a list of all tests against the method.
+var EthGetProof = MethodTests{
 	"sil_getProof",
 	[]Test{
 		{
@@ -2184,7 +2195,7 @@ var SilGetProof = MethodTests{
 	},
 }
 
-var SilGetLogs = MethodTests{
+var EthGetLogs = MethodTests{
 	"sil_getLogs",
 	[]Test{
 		{
@@ -2285,24 +2296,29 @@ var SilGetLogs = MethodTests{
 			},
 		},
 		{
-			Name:  "filter-with-blockHash",
-			About: "queries for all logs of a block, identified by blockHash",
+			Name:  "topic-null-wildcard",
+			About: "queries for logs with a null topic in position zero, acting as a wildcard for that position",
 			Run: func(ctx context.Context, t *T) error {
-				// Find a block with logs.
+				// Find a topic.
 				i := slices.IndexFunc(t.chain.txinfo.LegacyEmit, func(tx TxInfo) bool {
 					return tx.Block > 2
 				})
 				if i == -1 {
 					return fmt.Errorf("no suitable tx found")
 				}
-				block := t.chain.GetBlock(int(t.chain.txinfo.LegacyEmit[i].Block))
-				hash := block.Hash()
-				result, err := t.sil.FilterLogs(ctx, sila.FilterQuery{BlockHash: &hash})
+				info := t.chain.txinfo.LegacyEmit[i]
+				startBlock := uint64(info.Block - 1)
+				endBlock := uint64(info.Block + 2)
+				result, err := t.sil.FilterLogs(ctx, sila.FilterQuery{
+					FromBlock: new(big.Int).SetUint64(startBlock),
+					ToBlock:   new(big.Int).SetUint64(endBlock),
+					Topics:    [][]common.Hash{nil, {*info.LogTopic1}},
+				})
 				if err != nil {
 					return err
 				}
-				if len(result) == 0 {
-					return fmt.Errorf("result contains no logs")
+				if len(result) != 1 {
+					return fmt.Errorf("result contains %d logs, want 1", len(result))
 				}
 				return nil
 			},
@@ -2318,7 +2334,8 @@ var SilGetLogs = MethodTests{
 				if i == -1 {
 					return fmt.Errorf("no suitable tx found")
 				}
-				hash := t.chain.GetBlock(int(t.chain.txinfo.LegacyEmit[i].Block)).Hash()
+				block := t.chain.GetBlock(int(t.chain.txinfo.LegacyEmit[i].Block))
+				hash := block.Hash()
 				result, err := t.sil.FilterLogs(ctx, sila.FilterQuery{BlockHash: &hash})
 				if err != nil {
 					return err
@@ -2370,6 +2387,33 @@ var SilGetLogs = MethodTests{
 			},
 		},
 		{
+			Name:  "filter-error-fully-future-block-range",
+			About: "checks that an error is returned if both `fromBlock` and `toBlock` are greater than the latest block",
+			Run: func(ctx context.Context, t *T) error {
+				_, err := t.sil.FilterLogs(ctx, sila.FilterQuery{
+					FromBlock: big.NewInt(int64(len(t.chain.blocks) + 1)),
+					ToBlock:   big.NewInt(int64(len(t.chain.blocks) + 3)),
+				})
+				if err == nil {
+					return fmt.Errorf("expected error")
+				}
+				return nil
+			},
+		},
+		{
+			Name:  "filter-error-future-block-to-latest",
+			About: "checks that an error is returned if `fromBlock` is greater than the latest block and `toBlock` is `latest`",
+			Run: func(ctx context.Context, t *T) error {
+				_, err := t.sil.FilterLogs(ctx, sila.FilterQuery{
+					FromBlock: big.NewInt(int64(len(t.chain.blocks) + 1)),
+				})
+				if err == nil {
+					return fmt.Errorf("expected error")
+				}
+				return nil
+			},
+		},
+		{
 			Name:  "filter-error-reversed-block-range",
 			About: "checks that an error is returned if `fromBlock` is larger than `toBlock`",
 			Run: func(ctx context.Context, t *T) error {
@@ -2385,7 +2429,7 @@ var SilGetLogs = MethodTests{
 		},
 		{
 			Name:  "filter-error-invalid-blockHash-and-range",
-			About: "checks that an error is returned if `fromBlock`/`toBlock` are specified tosilaer with `blockHash`",
+			About: "checks that an error is returned if `fromBlock`/`toBlock` are specified together with `blockHash`",
 			Run: func(ctx context.Context, t *T) error {
 				err := t.rpc.CallContext(ctx, nil, "sil_getLogs", map[string]string{
 					"blockHash": t.chain.blocks[10].Hash().String(),
@@ -2497,6 +2541,13 @@ var DebugGetRawReceipts = MethodTests{
 			},
 		},
 		{
+			Name:  "get-block-hash",
+			About: "gets receipts for block hash",
+			Run: func(ctx context.Context, t *T) error {
+				return t.rpc.CallContext(ctx, nil, "debug_getRawReceipts", t.chain.GetBlock(3).Hash())
+			},
+		},
+		{
 			Name:  "get-invalid-number",
 			About: "gets receipts with invalid number formatting",
 			Run: func(ctx context.Context, t *T) error {
@@ -2561,6 +2612,46 @@ var NetVersion = MethodTests{
 				}
 				if id.Cmp(t.chain.genesis.Config.ChainID) != 0 {
 					return fmt.Errorf("wrong networkID %v returned", id)
+				}
+				return nil
+			},
+		},
+	},
+}
+
+var NetListening = MethodTests{
+	"net_listening",
+	[]Test{
+		{
+			Name:  "get-listening",
+			About: "Calls net_listening to check whether the client is listening for network connections.",
+			Run: func(ctx context.Context, t *T) error {
+				var got bool
+				if err := t.rpc.CallContext(ctx, &got, "net_listening"); err != nil {
+					return err
+				}
+				if !got {
+					return fmt.Errorf("net_listening returned false, want true")
+				}
+				return nil
+			},
+		},
+	},
+}
+
+var NetPeerCount = MethodTests{
+	"net_peerCount",
+	[]Test{
+		{
+			Name:  "get-peer-count",
+			About: "Calls net_peerCount to retrieve the number of connected peers. The test client runs without peers, so the expected value is zero.",
+			Run: func(ctx context.Context, t *T) error {
+				var got hexutil.Uint
+				if err := t.rpc.CallContext(ctx, &got, "net_peerCount"); err != nil {
+					return err
+				}
+				if got != 0 {
+					return fmt.Errorf("unexpected peer count (got: %d, want: 0)", got)
 				}
 				return nil
 			},
@@ -2988,7 +3079,327 @@ var TestingBuildBlockV1 = MethodTests{
 	},
 }
 
-var SilSimulateV1 = MethodTests{
+// commitBlockV1PayloadAttrs returns a payloadAttributes map suitable for committing a
+// block on top of parentBlock. Cancun-only fields are included when active.
+func commitBlockV1PayloadAttrs(t *T, parentBlock *types.Block, salt string) map[string]interface{} {
+	attrs := map[string]interface{}{
+		"timestamp":             hexutil.Uint64(parentBlock.Time() + 12),
+		"prevRandao":            common.HexToHash("0x" + strings.Repeat("11", 32)).Hex(),
+		"suggestedFeeRecipient": common.Address{}.Hex(),
+		"withdrawals":           []interface{}{},
+	}
+	if t.chain.Config().IsSilaCancun(parentBlock.Number(), parentBlock.Time()) {
+		beaconRoot := common.HexToHash("0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884365149a42212e8822")
+		attrs["parentBeaconBlockRoot"] = beaconRoot.Hex()
+	}
+	_ = salt
+	return attrs
+}
+
+// liveHead fetches the current canonical head from the node. It must be used instead
+// of t.chain.Head() once the chain has been advanced by a prior testing_commitBlockV1
+// call, since t.chain reflects only the static pre-loaded chain.rlp.
+func liveHead(ctx context.Context, t *T) (*types.Block, error) {
+	return t.sil.BlockByNumber(ctx, nil)
+}
+
+// TestingCommitBlockV1 stores a list of all tests against the method.
+//
+// Notes on ordering:
+//   - These tests mutate the canonical head, so this MethodTests entry must come
+//     after every read-only test that assumes the static chain head.
+//   - Subtest names are chosen so that lexical order (used by hive's filepath.Walk)
+//     matches the order in which they are registered here.
+//   - The "from-mempool" subtest is renamed with a "z-" prefix so it runs last:
+//     it is SpecOnly (mempool ordering is not strictly deterministic), and putting
+//     it earlier in the alphabetical order would cascade non-determinism into the
+//     subsequent strict-match tests that take its committed block as their parent.
+var TestingCommitBlockV1 = MethodTests{
+	"testing_commitBlockV1",
+	[]Test{
+		{
+			Name:  "commit-block-empty-transactions",
+			About: "commits an empty block using testing_commitBlockV1 and advances the canonical head",
+			Run: func(ctx context.Context, t *T) error {
+				parentBlock, err := liveHead(ctx, t)
+				if err != nil {
+					return fmt.Errorf("failed to read live head: %w", err)
+				}
+				parentHash := parentBlock.Hash()
+				payloadAttrs := commitBlockV1PayloadAttrs(t, parentBlock, "empty")
+
+				var result common.Hash
+				err = t.rpc.CallContext(ctx, &result, "testing_commitBlockV1",
+					payloadAttrs,
+					[]string{},
+					hexutil.Encode([]byte{}),
+				)
+				if err != nil {
+					return fmt.Errorf("testing_commitBlockV1 call failed: %w", err)
+				}
+
+				newHead, err := liveHead(ctx, t)
+				if err != nil {
+					return fmt.Errorf("failed to read head after commit: %w", err)
+				}
+				if newHead.Hash() != result {
+					return fmt.Errorf("returned hash %s is not the new head %s", result.Hex(), newHead.Hash().Hex())
+				}
+				if newHead.ParentHash() != parentHash {
+					return fmt.Errorf("new head parent %s does not match prior head %s", newHead.ParentHash().Hex(), parentHash.Hex())
+				}
+				if newHead.NumberU64() != parentBlock.NumberU64()+1 {
+					return fmt.Errorf("new head number %d, want %d", newHead.NumberU64(), parentBlock.NumberU64()+1)
+				}
+				if len(newHead.Transactions()) != 0 {
+					return fmt.Errorf("expected empty block, got %d transactions", len(newHead.Transactions()))
+				}
+				return nil
+			},
+		},
+		{
+			Name:  "commit-block-invalid-transaction",
+			About: "calls testing_commitBlockV1 with an unapplicable transaction (wrong nonce); client MUST return an error and not modify the canonical head",
+			Run: func(ctx context.Context, t *T) error {
+				parentBlock, err := liveHead(ctx, t)
+				if err != nil {
+					return fmt.Errorf("failed to read live head: %w", err)
+				}
+				parentHash := parentBlock.Hash()
+				payloadAttrs := commitBlockV1PayloadAttrs(t, parentBlock, "invalid")
+
+				sender, _ := t.chain.GetSender(2)
+				basefee := parentBlock.BaseFee()
+				if basefee == nil {
+					basefee = big.NewInt(1000000000)
+				}
+				gasFeeCap := new(big.Int).Add(basefee, big.NewInt(500))
+				txdata := &types.DynamicFeeTx{
+					Nonce:     999, // invalid: account will not have this nonce
+					To:        &emitContract,
+					Gas:       21000,
+					GasTipCap: big.NewInt(500),
+					GasFeeCap: gasFeeCap,
+					Value:     big.NewInt(1000),
+				}
+				tx := t.chain.MustSignTx(sender, txdata)
+				txBytes, err := tx.MarshalBinary()
+				if err != nil {
+					return fmt.Errorf("failed to marshal transaction: %w", err)
+				}
+
+				var result common.Hash
+				err = t.rpc.CallContext(ctx, &result, "testing_commitBlockV1",
+					payloadAttrs,
+					[]string{hexutil.Encode(txBytes)},
+					hexutil.Encode([]byte{}),
+				)
+				if err == nil {
+					return fmt.Errorf("testing_commitBlockV1 must fail when a transaction cannot be applied (e.g. invalid nonce), but it succeeded")
+				}
+
+				var rpcErr rpc.Error
+				if !errors.As(err, &rpcErr) {
+					return fmt.Errorf("testing_commitBlockV1 must return an RPC error with a code, got: %w", err)
+				}
+				code := rpcErr.ErrorCode()
+				if code != -32602 && code != -32603 && code != -32000 {
+					return fmt.Errorf("testing_commitBlockV1 must return error code -32602, -32603, or -32000 for unapplicable tx, got code %d: %w", code, err)
+				}
+
+				headBlock, err := liveHead(ctx, t)
+				if err != nil {
+					return fmt.Errorf("failed to read head after failed commit: %w", err)
+				}
+				if headBlock.Hash() != parentHash {
+					return fmt.Errorf("canonical head must not change when testing_commitBlockV1 fails; was %s, now %s", parentHash.Hex(), headBlock.Hash().Hex())
+				}
+				return nil
+			},
+		},
+		{
+			Name:  "commit-block-with-extra-data",
+			About: "commits a block with a non-empty extraData value using testing_commitBlockV1",
+			Run: func(ctx context.Context, t *T) error {
+				parentBlock, err := liveHead(ctx, t)
+				if err != nil {
+					return fmt.Errorf("failed to read live head: %w", err)
+				}
+				payloadAttrs := commitBlockV1PayloadAttrs(t, parentBlock, "extra")
+				extra := []byte("execution-apis")
+				extraHex := hexutil.Encode(extra)
+
+				var result common.Hash
+				err = t.rpc.CallContext(ctx, &result, "testing_commitBlockV1",
+					payloadAttrs,
+					[]string{},
+					extraHex,
+				)
+				if err != nil {
+					return fmt.Errorf("testing_commitBlockV1 call failed: %w", err)
+				}
+				newBlock, err := t.sil.BlockByHash(ctx, result)
+				if err != nil {
+					return fmt.Errorf("failed to fetch committed block: %w", err)
+				}
+				if !bytes.Equal(newBlock.Extra(), extra) {
+					return fmt.Errorf("extraData mismatch: got %s, want %s", hexutil.Encode(newBlock.Extra()), extraHex)
+				}
+				return nil
+			},
+		},
+		{
+			Name:  "commit-block-with-transactions",
+			About: "commits a block with the specified transactions using testing_commitBlockV1 and advances the canonical head",
+			Run: func(ctx context.Context, t *T) error {
+				parentBlock, err := liveHead(ctx, t)
+				if err != nil {
+					return fmt.Errorf("failed to read live head: %w", err)
+				}
+				parentHash := parentBlock.Hash()
+
+				payloadAttrs := commitBlockV1PayloadAttrs(t, parentBlock, "with-tx")
+
+				// Use sender index 2 to avoid conflicting with sil_sendRawTransaction tests.
+				sender, nonce := t.chain.GetSender(2)
+				basefee := parentBlock.BaseFee()
+				if basefee == nil {
+					basefee = big.NewInt(1000000000)
+				}
+				gasFeeCap := new(big.Int).Add(basefee, big.NewInt(500))
+
+				txdata := &types.DynamicFeeTx{
+					Nonce:     nonce,
+					To:        &emitContract,
+					Gas:       21000,
+					GasTipCap: big.NewInt(500),
+					GasFeeCap: gasFeeCap,
+					Value:     big.NewInt(1000),
+				}
+				tx := t.chain.MustSignTx(sender, txdata)
+				txBytes, err := tx.MarshalBinary()
+				if err != nil {
+					return fmt.Errorf("failed to marshal transaction: %w", err)
+				}
+				txHex := hexutil.Encode(txBytes)
+
+				extraData := hexutil.Encode([]byte("test_name"))
+
+				var result common.Hash
+				err = t.rpc.CallContext(ctx, &result, "testing_commitBlockV1",
+					payloadAttrs,
+					[]string{txHex},
+					extraData,
+				)
+				if err != nil {
+					return fmt.Errorf("testing_commitBlockV1 call failed: %w", err)
+				}
+				if result == (common.Hash{}) {
+					return fmt.Errorf("testing_commitBlockV1 returned zero hash")
+				}
+
+				// The returned hash MUST be the new canonical head.
+				newHead, err := liveHead(ctx, t)
+				if err != nil {
+					return fmt.Errorf("failed to read head after commit: %w", err)
+				}
+				if newHead.Hash() != result {
+					return fmt.Errorf("returned hash %s is not the new head %s", result.Hex(), newHead.Hash().Hex())
+				}
+				if newHead.ParentHash() != parentHash {
+					return fmt.Errorf("new head parent %s does not match prior head %s", newHead.ParentHash().Hex(), parentHash.Hex())
+				}
+				if newHead.NumberU64() != parentBlock.NumberU64()+1 {
+					return fmt.Errorf("new head number %d, want %d", newHead.NumberU64(), parentBlock.NumberU64()+1)
+				}
+
+				// The committed block MUST include exactly the supplied transaction.
+				newBlock, err := t.sil.BlockByHash(ctx, result)
+				if err != nil {
+					return fmt.Errorf("failed to fetch committed block: %w", err)
+				}
+				txs := newBlock.Transactions()
+				if len(txs) != 1 {
+					return fmt.Errorf("expected 1 transaction in committed block, got %d", len(txs))
+				}
+				if txs[0].Hash() != tx.Hash() {
+					return fmt.Errorf("committed transaction hash mismatch: got %s, want %s", txs[0].Hash().Hex(), tx.Hash().Hex())
+				}
+
+				// The committed block MUST carry the supplied extraData.
+				wantExtra := []byte("test_name")
+				if !bytes.Equal(newBlock.Extra(), wantExtra) {
+					return fmt.Errorf("extraData mismatch: got %s, want %s", hexutil.Encode(newBlock.Extra()), hexutil.Encode(wantExtra))
+				}
+				return nil
+			},
+		},
+		{
+			Name:     "commit-block-z-from-mempool",
+			About:    "commits a block built from the mempool using testing_commitBlockV1 with null transactions parameter",
+			SpecOnly: true,
+			Run: func(ctx context.Context, t *T) error {
+				parentBlock, err := liveHead(ctx, t)
+				if err != nil {
+					return fmt.Errorf("failed to read live head: %w", err)
+				}
+				parentHash := parentBlock.Hash()
+				payloadAttrs := commitBlockV1PayloadAttrs(t, parentBlock, "mempool")
+
+				// Use sender index 4 to avoid the address that testing_buildBlockV1's
+				// from-mempool test (sender 1) has already pushed a nonce-0 tx into the
+				// mempool with — that prior tx is still pending here.
+				sender, nonce := t.chain.GetSender(4)
+				basefee := parentBlock.BaseFee()
+				if basefee == nil {
+					basefee = big.NewInt(1000000000)
+				}
+				gasFeeCap := new(big.Int).Add(basefee, big.NewInt(500))
+				txdata := &types.DynamicFeeTx{
+					Nonce:     nonce,
+					To:        &emitContract,
+					Gas:       21000,
+					GasTipCap: big.NewInt(500),
+					GasFeeCap: gasFeeCap,
+					Value:     big.NewInt(1000),
+				}
+				tx := t.chain.MustSignTx(sender, txdata)
+				txBytes, err := tx.MarshalBinary()
+				if err != nil {
+					return fmt.Errorf("failed to marshal transaction: %w", err)
+				}
+				var sentHash common.Hash
+				if err := t.rpc.CallContext(ctx, &sentHash, "sil_sendRawTransaction", hexutil.Encode(txBytes)); err != nil {
+					return fmt.Errorf("failed to send transaction to mempool: %w", err)
+				}
+
+				var result common.Hash
+				err = t.rpc.CallContext(ctx, &result, "testing_commitBlockV1",
+					payloadAttrs,
+					nil,
+					hexutil.Encode([]byte{}),
+				)
+				if err != nil {
+					return fmt.Errorf("testing_commitBlockV1 call failed: %w", err)
+				}
+
+				newHead, err := liveHead(ctx, t)
+				if err != nil {
+					return fmt.Errorf("failed to read head after commit: %w", err)
+				}
+				if newHead.Hash() != result {
+					return fmt.Errorf("returned hash %s is not the new head %s", result.Hex(), newHead.Hash().Hex())
+				}
+				if newHead.ParentHash() != parentHash {
+					return fmt.Errorf("new head parent %s does not match prior head %s", newHead.ParentHash().Hex(), parentHash.Hex())
+				}
+				return nil
+			},
+		},
+	},
+}
+
+var EthSimulateV1 = MethodTests{
 	"sil_simulateV1",
 	[]Test{
 		{
@@ -3189,45 +3600,6 @@ var SilSimulateV1 = MethodTests{
 				res := make([]blockResult, 0)
 				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
 					return err
-				}
-				return nil
-			},
-		},
-		{
-			Name:  "silSimulate-simple-more-params-validate",
-			About: "simulates a simple do-nothing transaction with more fields set",
-			Run: func(ctx context.Context, t *T) error {
-				params := silSimulateOpts{
-					BlockStateCalls: []CallBatch{
-						{
-							StateOverrides: &StateOverride{
-								common.Address{0xc0}: OverrideAccount{Balance: newRPCBalance(3360000)},
-							},
-							BlockOverrides: &BlockOverrides{
-								BaseFeePerGas: (*hexutil.Big)(big.NewInt(0)),
-							},
-							Calls: []TransactionArgs{{
-								From:                 &common.Address{0xc0},
-								To:                   &common.Address{0xc1},
-								Gas:                  getUint64Ptr(0x52080),
-								Value:                *newRPCBalance(0),
-								MaxFeePerGas:         (*hexutil.Big)(big.NewInt(0)),
-								MaxPriorityFeePerGas: (*hexutil.Big)(big.NewInt(0)),
-								MaxFeePerBlobGas:     (*hexutil.Big)(big.NewInt(0)),
-								Nonce:                getUint64Ptr(0),
-								Input:                hex2Bytes(""),
-							}},
-						},
-					},
-					Validation:             true,
-					ReturnFullTransactions: true,
-				}
-				res := make([]blockResult, 0)
-				if err := t.rpc.Call(&res, "sil_simulateV1", params, "latest"); err != nil {
-					return err
-				}
-				if len(res) != len(params.BlockStateCalls) {
-					return fmt.Errorf("unexpected number of results (have: %d, want: %d)", len(res), len(params.BlockStateCalls))
 				}
 				return nil
 			},
@@ -4420,7 +4792,8 @@ var SilSimulateV1 = MethodTests{
 							From:  &common.Address{0xc0},
 							To:    &common.Address{0xc1},
 							Value: *newRPCBalance(1000),
-							Input: hex2Bytes("4b64e4920000000000000000000000000000000000000000000000000000000000000100"),
+							// forward(0xc2); must not target a precompile: the 2300 gas send stipend can't cover P256VERIFY (0x100 since Osaka)
+							Input: hex2Bytes("4b64e49200000000000000000000000000000000000000000000000000000000000000c2"),
 						}},
 					}},
 					TraceTransfers: true,
@@ -5452,7 +5825,7 @@ var SilSimulateV1 = MethodTests{
 			},
 		},
 		{
-			Name:  "silSimulate-simple-state-diff",
+			Name:  "silSimulate-simple-state",
 			About: "override one state variable with state",
 			Run: func(ctx context.Context, t *T) error {
 				stateChanges := make(map[common.Hash]common.Hash)
@@ -5484,7 +5857,7 @@ var SilSimulateV1 = MethodTests{
 						{
 							StateOverrides: &StateOverride{
 								common.Address{0xc1}: OverrideAccount{
-									State: &stateChanges, // state diff override
+									State: &stateChanges, // full state override, wipes all other slots
 								},
 							},
 							Calls: []TransactionArgs{
