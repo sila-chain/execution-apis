@@ -35,13 +35,10 @@ This specification is based on and extends [Engine API - Osaka](./osaka.md) spec
     - [Request](#request-4)
     - [Response](#response-4)
     - [Specification](#specification-4)
+  - [engine_getBlobsV4](#engine_getblobsv4)
     - [Request](#request-5)
     - [Response](#response-5)
     - [Specification](#specification-5)
-  - [engine_getBlobsV4](#engine_getblobsv4)
-    - [Request](#request-6)
-    - [Response](#response-6)
-    - [Specification](#specification-6)
   - [Update the methods of previous forks](#update-the-methods-of-previous-forks)
     - [Osaka API](#osaka-api)
 
@@ -112,6 +109,7 @@ This method is updated to support the new `ExecutionPayloadV4` structure.
   2. `expectedBlobVersionedHashes`: `Array of DATA`, 32 Bytes - Array of expected blob versioned hashes to validate.
   3. `parentBeaconBlockRoot`: `DATA`, 32 Bytes - Root of the parent beacon block.
   4. `executionRequests`: `Array of DATA` - List of execution layer triggered requests.
+* timeout: 6s
 
 #### Response
 
@@ -124,6 +122,8 @@ This method follows the same specification as [`engine_newPayloadV4`](./prague.m
 1. Client software **MUST** return `-38005: Unsupported fork` error if the `timestamp` of the payload does not fall within the time frame of the Amsterdam fork.
 
 2. Client software **MUST** return `-32602: Invalid params` error if the `blockAccessList` field is missing.
+
+3. Client software **MUST** return `{status: INVALID, latestValidHash: null, validationError: errorMessage | null}` if the `blockAccessList` field is not a valid RLP encoding of the block access list as defined in [SIP-7928](https://sips.sila.org/SIPS/sip-7928).
 
 ### engine_getPayloadV6
 
