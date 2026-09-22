@@ -116,7 +116,7 @@
     - name: Payload
       required: true
       schema:
-        $ref: '#/components/schemas/EthSimulatePayload'
+        $ref: '#/components/schemas/SilSimulatePayload'
     - name: Block tag
       required: false
       description: "default: 'latest'"
@@ -125,7 +125,7 @@
   result:
     name: Result of calls
     schema:
-      $ref: '#/components/schemas/EthSimulateResult'
+      $ref: '#/components/schemas/SilSimulateResult'
   errors:
     - code: -32000
       message: Invalid request
